@@ -1,0 +1,140 @@
+import { ArrowLeftOutlined, GithubOutlined, GoogleOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Form, Input, message } from 'antd';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+function Login() {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [form] = Form.useForm();
+
+  const handleSubmit = async (values) => {
+    setIsLoading(true);
+    
+    setTimeout(() => {
+      setIsLoading(false);
+      message.success('登录成功！');
+      navigate('/');
+    }, 1500);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+          <div className="text-center mb-8">
+            <Link to="/" className="inline-flex items-center justify-center space-x-2 mb-6">
+              <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-800 rounded-xl flex items-center justify-center shadow-lg">
+                <i className="fas fa-trophy text-white text-xl"></i>
+              </div>
+              <span className="text-2xl font-bold text-gray-900">ReachTop</span>
+            </Link>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">欢迎回来</h2>
+            <p className="text-gray-600">登录您的账户继续学习</p>
+          </div>
+
+          <Form
+            form={form}
+            onFinish={handleSubmit}
+            layout="vertical"
+            size="large"
+            className="space-y-2"
+          >
+            <Form.Item
+              name="email"
+              label={<span className="text-sm font-medium text-gray-700">邮箱地址</span>}
+              rules={[
+                { required: true, message: '请输入邮箱地址' },
+                { type: 'email', message: '请输入有效的邮箱地址' }
+              ]}
+            >
+              <Input
+                prefix={<MailOutlined className="text-gray-400" />}
+                placeholder="your@email.com"
+                className="rounded-xl"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="password"
+              label={<span className="text-sm font-medium text-gray-700">密码</span>}
+              rules={[
+                { required: true, message: '请输入密码' },
+                { min: 6, message: '密码长度至少6位' }
+              ]}
+            >
+              <Input.Password
+                prefix={<LockOutlined className="text-gray-400" />}
+                placeholder="••••••••"
+                className="rounded-xl"
+              />
+            </Form.Item>
+
+            <div className="flex items-center justify-between py-2">
+              <Form.Item name="remember" valuePropName="checked" noStyle>
+                <Checkbox>记住我</Checkbox>
+              </Form.Item>
+              <Link to="/forgot-password" className="text-sm font-medium text-red-600 hover:text-red-500 transition-colors">
+                忘记密码？
+              </Link>
+            </div>
+
+            <Form.Item className="mb-0">
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={isLoading}
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 border-0 shadow-lg font-medium text-base"
+                icon={!isLoading && <i className="fas fa-sign-in-alt mr-2"></i>}
+              >
+                {isLoading ? '登录中...' : '登录'}
+              </Button>
+            </Form.Item>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">或者使用</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                icon={<GoogleOutlined />}
+                className="h-12 rounded-xl flex items-center justify-center"
+              >
+                Google
+              </Button>
+              <Button
+                icon={<GithubOutlined />}
+                className="h-12 rounded-xl flex items-center justify-center"
+              >
+                GitHub
+              </Button>
+            </div>
+          </Form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              还没有账户？{' '}
+              <Link to="/register" className="font-medium text-red-600 hover:text-red-500 transition-colors">
+                立即注册
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link to="/" className="text-sm text-gray-600 hover:text-gray-900 transition-colors inline-flex items-center">
+            <ArrowLeftOutlined className="mr-2" />
+            返回首页
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Login;
