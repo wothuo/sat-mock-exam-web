@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined, EyeOutlined, FormOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, FormOutlined } from '@ant-design/icons';
 import { Button, Card, Modal, Space, Table, Tag, message } from 'antd';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -161,14 +161,14 @@ function ExamSetManagement() {
       fixed: 'right',
       render: (_, record) => (
         <Space size="small">
-          <Button
+          {/* <Button
             type="link"
             size="small"
             icon={<EyeOutlined />}
             onClick={() => handleManageSections(record)}
           >
             题目管理
-          </Button>
+          </Button> */}
           <Button
             type="link"
             size="small"
