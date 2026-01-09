@@ -12,13 +12,13 @@ function PracticeRecord() {
   useEffect(() => {
     if (window.renderMathInElement) {
       const containers = document.querySelectorAll('.math-content');
-      containers.forEach(container => {
+      containers.forEach((container) => {
         window.renderMathInElement(container, {
           delimiters: [
-            {left: '$', right: '$', display: false},
-            {left: '$$', right: '$$', display: true}
+            { left: '$', right: '$', display: false },
+            { left: '$$', right: '$$', display: true },
           ],
-          throwOnError: false
+          throwOnError: false,
         });
       });
     }
@@ -44,71 +44,78 @@ function PracticeRecord() {
     {
       id: 'wrong',
       label: '错题记录',
-      icon: 'fas fa-times-circle'
-    }
+      icon: 'fas fa-times-circle',
+    },
   ];
 
   const noteRecords = [
     {
       id: 1,
       questionTitle: '2025年12月北美第4套数学 - 第5题',
-      noteText: '这道题考查的是二次函数的顶点公式，需要注意配方法的应用。关键步骤是将一般式转换为顶点式。',
-      highlightText: 'The study found that broken-wing display is more observed in species',
+      noteText:
+        '这道题考查的是二次函数的顶点公式，需要注意配方法的应用。关键步骤是将一般式转换为顶点式。',
+      highlightText:
+        'The study found that broken-wing display is more observed in species',
       highlightColor: 'yellow',
       createdDate: '2024-01-15 14:30',
       examType: '套题模考',
-      subject: '数学'
+      subject: '数学',
     },
     {
       id: 2,
       questionTitle: '阅读理解专项训练 - 第3题',
-      noteText: '文章主旨题的解题技巧：首先找到每段的主题句,然后归纳总结。注意区分细节信息和主要观点。',
+      noteText:
+        '文章主旨题的解题技巧：首先找到每段的主题句,然后归纳总结。注意区分细节信息和主要观点。',
       highlightText: 'defensive behavior observed in Charadrius semipalmatus',
       highlightColor: 'green',
       createdDate: '2024-01-15 10:20',
       examType: '专项训练',
-      subject: '阅读'
+      subject: '阅读',
     },
     {
       id: 3,
       questionTitle: '2025年12月北美第3套阅读 - 第12题',
-      noteText: '推理题需要基于文章内容进行合理推断，不能过度推理。答案必须有文章依据支持。',
+      noteText:
+        '推理题需要基于文章内容进行合理推断，不能过度推理。答案必须有文章依据支持。',
       highlightText: 'reproductive investment and defensive behavior',
       highlightColor: 'blue',
       createdDate: '2024-01-14 16:45',
       examType: '套题模考',
-      subject: '阅读'
+      subject: '阅读',
     },
     {
       id: 4,
       questionTitle: '语法综合题练习 - 第8题',
-      noteText: '主谓一致问题：当主语是集合名词时，要根据语境判断是强调整体还是个体。',
+      noteText:
+        '主谓一致问题：当主语是集合名词时，要根据语境判断是强调整体还是个体。',
       highlightText: 'incubation periods, suggesting a correlation',
       highlightColor: 'pink',
       createdDate: '2024-01-14 09:15',
       examType: '专项训练',
-      subject: '语法'
+      subject: '语法',
     },
     {
       id: 5,
       questionTitle: '2025年10月北美第5套数学 - 第18题',
-      noteText: '统计学问题的关键是理解平均数、中位数、众数的区别和应用场景。这道题需要计算加权平均数。',
+      noteText:
+        '统计学问题的关键是理解平均数、中位数、众数的区别和应用场景。这道题需要计算加权平均数。',
       highlightText: 'maximum number of broods per year',
       highlightColor: 'yellow',
       createdDate: '2024-01-13 15:30',
       examType: '套题模考',
-      subject: '数学'
+      subject: '数学',
     },
     {
       id: 6,
       questionTitle: '主旨题目专项练习 - 第15题',
-      noteText: '识别作者态度的关键词：positive, negative, neutral, critical, supportive等。注意语气词和情感色彩。',
+      noteText:
+        '识别作者态度的关键词：positive, negative, neutral, critical, supportive等。注意语气词和情感色彩。',
       highlightText: 'ecological and life-history characteristics',
       highlightColor: 'green',
       createdDate: '2024-01-12 11:20',
       examType: '专项训练',
-      subject: '阅读'
-    }
+      subject: '阅读',
+    },
   ];
 
   const mockRecords = [
@@ -122,7 +129,7 @@ function PracticeRecord() {
       total: 44,
       accuracy: 86,
       time: '45分钟',
-      status: '已完成'
+      status: '已完成',
     },
     {
       id: 2,
@@ -134,7 +141,7 @@ function PracticeRecord() {
       total: 52,
       accuracy: 81,
       time: '65分钟',
-      status: '已完成'
+      status: '已完成',
     },
     {
       id: 3,
@@ -146,7 +153,7 @@ function PracticeRecord() {
       total: 44,
       accuracy: 82,
       time: '35分钟',
-      status: '已完成'
+      status: '已完成',
     },
     {
       id: 4,
@@ -158,7 +165,7 @@ function PracticeRecord() {
       total: 44,
       accuracy: 80,
       time: '52分钟',
-      status: '已完成'
+      status: '已完成',
     },
     {
       id: 5,
@@ -170,47 +177,121 @@ function PracticeRecord() {
       total: 52,
       accuracy: 87,
       time: '58分钟',
-      status: '已完成'
-    }
+      status: '已完成',
+    },
   ];
 
   const practiceRecords = [
-    { id: 1, title: '阅读理解专项训练', date: '2024-01-15', correct: 8, total: 10, accuracy: 80, score: 85, difficulty: 'Medium', time: '25分钟' },
-    { id: 2, title: '语法综合题练习', date: '2024-01-14', correct: 15, total: 20, accuracy: 75, score: 78, difficulty: 'Hard', time: '30分钟' },
-    { id: 3, title: '数学计算题训练', date: '2024-01-13', correct: 12, total: 15, accuracy: 80, score: 82, difficulty: 'Easy', time: '20分钟' },
-    { id: 4, title: '主旨题目专项练习', date: '2024-01-12', correct: 18, total: 25, accuracy: 72, score: 76, difficulty: 'Medium', time: '35分钟' },
-    { id: 5, title: '图表题专项训练', date: '2024-01-11', correct: 14, total: 18, accuracy: 78, score: 81, difficulty: 'Hard', time: '28分钟' },
-    { id: 6, title: '推理题综合练习', date: '2024-01-10', correct: 22, total: 30, accuracy: 73, score: 77, difficulty: 'Medium', time: '42分钟' }
+    {
+      id: 1,
+      title: '阅读理解专项训练',
+      date: '2024-01-15',
+      correct: 8,
+      total: 10,
+      accuracy: 80,
+      score: 85,
+      difficulty: 'Medium',
+      time: '25分钟',
+    },
+    {
+      id: 2,
+      title: '语法综合题练习',
+      date: '2024-01-14',
+      correct: 15,
+      total: 20,
+      accuracy: 75,
+      score: 78,
+      difficulty: 'Hard',
+      time: '30分钟',
+    },
+    {
+      id: 3,
+      title: '数学计算题训练',
+      date: '2024-01-13',
+      correct: 12,
+      total: 15,
+      accuracy: 80,
+      score: 82,
+      difficulty: 'Easy',
+      time: '20分钟',
+    },
+    {
+      id: 4,
+      title: '主旨题目专项练习',
+      date: '2024-01-12',
+      correct: 18,
+      total: 25,
+      accuracy: 72,
+      score: 76,
+      difficulty: 'Medium',
+      time: '35分钟',
+    },
+    {
+      id: 5,
+      title: '图表题专项训练',
+      date: '2024-01-11',
+      correct: 14,
+      total: 18,
+      accuracy: 78,
+      score: 81,
+      difficulty: 'Hard',
+      time: '28分钟',
+    },
+    {
+      id: 6,
+      title: '推理题综合练习',
+      date: '2024-01-10',
+      correct: 22,
+      total: 30,
+      accuracy: 73,
+      score: 77,
+      difficulty: 'Medium',
+      time: '42分钟',
+    },
   ];
 
   const wrongQuestions = [
     {
       id: 1,
-      title: "2025年12月北美第4套数学 - 第5题",
-      subject: "数学",
-      difficulty: "Medium",
-      date: "2024-01-15",
-      question: "求解方程 $x^2 + 5x + 6 = 0$ 的解",
-      options: ["A) x = -2 或 x = -3", "B) x = 2 或 x = 3", "C) x = -1 或 x = -6", "D) x = 1 或 x = 6"],
-      userAnswer: "B",
-      correctAnswer: "A",
-      explanation: "通过因式分解可得 $(x+2)(x+3)=0$，因此解为 $x=-2$ 或 $x=-3$。选项B中的符号错误。",
-      timeSpent: 95
+      title: '2025年12月北美第4套数学 - 第5题',
+      subject: '数学',
+      difficulty: 'Medium',
+      date: '2024-01-15',
+      question: '求解方程 $x^2 + 5x + 6 = 0$ 的解',
+      options: [
+        'A) x = -2 或 x = -3',
+        'B) x = 2 或 x = 3',
+        'C) x = -1 或 x = -6',
+        'D) x = 1 或 x = 6',
+      ],
+      userAnswer: 'B',
+      correctAnswer: 'A',
+      explanation:
+        '通过因式分解可得 $(x+2)(x+3)=0$，因此解为 $x=-2$ 或 $x=-3$。选项B中的符号错误。',
+      timeSpent: 95,
     },
     {
       id: 2,
-      title: "阅读理解专项训练 - 第3题",
-      subject: "阅读",
-      difficulty: "Hard",
-      date: "2024-01-15",
-      passage: "Climate change represents one of the most significant challenges facing humanity in the 21st century. Rising global temperatures, caused primarily by greenhouse gas emissions from human activities, are leading to widespread environmental changes.",
-      question: "Which of the following best describes the main purpose of the passage?",
-      options: ["A) To explain the causes", "B) To describe the effects", "C) To warn about urgency", "D) To compare challenges"],
-      userAnswer: "A",
-      correctAnswer: "C",
-      explanation: "文章虽然提到了原因，但核心落脚点在于呼吁采取紧急行动（immediate action），因此C是最准确的主旨描述。",
-      timeSpent: 142
-    }
+      title: '阅读理解专项训练 - 第3题',
+      subject: '阅读',
+      difficulty: 'Hard',
+      date: '2024-01-15',
+      passage:
+        'Climate change represents one of the most significant challenges facing humanity in the 21st century. Rising global temperatures, caused primarily by greenhouse gas emissions from human activities, are leading to widespread environmental changes.',
+      question:
+        'Which of the following best describes the main purpose of the passage?',
+      options: [
+        'A) To explain the causes',
+        'B) To describe the effects',
+        'C) To warn about urgency',
+        'D) To compare challenges',
+      ],
+      userAnswer: 'A',
+      correctAnswer: 'C',
+      explanation:
+        '文章虽然提到了原因，但核心落脚点在于呼吁采取紧急行动（immediate action），因此C是最准确的主旨描述。',
+      timeSpent: 142,
+    },
   ];
 
   const renderTabContent = () => {
@@ -222,17 +303,22 @@ function PracticeRecord() {
       case 'notes':
         return <NotesTab records={noteRecords} />;
       case 'wrong':
-        return <WrongTab records={wrongQuestions} onShowDetail={setSelectedWrongQuestion} />;
+        return (
+          <WrongTab
+            records={wrongQuestions}
+            onShowDetail={setSelectedWrongQuestion}
+          />
+        );
       default:
         return null;
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
       {/* Tab切换 */}
-      <div className="mb-8">
-        <div className="flex space-x-1 bg-white/80 backdrop-blur-xl p-1 rounded-2xl w-fit shadow-lg border border-white/20">
+      <div className='mb-8'>
+        <div className='flex space-x-1 bg-white/80 backdrop-blur-xl p-1 rounded-2xl w-fit shadow-lg border border-white/20'>
           {tabItems.map((tab) => (
             <button
               key={tab.id}
@@ -253,9 +339,9 @@ function PracticeRecord() {
       {/* Tab内容 */}
       {renderTabContent()}
 
-      <QuestionDetailModal 
-        question={selectedWrongQuestion} 
-        onClose={() => setSelectedWrongQuestion(null)} 
+      <QuestionDetailModal
+        question={selectedWrongQuestion}
+        onClose={() => setSelectedWrongQuestion(null)}
       />
 
       {/* 统计图表 */}
@@ -338,4 +424,3 @@ function PracticeRecord() {
 }
 
 export default PracticeRecord;
-

@@ -15,7 +15,7 @@ function Header() {
     { path: '/practice-record', label: '练习记录' },
     // { path: '/courses', label: '课程讲座' },
     // { path: '/encyclopedia', label: '考试百科' },
-    { path: '/question-bank', label: '题库管理' },
+    // { path: '/question-bank', label: '题库管理' },
     { path: '/exam-set-management', label: '套题管理' },
   ];
 
