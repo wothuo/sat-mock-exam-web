@@ -1,4 +1,3 @@
-import { Card, Col, Row, Statistic } from 'antd';
 import React, { useEffect, useState } from 'react';
 import MockTab from './components/MockTab';
 import NotesTab from './components/NotesTab';
@@ -7,7 +6,7 @@ import QuestionDetailModal from './components/QuestionDetailModal';
 import WrongTab from './components/WrongTab';
 
 function PracticeRecord() {
-  const [activeTab, setActiveTab] = useState('mock');
+  const [activeTab, setActiveTab] = useState('wrong');
   const [selectedWrongQuestion, setSelectedWrongQuestion] = useState(null);
 
   useEffect(() => {
@@ -27,21 +26,21 @@ function PracticeRecord() {
 
   // 笔记记录数据
   const tabItems = [
-    {
-      id: 'mock',
-      label: '模考记录',
-      icon: 'fas fa-trophy'
-    },
-    {
-      id: 'practice',
-      label: '专项练习记录',
-      icon: 'fas fa-dumbbell'
-    },
-    {
-      id: 'notes',
-      label: '笔记记录',
-      icon: 'fas fa-sticky-note'
-    },
+    // {
+    //   id: 'mock',
+    //   label: '模考记录',
+    //   icon: 'fas fa-trophy'
+    // },
+    // {
+    //   id: 'practice',
+    //   label: '专项练习记录',
+    //   icon: 'fas fa-dumbbell'
+    // },
+    // {
+    //   id: 'notes',
+    //   label: '笔记记录',
+    //   icon: 'fas fa-sticky-note'
+    // },
     {
       id: 'wrong',
       label: '错题记录',
@@ -260,7 +259,7 @@ function PracticeRecord() {
       />
 
       {/* 统计图表 */}
-      <Row gutter={[16, 16]} className="mt-12">
+      {/* <Row gutter={[16, 16]} className="mt-12">
         <Col xs={24} lg={12}>
           <Card title="成绩趋势" bordered={false}>
             <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
@@ -333,7 +332,7 @@ function PracticeRecord() {
             </Row>
           </Card>
         </Col>
-      </Row>
+      </Row> */}
     </div>
   );
 }

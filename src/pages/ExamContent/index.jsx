@@ -1,10 +1,9 @@
 import {
-    BarChartOutlined,
-    ClockCircleOutlined,
-    FlagOutlined,
-    LeftOutlined,
-    RightOutlined,
-    StopOutlined
+  BarChartOutlined,
+  ClockCircleOutlined,
+  LeftOutlined,
+  RightOutlined,
+  StopOutlined
 } from '@ant-design/icons';
 import { Button, Drawer, Space } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -794,7 +793,8 @@ Each multiple-choice question has a single correct answer.
               </div>
               
               <div className="flex bg-gray-100 p-1 rounded-xl">
-                {['All', 'Reading and Writing', 'Math'].map(tab => (
+                {/* {['All', 'Reading and Writing', 'Math'].map(tab => ( */}
+                {['All'].map(tab => (
                   <button
                     key={tab}
                     onClick={() => setActiveReportTab(tab)}
@@ -819,7 +819,7 @@ Each multiple-choice question has a single correct answer.
                     <th className="pb-4 font-bold text-gray-400 text-xs uppercase tracking-wider">Your Answer</th>
                     <th className="pb-4 font-bold text-gray-400 text-xs uppercase tracking-wider">Correct Answer</th>
                     <th className="pb-4 font-bold text-gray-400 text-xs uppercase tracking-wider">Time Spent</th>
-                    <th className="pb-4 text-right font-bold text-gray-400 text-xs uppercase tracking-wider">Action</th>
+                    {/* <th className="pb-4 text-right font-bold text-gray-400 text-xs uppercase tracking-wider">Action</th> */}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -847,7 +847,7 @@ Each multiple-choice question has a single correct answer.
                             {formatQuestionTime(questionTimes[q.id])}
                           </span>
                         </td>
-                        <td className="py-4 text-right">
+                        {/* <td className="py-4 text-right">
                           <button 
                             onClick={() => {
                               const element = document.getElementById(`review-q-${q.id}`);
@@ -857,7 +857,7 @@ Each multiple-choice question has a single correct answer.
                           >
                             Review
                           </button>
-                        </td>
+                        </td> */}
                       </tr>
                     );
                   })}
@@ -868,8 +868,9 @@ Each multiple-choice question has a single correct answer.
 
           {/* 详细解析列表 */}
           <div className="space-y-12 mt-12">
-            <h2 className="text-3xl font-bold text-gray-900 border-l-8 border-red-600 pl-6">Question Review</h2>
-            {examData.questions.map((q, idx) => (
+            {/* <h2 className="text-3xl font-bold text-gray-900 border-l-8 border-red-600 pl-6">Question Review</h2> */}
+            {/* {examData.questions.map((q, idx) => ( */}
+            {[].map((q, idx) => (
               <div key={q.id} id={`review-q-${q.id}`} className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
                 <div className="p-8 md:p-10">
                   <div className="flex items-center justify-between mb-6">
@@ -933,7 +934,7 @@ Each multiple-choice question has a single correct answer.
                       </div>
 
                       {/* 解析盒子 */}
-                      <div className="mt-8 border-2 border-red-100 rounded-2xl overflow-hidden">
+                      {/* <div className="mt-8 border-2 border-red-100 rounded-2xl overflow-hidden">
                         <div className="bg-red-50 px-6 py-3 border-b border-red-100 flex items-center">
                           <i className="fas fa-lightbulb text-red-500 mr-2"></i>
                           <span className="font-bold text-red-700">Correct Answer & Analysis</span>
@@ -950,7 +951,7 @@ Each multiple-choice question has a single correct answer.
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>
@@ -1175,7 +1176,7 @@ Each multiple-choice question has a single correct answer.
         <div className="max-w-full mx-auto p-3 sm:p-6">
           <div className={`grid gap-4 sm:gap-6 min-h-[calc(100vh-220px)] ${showNotesPanel ? 'grid-cols-1 lg:grid-cols-12' : 'grid-cols-1 lg:grid-cols-8'}`}>
             <div className={`col-span-1 lg:col-span-5 bg-white rounded-lg p-4 sm:p-6 shadow-sm relative flex flex-col`}>
-              <button
+              {/* <button
                 onClick={() => setShowNotesPanel(!showNotesPanel)}
                 className={`absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
                   showNotesPanel 
@@ -1194,7 +1195,7 @@ Each multiple-choice question has a single correct answer.
                 ) : (
                   <i className="fas fa-sticky-note"></i>
                 )}
-              </button>
+              </button> */}
               <div className="pb-4 mb-6">
                 <span className="text-sm font-medium text-gray-500">
                   Question {currentQuestion} of {examData.totalQuestions}
@@ -1353,14 +1354,14 @@ Each multiple-choice question has a single correct answer.
             <div className={`col-span-1 ${showNotesPanel ? 'lg:col-span-4' : 'lg:col-span-3'} bg-white rounded-lg p-4 sm:p-6 shadow-sm flex flex-col`}>
               <div className="pb-4 mb-6">
                 <div className="flex items-center justify-end">
-                  <Button
+                  {/* <Button
                     size="small"
                     icon={<FlagOutlined />}
                     onClick={toggleMarkForReview}
                     className={markedForReview.has(currentQuestion) ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : ''}
                   >
                     {markedForReview.has(currentQuestion) ? 'Marked for Review' : 'Mark for Review'}
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
               {currentQ && (
@@ -1585,10 +1586,10 @@ Each multiple-choice question has a single correct answer.
                     <div className="w-4 h-4 bg-green-500 rounded-full"></div>
                     <span>Answered</span>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  {/* <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 bg-yellow-500 rounded-full"></div>
                     <span>For Review</span>
-                  </div>
+                  </div> */}
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
                     <span>Unanswered</span>
@@ -1621,9 +1622,9 @@ Each multiple-choice question has a single correct answer.
                 </div>
                 
                 <div className="text-center space-x-4">
-                  <button className="bg-red-600 text-white px-8 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl">
+                  {/* <button className="bg-red-600 text-white px-8 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl">
                     Go to Review Page
-                  </button>
+                  </button> */}
                   <button 
                     onClick={() => setShowEndExamModal(true)}
                     className="bg-red-500 text-white px-8 py-2 rounded-lg hover:bg-red-600 transition-colors"
@@ -1687,7 +1688,7 @@ Each multiple-choice question has a single correct answer.
           </div>
         </div>
       )}
-
+{/* 
       <div
         id="highlight-menu"
         className="fixed bg-white border border-gray-200 rounded-lg shadow-xl p-3 z-[9999]"
@@ -1738,7 +1739,7 @@ Each multiple-choice question has a single correct answer.
             <i className="fas fa-sticky-note mr-1"></i>备注
           </button>
         </div>
-      </div>
+      </div> */}
 
       {showNoteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -1895,7 +1896,8 @@ Each multiple-choice question has a single correct answer.
                 </div>
                 <div className="bg-amber-50/50 border border-amber-100 rounded-3xl p-5 transition-all hover:bg-amber-50">
                   <div className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1">For Review</div>
-                  <div className="text-2xl font-black text-amber-700">{markedForReview.size}</div>
+                  {/* <div className="text-2xl font-black text-amber-700">{markedForReview.size}</div> */}
+                  <div className="text-2xl font-black text-amber-700">not supported</div>
                 </div>
                 <div className="bg-slate-50/50 border border-slate-100 rounded-3xl p-5 transition-all hover:bg-slate-50">
                   <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Time Left</div>

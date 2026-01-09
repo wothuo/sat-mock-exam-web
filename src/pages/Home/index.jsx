@@ -88,14 +88,14 @@ function Home() {
                 加入 100,000+ 学员，使用最专业的工具，让备考变得简单高效。
               </p>
               <Space size="large" className="flex-wrap justify-center">
-                <Link to="/register">
+                <Link to="/login">
                   <Button 
                     type="primary" 
                     size="large" 
                     icon={<RocketOutlined />}
                     className="h-14 px-10 bg-white text-red-600 hover:bg-gray-100 border-0 shadow-xl font-black text-lg rounded-2xl"
                   >
-                    立即免费注册
+                    立即登录
                   </Button>
                 </Link>
                 <Link to="/mock-exam">

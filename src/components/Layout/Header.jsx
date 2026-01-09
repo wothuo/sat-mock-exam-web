@@ -9,7 +9,7 @@ function Header() {
   
   const navItems = [
     { path: '/', label: '首页' },
-    { path: '/system-overview', label: '系统总览' },
+    // { path: '/system-overview', label: '系统总览' },
     { path: '/mock-exam', label: '套题模考' },
     { path: '/special-training', label: '专项训练' },
     { path: '/practice-record', label: '练习记录' },
@@ -57,11 +57,11 @@ function Header() {
               <span className="hidden sm:inline">个人中心</span>
             </Link>
             <Link to="/login" className="text-gray-600 hover:text-red-600 transition-colors">
-              <span className="text-sm">登录</span>
+              <span className="btn-primary text-sm hidden sm:inline-block">登录</span>
             </Link>
-            <Link to="/register" className="btn-primary text-sm hidden sm:inline-block">
+            {/* <Link to="/register" className="btn-primary text-sm hidden sm:inline-block">
               注册
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>

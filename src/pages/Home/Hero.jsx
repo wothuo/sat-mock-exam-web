@@ -1,4 +1,4 @@
-import { LineChartOutlined, RocketOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import { RocketOutlined } from '@ant-design/icons';
 import { Button, Carousel, Space } from 'antd';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -14,24 +14,24 @@ function Hero() {
       primaryBtn: { text: "立即开始模考", link: "/mock-exam" },
       secondaryBtn: { text: "专项技能训练", link: "/special-training" }
     },
-    {
-      title: "AI 驱动的智能分析系统",
-      subtitle: "深度挖掘答题数据 · 精准画像学习进度",
-      description: "每一道错题都是进步的阶梯，让提分变得有迹可循",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=2000",
-      icon: <LineChartOutlined />,
-      primaryBtn: { text: "查看学习记录", link: "/practice-record" },
-      secondaryBtn: { text: "了解评分标准", link: "/encyclopedia" }
-    },
-    {
-      title: "权威题库 实时更新",
-      subtitle: "历年真题精选 · 官方样题同步 · 专家深度解析",
-      description: "涵盖 SAT/雅思/托福等主流考试，确保练习内容始终前沿",
-      image: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&q=80&w=2000",
-      icon: <SafetyCertificateOutlined />,
-      primaryBtn: { text: "进入题库管理", link: "/question-bank" },
-      secondaryBtn: { text: "浏览课程讲座", link: "/courses" }
-    }
+    // {
+    //   title: "AI 驱动的智能分析系统",
+    //   subtitle: "深度挖掘答题数据 · 精准画像学习进度",
+    //   description: "每一道错题都是进步的阶梯，让提分变得有迹可循",
+    //   image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=2000",
+    //   icon: <LineChartOutlined />,
+    //   primaryBtn: { text: "查看学习记录", link: "/practice-record" },
+    //   secondaryBtn: { text: "了解评分标准", link: "/encyclopedia" }
+    // },
+    // {
+    //   title: "权威题库 实时更新",
+    //   subtitle: "历年真题精选 · 官方样题同步 · 专家深度解析",
+    //   description: "涵盖 SAT/雅思/托福等主流考试，确保练习内容始终前沿",
+    //   image: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&q=80&w=2000",
+    //   icon: <SafetyCertificateOutlined />,
+    //   primaryBtn: { text: "进入题库管理", link: "/question-bank" },
+    //   secondaryBtn: { text: "浏览课程讲座", link: "/courses" }
+    // }
   ];
 
   return (
@@ -41,7 +41,8 @@ function Hero() {
         effect="fade" 
         autoplaySpeed={3500}
         speed={1000}
-        dots={{ className: 'custom-dots' }}
+        // dots={{ className: 'custom-dots' }}
+        dots={false}
       >
         {slides.map((slide, index) => (
           <div key={index} className="relative h-[500px] md:h-[650px]">
