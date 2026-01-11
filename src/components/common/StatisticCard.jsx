@@ -1,5 +1,6 @@
-import { Card, Statistic } from 'antd';
 import React from 'react';
+
+import { Card, Statistic } from 'antd';
 
 function StatisticCard({ title, value, suffix, prefix, icon, valueStyle, className }) {
   return (

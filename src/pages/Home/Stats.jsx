@@ -1,5 +1,6 @@
-import { Card, Col, Row, Statistic } from 'antd';
 import React from 'react';
+
+import { Card, Col, Row, Statistic } from 'antd';
 
 import { BookOutlined, CheckCircleOutlined, SmileOutlined, UserOutlined } from '@ant-design/icons';
 

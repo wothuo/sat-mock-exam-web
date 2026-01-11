@@ -1,5 +1,5 @@
 import React from 'react';
-import FilterSection from './FilterSection';
+
 import {
     QUESTION_COUNTS,
     QUESTION_DIFFICULTIES,
@@ -8,6 +8,7 @@ import {
     QUESTION_TYPES,
     VIEW_MODES
 } from './constants';
+import FilterSection from './FilterSection';
 
 function TrainingConfig({ subject, config, onConfigChange }) {
   const filterSections = [

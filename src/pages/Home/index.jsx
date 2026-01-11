@@ -1,7 +1,11 @@
-import { DatabaseOutlined, LineChartOutlined, RocketOutlined, StarOutlined, TrophyOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Row, Space } from 'antd';
 import React from 'react';
+
 import { Link } from 'react-router-dom';
+
+import { Button, Card, Col, Row, Space } from 'antd';
+
+import { DatabaseOutlined, LineChartOutlined, RocketOutlined, StarOutlined, TrophyOutlined } from '@ant-design/icons';
+
 import Features from './Features';
 import Hero from './Hero';
 import Stats from './Stats';

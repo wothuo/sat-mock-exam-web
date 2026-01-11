@@ -1,10 +1,7 @@
-import {
-    CheckCircleOutlined,
-    DeleteOutlined,
-    EditOutlined,
-    PlusOutlined,
-    SaveOutlined
-} from '@ant-design/icons';
+import React, { useEffect, useRef, useState } from 'react';
+
+import { useNavigate, useSearchParams } from 'react-router-dom';
+
 import {
     Button,
     Card,
@@ -20,8 +17,15 @@ import {
     Tag,
     message
 } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+
+import {
+    CheckCircleOutlined,
+    DeleteOutlined,
+    EditOutlined,
+    PlusOutlined,
+    SaveOutlined
+} from '@ant-design/icons';
+
 import RichTextEditor from './components/RichTextEditor';
 
 const { Option } = Select;

@@ -1,6 +1,8 @@
-import { CalendarOutlined, ClockCircleOutlined, EyeOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons';
-import { Card, Col, Input, Row, Space, Tag } from 'antd';
 import React, { useState } from 'react';
+
+import { Card, Col, Input, Row, Space, Tag } from 'antd';
+
+import { CalendarOutlined, ClockCircleOutlined, EyeOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons';
 
 const { Search } = Input;
 

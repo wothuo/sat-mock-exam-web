@@ -1,11 +1,5 @@
-import {
-    DeleteOutlined,
-    EditOutlined,
-    FilterOutlined,
-    LogoutOutlined,
-    PlusOutlined,
-    UnorderedListOutlined,
-} from '@ant-design/icons';
+import React, { useEffect, useMemo, useState } from 'react';
+
 import {
     Button,
     Card,
@@ -24,7 +18,16 @@ import {
     Tag,
     message,
 } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+
+import {
+    DeleteOutlined,
+    EditOutlined,
+    FilterOutlined,
+    LogoutOutlined,
+    PlusOutlined,
+    UnorderedListOutlined,
+} from '@ant-design/icons';
+
 import QuestionEditor from '../QuestionBank/QuestionEditor';
 
 const { TextArea } = Input;

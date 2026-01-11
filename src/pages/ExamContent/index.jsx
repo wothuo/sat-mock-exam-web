@@ -1,3 +1,9 @@
+import React, { useEffect, useState } from 'react';
+
+import { useNavigate, useParams } from 'react-router-dom';
+
+import { Button, Drawer, Space } from 'antd';
+
 import {
   BarChartOutlined,
   ClockCircleOutlined,
@@ -5,9 +11,6 @@ import {
   RightOutlined,
   StopOutlined
 } from '@ant-design/icons';
-import { Button, Drawer, Space } from 'antd';
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 
 function ExamContent() {
   const { examId } = useParams();

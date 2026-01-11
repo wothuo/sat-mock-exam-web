@@ -1,6 +1,8 @@
-import { ClockCircleOutlined, PlayCircleOutlined, StarOutlined, UserOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Rate, Row, Tag } from 'antd';
 import React, { useState } from 'react';
+
+import { Button, Card, Col, Rate, Row, Tag } from 'antd';
+
+import { ClockCircleOutlined, PlayCircleOutlined, StarOutlined, UserOutlined } from '@ant-design/icons';
 
 function Courses() {
   const [activeCategory, setActiveCategory] = useState('全部');

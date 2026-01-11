@@ -1,7 +1,10 @@
-import { ArrowLeftOutlined, GithubOutlined, GoogleOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
-import { Button, Checkbox, Form, Input, message } from 'antd';
 import React, { useState } from 'react';
+
 import { Link, useNavigate } from 'react-router-dom';
+
+import { Button, Checkbox, Form, Input, message } from 'antd';
+
+import { ArrowLeftOutlined, GithubOutlined, GoogleOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 
 function Login() {
   const navigate = useNavigate();

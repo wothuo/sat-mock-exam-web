@@ -1,5 +1,6 @@
-import { Select, Space } from 'antd';
 import React from 'react';
+
+import { Select, Space } from 'antd';
 
 const { Option } = Select;
 

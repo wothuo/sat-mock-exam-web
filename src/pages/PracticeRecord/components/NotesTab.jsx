@@ -1,6 +1,8 @@
-import { ClockCircleOutlined, FileTextOutlined, HighlightOutlined } from '@ant-design/icons';
-import { Card, Pagination, Select, Space, Tag } from 'antd';
 import React, { useMemo, useState } from 'react';
+
+import { Card, Pagination, Select, Space, Tag } from 'antd';
+
+import { ClockCircleOutlined, FileTextOutlined, HighlightOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 

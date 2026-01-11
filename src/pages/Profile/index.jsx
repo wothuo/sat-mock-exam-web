@@ -1,3 +1,9 @@
+import React, { useState } from 'react';
+
+import { Link } from 'react-router-dom';
+
+import { Avatar, Button, Card, Col, Progress, Row, Space, Statistic, Tabs, Tag } from 'antd';
+
 import {
   BookOutlined,
   BulbOutlined,
@@ -13,9 +19,6 @@ import {
   TrophyOutlined,
   UserOutlined
 } from '@ant-design/icons';
-import { Avatar, Button, Card, Col, Progress, Row, Space, Statistic, Tabs, Tag } from 'antd';
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 
 function Profile() {
   const [userRole, setUserRole] = useState('student'); // 'student' | 'teacher'

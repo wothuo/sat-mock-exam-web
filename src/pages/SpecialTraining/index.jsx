@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
-import TrainingConfig from './TrainingConfig';
+
 import { TRAINING_SUBJECTS } from './constants';
+import TrainingConfig from './TrainingConfig';
 
 function SpecialTraining() {
   const navigate = useNavigate();

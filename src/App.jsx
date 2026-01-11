@@ -1,5 +1,7 @@
-import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import React, { useEffect } from 'react';
+
+import { Route, Routes, useNavigate } from 'react-router-dom';
+
 import Layout from './components/Layout';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
@@ -15,8 +17,32 @@ import Profile from './pages/Profile';
 import QuestionBank from './pages/QuestionBank';
 import SpecialTraining from './pages/SpecialTraining';
 import SystemOverview from './pages/SystemOverview';
+import { getRouteNavigateEventName } from './utils/router';
 
-function App() {
+function AppContent() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // 监听路由导航事件，用于在非React组件中进行路由跳转
+    const handleRouteNavigate = (event) => {
+      const { path, replace = false } = event.detail;
+      if (path) {
+        if (replace) {
+          navigate(path, { replace: true });
+        } else {
+          navigate(path);
+        }
+      }
+    };
+
+    const eventName = getRouteNavigateEventName();
+    window.addEventListener(eventName, handleRouteNavigate);
+
+    return () => {
+      window.removeEventListener(eventName, handleRouteNavigate);
+    };
+  }, [navigate]);
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
@@ -42,6 +68,10 @@ function App() {
       } />
     </Routes>
   );
+}
+
+function App() {
+  return <AppContent />;
 }
 
 export default App;

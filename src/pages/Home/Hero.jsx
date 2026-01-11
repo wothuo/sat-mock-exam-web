@@ -1,7 +1,10 @@
-import { RocketOutlined } from '@ant-design/icons';
-import { Button, Carousel, Space } from 'antd';
 import React from 'react';
+
 import { Link } from 'react-router-dom';
+
+import { Button, Carousel, Space } from 'antd';
+
+import { RocketOutlined } from '@ant-design/icons';
 
 function Hero() {
   const slides = [

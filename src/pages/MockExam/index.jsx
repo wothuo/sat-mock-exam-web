@@ -1,7 +1,10 @@
-import { ClockCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Pagination, Row, Space, Tag } from 'antd';
 import React, { useState } from 'react';
+
 import { Link } from 'react-router-dom';
+
+import { Button, Card, Col, Pagination, Row, Space, Tag } from 'antd';
+
+import { ClockCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 function MockExam() {
   const [activeTab, setActiveTab] = useState('历年考题');

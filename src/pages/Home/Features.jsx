@@ -1,3 +1,9 @@
+import React from 'react';
+
+import { Link } from 'react-router-dom';
+
+import { Button, Card, Col, Row, Tag } from 'antd';
+
 import {
     BookOutlined,
     DatabaseOutlined,
@@ -7,9 +13,6 @@ import {
     RocketOutlined,
     TrophyOutlined
 } from '@ant-design/icons';
-import { Button, Card, Col, Row, Tag } from 'antd';
-import React from 'react';
-import { Link } from 'react-router-dom';
 
 function Features() {
   const systemModules = [
