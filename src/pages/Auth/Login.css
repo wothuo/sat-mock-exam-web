@@ -1,0 +1,14 @@
+/* 自定义登录按钮 hover 效果 */
+.custom-login-btn.ant-btn-primary {
+    background: linear-gradient(to right, #dc2626, #b91c1c) !important;
+    border-color: transparent !important;
+    color: white !important;
+}
+
+.custom-login-btn.ant-btn-primary:hover,
+.custom-login-btn.ant-btn-primary:focus,
+.custom-login-btn.ant-btn-primary:active {
+    background: linear-gradient(to right, #dc2626, #b91c1c) !important;
+    border-color: transparent !important;
+    color: white !important;
+}

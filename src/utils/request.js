@@ -12,7 +12,8 @@
 
 import { message } from 'antd';
 
-import { API_BASE_URL } from '../config/env';
+// import { API_BASE_URL } from '../config/env';
+const API_BASE_URL = 'http://localhost:8080';
 
 import { navigate } from './router';
 import { clearToken, getToken, isTokenExpired } from './token';

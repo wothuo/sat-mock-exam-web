@@ -7,6 +7,7 @@ import { Button, Form, Input } from 'antd';
 import { ArrowLeftOutlined, LockOutlined } from '@ant-design/icons';
 
 import { login } from '../../services/auth';
+import './Login.css';
 
 function Login() {
   const navigate = useNavigate();
@@ -111,7 +112,8 @@ function Login() {
                 type="primary"
                 htmlType="submit"
                 loading={isLoading}
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 border-0 shadow-lg font-medium text-base"
+                defaultActiveBg="black"
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-red-600 to-red-700 border-0 shadow-lg font-medium text-base custom-login-btn"
                 icon={!isLoading && <i className="fas fa-sign-in-alt mr-2"></i>}
               >
                 {isLoading ? '登录中...' : '登录'}
