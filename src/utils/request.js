@@ -12,11 +12,11 @@
 
 import { message } from 'antd';
 
-// import { API_BASE_URL } from '../config/env';
-const API_BASE_URL = 'http://localhost:8080';
-
+import { getApiBaseUrl } from './getApiBaseUrl';
 import { navigate } from './router';
 import { clearToken, getToken, isTokenExpired } from './token';
+
+const API_BASE_URL = getApiBaseUrl();
 
 // API基础配置
 const REQUEST_TIMEOUT = 30000; // 30秒超时
