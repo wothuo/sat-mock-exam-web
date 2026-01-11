@@ -9,25 +9,33 @@
  * - /exam-pool/add
  */
 
+// 安全获取环境变量（避免 process is not defined 错误）
+const getEnvVar = (key, defaultValue) => {
+  if (typeof process !== 'undefined' && process.env && process.env[key]) {
+    return process.env[key];
+  }
+  return defaultValue;
+};
+
 // 环境配置
 const envConfig = {
   // 本地开发环境（默认）
   development: {
     // 本地开发默认使用本地接口
     // 可通过 REACT_APP_API_BASE_URL 环境变量切换为预发或线上
-    API_BASE_URL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080',
+    API_BASE_URL: getEnvVar('REACT_APP_API_BASE_URL', 'http://localhost:8080'),
   },
   
   // 预发环境（部署到预发服务器时）
   staging: {
     // 预发环境API地址，通过环境变量配置
-    API_BASE_URL: process.env.REACT_APP_STAGING_API_URL || 'https://staging-api.example.com',
+    API_BASE_URL: getEnvVar('REACT_APP_STAGING_API_URL', 'https://staging-api.example.com'),
   },
   
   // 生产环境（部署到线上服务器时）
   production: {
     // 生产环境API地址，通过环境变量配置
-    API_BASE_URL: process.env.REACT_APP_PRODUCTION_API_URL || 'https://api.example.com',
+    API_BASE_URL: getEnvVar('REACT_APP_PRODUCTION_API_URL', 'https://api.example.com'),
   },
 };
 
@@ -37,15 +45,17 @@ const envConfig = {
  */
 const getCurrentEnv = () => {
   // 1. 优先使用 REACT_APP_ENV（用于本地开发切换环境）
-  if (process.env.REACT_APP_ENV) {
-    return process.env.REACT_APP_ENV;
+  const reactAppEnv = getEnvVar('REACT_APP_ENV', null);
+  if (reactAppEnv) {
+    return reactAppEnv;
   }
   
   // 2. 根据 NODE_ENV 判断（部署时自动识别）
-  if (process.env.NODE_ENV === 'production') {
+  const nodeEnv = getEnvVar('NODE_ENV', 'development');
+  if (nodeEnv === 'production') {
     // 生产环境，进一步判断是预发还是线上
     // 通过 REACT_APP_DEPLOY_ENV 区分（staging/production）
-    return process.env.REACT_APP_DEPLOY_ENV || 'production';
+    return getEnvVar('REACT_APP_DEPLOY_ENV', 'production');
   }
   
   // 3. 默认开发环境
@@ -72,8 +82,9 @@ export const isProduction = () => currentEnv === 'production';
 if (isDevelopment()) {
   console.log('🔧 当前环境:', currentEnv);
   console.log('🔧 API地址:', API_BASE_URL);
-  if (process.env.REACT_APP_API_BASE_URL) {
-    console.log('⚠️  使用自定义API地址:', process.env.REACT_APP_API_BASE_URL);
+  const customApiUrl = getEnvVar('REACT_APP_API_BASE_URL', null);
+  if (customApiUrl) {
+    console.log('⚠️  使用自定义API地址:', customApiUrl);
   }
 }
 

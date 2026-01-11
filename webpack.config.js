@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 
@@ -56,6 +57,15 @@ module.exports = {
       safe: false,
       defaults: false,
       systemvars: true, // 允许系统环境变量覆盖
+    }),
+    // 将环境变量注入到代码中（DefinePlugin会在构建时替换代码中的变量）
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.REACT_APP_ENV': JSON.stringify(process.env.REACT_APP_ENV || undefined),
+      'process.env.REACT_APP_API_BASE_URL': JSON.stringify(process.env.REACT_APP_API_BASE_URL || undefined),
+      'process.env.REACT_APP_STAGING_API_URL': JSON.stringify(process.env.REACT_APP_STAGING_API_URL || undefined),
+      'process.env.REACT_APP_PRODUCTION_API_URL': JSON.stringify(process.env.REACT_APP_PRODUCTION_API_URL || undefined),
+      'process.env.REACT_APP_DEPLOY_ENV': JSON.stringify(process.env.REACT_APP_DEPLOY_ENV || undefined),
     }),
   ],
 };

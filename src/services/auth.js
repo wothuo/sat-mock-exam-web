@@ -6,7 +6,7 @@ import { get, post } from '../utils/request';
 /**
  * 用户登录
  * @param {Object} credentials - 登录凭证
- * @param {string} credentials.email - 邮箱
+ * @param {string} credentials.username - 账户
  * @param {string} credentials.password - 密码
  * @returns {Promise} 登录结果，包含token信息
  */

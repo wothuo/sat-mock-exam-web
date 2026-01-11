@@ -13,6 +13,7 @@
 import { message } from 'antd';
 
 import { API_BASE_URL } from '../config/env';
+
 import { navigate } from './router';
 import { clearToken, getToken, isTokenExpired } from './token';
 
@@ -162,7 +163,7 @@ const request = async (config) => {
       data,
       params,
       headers = {},
-      needAuth = true,
+      needAuth = false,
       showError = true,
       timeout = REQUEST_TIMEOUT,
     } = processedConfig;

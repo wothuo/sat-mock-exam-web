@@ -4,7 +4,9 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { Button, Form, Input } from 'antd';
 
-import { ArrowLeftOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, LockOutlined } from '@ant-design/icons';
+
+import { login } from '../../services/auth';
 
 function Login() {
   const navigate = useNavigate();
@@ -15,6 +17,13 @@ function Login() {
     console.log(values);
 
     setIsLoading(true);
+    login(values).then(res => {
+      console.log(res);
+    }).catch(err => {
+      console.log(err);
+    }).finally(() => {
+      setIsLoading(false);
+    });
     
     // setTimeout(() => {
     //   setIsLoading(false);
@@ -46,6 +55,19 @@ function Login() {
             className="space-y-2"
           >
             <Form.Item
+              name="username"
+              label={<span className="text-sm font-medium text-gray-700">账户</span>}
+              rules={[
+                { required: true, message: '请输入账户' }
+              ]}
+            >
+              <Input
+                prefix={<span className="text-gray-400" />}
+                placeholder="请输入你的账户"
+                className="rounded-xl"
+              />
+            </Form.Item>
+            {/* <Form.Item
               name="email"
               label={<span className="text-sm font-medium text-gray-700">邮箱地址</span>}
               rules={[
@@ -58,14 +80,14 @@ function Login() {
                 placeholder="your@email.com"
                 className="rounded-xl"
               />
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item
               name="password"
               label={<span className="text-sm font-medium text-gray-700">密码</span>}
               rules={[
                 { required: true, message: '请输入密码' },
-                { min: 6, message: '密码长度至少6位' }
+                // { min: 6, message: '密码长度至少6位' }
               ]}
             >
               <Input.Password
