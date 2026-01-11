@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   mode: 'development',
@@ -48,6 +49,13 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './index.html',
       inject: 'body',
+    }),
+    // 支持环境变量文件
+    new Dotenv({
+      path: `.env.${process.env.NODE_ENV || 'development'}`,
+      safe: false,
+      defaults: false,
+      systemvars: true, // 允许系统环境变量覆盖
     }),
   ],
 };

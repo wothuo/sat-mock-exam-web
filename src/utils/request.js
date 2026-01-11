@@ -12,11 +12,11 @@
 
 import { message } from 'antd';
 
+import { API_BASE_URL } from '../config/env';
 import { navigate } from './router';
 import { clearToken, getToken, isTokenExpired } from './token';
 
 // API基础配置
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || '/api';
 const REQUEST_TIMEOUT = 30000; // 30秒超时
 const LOGIN_PATH = '/login'; // 登录页面路径
 

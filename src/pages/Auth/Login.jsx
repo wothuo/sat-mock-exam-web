@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 
 import { Link, useNavigate } from 'react-router-dom';
 
-import { Button, Checkbox, Form, Input, message } from 'antd';
+import { Button, Form, Input } from 'antd';
 
-import { ArrowLeftOutlined, GithubOutlined, GoogleOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 
 function Login() {
   const navigate = useNavigate();
@@ -12,13 +12,15 @@ function Login() {
   const [form] = Form.useForm();
 
   const handleSubmit = async (values) => {
+    console.log(values);
+
     setIsLoading(true);
     
-    setTimeout(() => {
-      setIsLoading(false);
-      message.success('登录成功！');
-      navigate('/');
-    }, 1500);
+    // setTimeout(() => {
+    //   setIsLoading(false);
+    //   message.success('登录成功！');
+    //   navigate('/');
+    // }, 1500);
   };
 
   return (
@@ -73,14 +75,14 @@ function Login() {
               />
             </Form.Item>
 
-            <div className="flex items-center justify-between py-2">
+            {/* <div className="flex items-center justify-between py-2">
               <Form.Item name="remember" valuePropName="checked" noStyle>
                 <Checkbox>记住我</Checkbox>
               </Form.Item>
               <Link to="/forgot-password" className="text-sm font-medium text-red-600 hover:text-red-500 transition-colors">
                 忘记密码？
               </Link>
-            </div>
+            </div> */}
 
             <Form.Item className="mb-0">
               <Button
@@ -94,7 +96,7 @@ function Login() {
               </Button>
             </Form.Item>
 
-            <div className="relative my-6">
+            {/* <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
@@ -116,17 +118,17 @@ function Login() {
               >
                 GitHub
               </Button>
-            </div>
+            </div> */}
           </Form>
 
-          <div className="mt-6 text-center">
+          {/* <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               还没有账户？{' '}
               <Link to="/register" className="font-medium text-red-600 hover:text-red-500 transition-colors">
                 立即注册
               </Link>
             </p>
-          </div>
+          </div> */}
         </div>
 
         <div className="mt-8 text-center">

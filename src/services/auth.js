@@ -11,7 +11,7 @@ import { get, post } from '../utils/request';
  * @returns {Promise} 登录结果，包含token信息
  */
 export const login = async (credentials) => {
-  const response = await post('/auth/login', credentials);
+  const response = await post('/user-account/login', credentials);
   return response.data;
 };
 
@@ -24,7 +24,7 @@ export const login = async (credentials) => {
  * @returns {Promise} 注册结果
  */
 export const register = async (userData) => {
-  const response = await post('/auth/register', userData);
+  const response = await post('/user-account/register', userData);
   return response.data;
 };
 
@@ -33,7 +33,7 @@ export const register = async (userData) => {
  * @returns {Promise} 登出结果
  */
 export const logout = async () => {
-  const response = await post('/auth/logout');
+  const response = await post('/user-account/logout', {});
   return response.data;
 };
 
@@ -42,7 +42,7 @@ export const logout = async () => {
  * @returns {Promise} 用户信息
  */
 export const getCurrentUser = async () => {
-  const response = await get('/auth/me');
+  const response = await get('/user-account/me');
   return response.data;
 };
 
@@ -51,7 +51,7 @@ export const getCurrentUser = async () => {
  * @returns {Promise} 新的token信息
  */
 export const refreshToken = async () => {
-  const response = await post('/auth/refresh');
+  const response = await post('/user-account/refresh', {});
   return response.data;
 };
 
