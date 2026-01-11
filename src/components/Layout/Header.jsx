@@ -35,7 +35,7 @@ function Header() {
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden 2xl:flex items-center space-x-1">
+          <nav className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => (
               <Link
                 key={item.path}
@@ -52,7 +52,7 @@ function Header() {
             <Button
               type="primary"
               icon={<MenuOutlined />}
-              className="2xl:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-red-50 text-red-600 border-red-100 hover:bg-red-100 hover:text-red-700 shadow-sm"
+              className="lg:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-red-50 text-red-600 border-red-100 hover:bg-red-100 hover:text-red-700 shadow-sm"
               onClick={() => setMobileMenuVisible(true)}
             />
             <Link to="/profile" className="flex items-center space-x-2 text-gray-600 hover:text-red-600">
