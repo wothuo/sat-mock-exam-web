@@ -18,6 +18,13 @@ export default defineConfig({
     // proxy: {
     //   '/api': 'http://localhost:8080'
     // }
+    proxy: {
+      '/user-account/login': {
+        target: 'http://47.110.243.237:8080', // 你的 API 域名
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/user-account\/login/, ''), // 可选：去掉 /api 前缀
+      },
+    },
   },
   build: {
     outDir: 'dist',

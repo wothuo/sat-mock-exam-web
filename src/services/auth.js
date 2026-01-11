@@ -1,7 +1,7 @@
 /**
  * 认证相关API服务
  */
-import { get, post } from '../utils/request';
+import { get, post } from '../utils/request.ts';
 
 /**
  * 用户登录

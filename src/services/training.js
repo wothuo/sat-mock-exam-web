@@ -1,7 +1,7 @@
 /**
  * 专项训练相关API服务
  */
-import { get, post } from '../utils/request';
+import { get, post } from '../utils/request.ts';
 
 /**
  * 获取训练题目
