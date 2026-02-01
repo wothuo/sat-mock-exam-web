@@ -112,7 +112,8 @@ axiosInstance.interceptors.request.use(
           }
           throw new Error('登录已过期，请重新登录');
         }
-        config.headers.Authorization = `Bearer ${token}`;
+        // 使用X-Session-ID替代Bearer Token
+        config.headers['X-Session-ID'] = token;
       } else if (isTokenExpired()) {
         // Token过期，清除并跳转登录
         clearToken();
@@ -139,9 +140,9 @@ axiosInstance.interceptors.response.use(
     // 应用自定义响应拦截器
     const processedResponse = await applyCustomResponseInterceptors(responseData);
     
-    // 处理业务错误（假设code !== 0表示业务错误）
+    // 处理业务错误（假设code !== 200表示业务错误）
     if (processedResponse && typeof processedResponse === 'object' && processedResponse.code !== undefined) {
-      if (processedResponse.code !== 0) {
+      if (processedResponse.code !== 200) {
         const error = new Error(processedResponse.message || '请求失败');
         (error as any).code = processedResponse.code;
         (error as any).data = processedResponse.data;
@@ -340,4 +341,3 @@ export { axiosInstance };
 
 // 默认导出request方法
 export default request;
-

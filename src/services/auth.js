@@ -8,10 +8,10 @@ import { get, post } from '../utils/request.ts';
  * @param {Object} credentials - 登录凭证
  * @param {string} credentials.username - 账户
  * @param {string} credentials.password - 密码
- * @returns {Promise} 登录结果，包含token信息
+ * @returns {Promise} 登录结果，包含sessionID信息
  */
 export const login = async (credentials) => {
-  const response = await post('/user-account/login', credentials);
+  const response = await post('/user/login', credentials);
   return response.data;
 };
 
@@ -33,7 +33,7 @@ export const register = async (userData) => {
  * @returns {Promise} 登出结果
  */
 export const logout = async () => {
-  const response = await post('/user-account/logout', {});
+  const response = await post('/user/logout', {}, { needAuth: true });
   return response.data;
 };
 
@@ -42,16 +42,15 @@ export const logout = async () => {
  * @returns {Promise} 用户信息
  */
 export const getCurrentUser = async () => {
-  const response = await get('/user-account/me');
+  const response = await get('/user/me', {}, { needAuth: true });
   return response.data;
 };
 
 /**
- * 刷新token
- * @returns {Promise} 新的token信息
+ * 刷新sessionID
+ * @returns {Promise} 新的sessionID信息
  */
 export const refreshToken = async () => {
-  const response = await post('/user-account/refresh', {});
+  const response = await post('/user/refresh', {}, { needAuth: true });
   return response.data;
 };
-

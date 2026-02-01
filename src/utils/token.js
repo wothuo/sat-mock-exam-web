@@ -1,11 +1,12 @@
 /**
- * Token管理工具
- * 用于统一管理用户认证token
+ * Token/SessionID管理工具
+ * 用于统一管理用户认证信息，支持token和sessionID两种认证方式
  */
 
-const TOKEN_KEY = 'auth_token';
+const TOKEN_KEY = 'auth_token'; // 兼容旧的token命名
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const TOKEN_EXPIRE_KEY = 'token_expire';
+const USER_INFO_KEY = 'user_info';
 const TOKEN_EXPIRE_BUFFER = 300; // Token过期缓冲时间（秒），提前5分钟过期
 
 /**
@@ -98,16 +99,29 @@ export const isTokenExpired = () => {
 };
 
 /**
- * 清除所有token信息
+ * 获取用户信息
+ * @returns {Object|null} 用户信息
  */
-export const clearToken = () => {
+export const getUserInfo = () => {
   try {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(TOKEN_EXPIRE_KEY);
+    const userInfo = localStorage.getItem(USER_INFO_KEY);
+    return userInfo ? JSON.parse(userInfo) : null;
   } catch (error) {
-    console.error('Failed to clear tokens from localStorage:', error);
-    // 清除失败不影响流程，只记录错误
+    console.error('Failed to get user info from localStorage:', error);
+    return null;
+  }
+};
+
+/**
+ * 设置用户信息
+ * @param {Object} userInfo - 用户信息对象
+ */
+export const setUserInfo = (userInfo) => {
+  try {
+    localStorage.setItem(USER_INFO_KEY, JSON.stringify(userInfo));
+  } catch (error) {
+    console.error('Failed to set user info to localStorage:', error);
+    // 用户信息设置失败不影响主流程，只记录错误
   }
 };
 
@@ -115,18 +129,48 @@ export const clearToken = () => {
  * 保存完整的认证信息
  * @param {Object} authData - 认证数据
  * @param {string} authData.token - 访问token
+ * @param {string} authData.sessionId - sessionID
  * @param {string} authData.refreshToken - 刷新token
  * @param {number} authData.expiresIn - 过期时间（秒）
+ * @param {number} authData.sessionTimeout - 过期时间（秒）
+ * @param {Object} userInfo - 用户信息
  */
-export const saveAuthData = ({ token, refreshToken, expiresIn }) => {
-  setToken(token);
+export const saveAuthData = ({ token, sessionId, refreshToken, expiresIn, sessionTimeout, ...userInfo }) => {
+  // 优先使用sessionId，兼容token
+  const authToken = sessionId || token;
+  if (authToken) {
+    setToken(authToken);
+  }
+  
   if (refreshToken) {
     setRefreshToken(refreshToken);
   }
-  if (expiresIn) {
+  
+  // 处理过期时间
+  const timeout = sessionTimeout || expiresIn;
+  if (timeout) {
     // 提前过期缓冲时间，避免边界情况
-    const expireTime = Date.now() + (expiresIn - TOKEN_EXPIRE_BUFFER) * 1000;
+    const expireTime = Date.now() + (timeout - TOKEN_EXPIRE_BUFFER) * 1000;
     setTokenExpire(expireTime);
+  }
+  
+  // 保存用户信息（排除认证相关字段）
+  if (Object.keys(userInfo).length > 0) {
+    setUserInfo(userInfo);
   }
 };
 
+/**
+ * 清除所有认证信息
+ */
+export const clearToken = () => {
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_EXPIRE_KEY);
+    localStorage.removeItem(USER_INFO_KEY);
+  } catch (error) {
+    console.error('Failed to clear tokens from localStorage:', error);
+    // 清除失败不影响流程，只记录错误
+  }
+};

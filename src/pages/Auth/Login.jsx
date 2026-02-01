@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 
 import { Link, useNavigate } from 'react-router-dom';
 
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, message } from 'antd';
 
 import { ArrowLeftOutlined, LockOutlined } from '@ant-design/icons';
 
 import { login } from '../../services/auth';
+import { saveAuthData } from '../../utils/token';
 import './Login.css';
 
 function Login() {
@@ -20,17 +21,27 @@ function Login() {
     setIsLoading(true);
     login(values).then(res => {
       console.log(res);
+      // 保存认证信息
+      if (res.sessionId) {
+        // 提取用户信息
+        const { sessionId, sessionTimeout, ...userInfo } = res;
+        
+        saveAuthData({
+          sessionId: sessionId,
+          sessionTimeout: sessionTimeout,
+          ...userInfo
+        });
+        message.success('登录成功！');
+        navigate('/');
+      } else {
+        message.error('登录失败：未获取到sessionID');
+      }
     }).catch(err => {
-      console.log(err);
+      console.error(err);
+      message.error(err.message || '登录失败，请稍后重试');
     }).finally(() => {
       setIsLoading(false);
     });
-    
-    // setTimeout(() => {
-    //   setIsLoading(false);
-    //   message.success('登录成功！');
-    //   navigate('/');
-    // }, 1500);
   };
 
   return (

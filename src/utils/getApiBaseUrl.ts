@@ -13,15 +13,15 @@ export function getApiBaseUrl(): string {
   const urlParams = new URLSearchParams(window.location.search);
   const env = urlParams.get('env');
 
-  if (env === 'prod') {
-    return 'https://api.example.com'; // 线上接口
-  }
   if (env === 'staging') {
-    return 'https://staging-api.example.com'; // 预发接口
+    return 'http://47.110.243.237:8080'; // 预发接口
+  }
+  if (env === 'local') {
+    return 'http://localhost:8080'; // 本地接口
   }
 
-  // 默认回退到 .env.development 中的值（通常是预发）
-  return import.meta.env.VITE_API_BASE_URL || 'https://staging-api.example.com';
+  // 默认回退到 .env.development 中的值
+  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 }
 
 // 可选：在控制台打印当前环境（仅开发）

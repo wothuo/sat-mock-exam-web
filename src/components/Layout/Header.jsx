@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import { Button, Drawer } from 'antd';
+import { Button, Drawer, message } from 'antd';
 
 import { MenuOutlined } from '@ant-design/icons';
 
+import { logout } from '../../services/auth';
+import { getToken, clearToken } from '../../utils/token';
+
 function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!getToken());
   
   const navItems = [
     { path: '/', label: '首页' },
@@ -21,6 +26,47 @@ function Header() {
     // { path: '/question-bank', label: '题库管理' },
     { path: '/exam-set-management', label: '套题管理' },
   ];
+  
+  // 监听登录状态变化
+  useEffect(() => {
+    // 简单的登录状态检查函数
+    const checkLoginStatus = () => {
+      setIsLoggedIn(!!getToken());
+    };
+    
+    // 监听路由变化，更新登录状态
+    const handleLocationChange = () => {
+      checkLoginStatus();
+    };
+    
+    // 初始检查
+    checkLoginStatus();
+    
+    // 监听路由变化
+    window.addEventListener('popstate', handleLocationChange);
+    
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+    };
+  }, []);
+  
+  // 退出登录
+  const handleLogout = async () => {
+    try {
+      await logout();
+      clearToken();
+      setIsLoggedIn(false);
+      message.success('退出登录成功');
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // 即使API调用失败，也清除本地token
+      clearToken();
+      setIsLoggedIn(false);
+      message.success('退出登录成功');
+      navigate('/login');
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50">
@@ -55,13 +101,34 @@ function Header() {
               className="lg:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-red-50 text-red-600 border-red-100 hover:bg-red-100 hover:text-red-700 shadow-sm"
               onClick={() => setMobileMenuVisible(true)}
             />
-            <Link to="/profile" className="flex items-center space-x-2 text-gray-600 hover:text-red-600">
-              <i className="fas fa-user-circle text-lg"></i>
-              <span className="hidden sm:inline">个人中心</span>
-            </Link>
-            <Link to="/login" className="text-gray-600 hover:text-red-600 transition-colors">
-              <span className="btn-primary text-sm hidden sm:inline-block">登录</span>
-            </Link>
+            
+            {/* 登录状态下显示 */}
+            {isLoggedIn ? (
+              <>
+                <Link to="/profile" className="flex items-center space-x-2 text-gray-600 hover:text-red-600">
+                  <i className="fas fa-user-circle text-lg"></i>
+                  <span className="hidden sm:inline">个人中心</span>
+                </Link>
+                <Button
+                  type="text"
+                  onClick={handleLogout}
+                  className="text-gray-600 hover:text-red-600 transition-colors"
+                >
+                  <span className="btn-primary text-sm hidden sm:inline-block">退出</span>
+                </Button>
+              </>
+            ) : (
+              <>
+                {/* <Link to="/profile" className="flex items-center space-x-2 text-gray-600 hover:text-red-600">
+                  <i className="fas fa-user-circle text-lg"></i>
+                  <span className="hidden sm:inline">个人中心</span>
+                </Link> */}
+                <Link to="/login" className="text-gray-600 hover:text-red-600 transition-colors">
+                  <span className="btn-primary text-sm hidden sm:inline-block">登录</span>
+                </Link>
+              </>
+            )}
+            
             {/* <Link to="/register" className="btn-primary text-sm hidden sm:inline-block">
               注册
             </Link> */}
@@ -102,20 +169,32 @@ function Header() {
             </Link>
           ))}
           <div className="pt-6 mt-4 border-t border-gray-100 px-2">
-            <Link 
-              to="/register" 
-              className="block w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-center rounded-2xl font-bold shadow-lg shadow-red-200 active:scale-95 transition-transform"
-              onClick={() => setMobileMenuVisible(false)}
-            >
-              立即注册
-            </Link>
-            <Link 
-              to="/login" 
-              className="block w-full mt-3 py-3 text-gray-500 text-center font-medium hover:text-red-600"
-              onClick={() => setMobileMenuVisible(false)}
-            >
-              已有账号？去登录
-            </Link>
+            {isLoggedIn ? (
+              <Button
+                type="primary"
+                onClick={handleLogout}
+                className="block w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-center rounded-2xl font-bold shadow-lg shadow-red-200 active:scale-95 transition-transform"
+              >
+                退出登录
+              </Button>
+            ) : (
+              <>
+                <Link 
+                  to="/register" 
+                  className="block w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-center rounded-2xl font-bold shadow-lg shadow-red-200 active:scale-95 transition-transform"
+                  onClick={() => setMobileMenuVisible(false)}
+                >
+                  立即注册
+                </Link>
+                <Link 
+                  to="/login" 
+                  className="block w-full mt-3 py-3 text-gray-500 text-center font-medium hover:text-red-600"
+                  onClick={() => setMobileMenuVisible(false)}
+                >
+                  已有账号？去登录
+                </Link>
+              </>
+            )}
           </div>
         </nav>
       </Drawer>
