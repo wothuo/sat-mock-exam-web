@@ -128,7 +128,10 @@ axiosInstance.interceptors.response.use(
     
     // 处理业务错误
     if (processedResponse && typeof processedResponse === 'object' && processedResponse.code !== undefined) {
-      if (processedResponse.code !== 200) {
+      // 支持code 0和200两种成功响应
+      const isSuccess = processedResponse.code === 0 || processedResponse.code === 200;
+      
+      if (!isSuccess) {
         // 检查是否为会话冲突错误
         const isSessionConflictError = processedResponse.message?.includes('其他地方登录') ||
                                       processedResponse.message?.includes('账号在其他设备登录');

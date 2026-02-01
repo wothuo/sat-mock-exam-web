@@ -119,19 +119,14 @@ function Header() {
               </>
             ) : (
               <>
-                {/* <Link to="/profile" className="flex items-center space-x-2 text-gray-600 hover:text-red-600">
-                  <i className="fas fa-user-circle text-lg"></i>
-                  <span className="hidden sm:inline">个人中心</span>
-                </Link> */}
                 <Link to="/login" className="text-gray-600 hover:text-red-600 transition-colors">
                   <span className="btn-primary text-sm hidden sm:inline-block">登录</span>
                 </Link>
+                <Link to="/register" className="btn-primary text-sm hidden sm:inline-block">
+                  注册
+                </Link>
               </>
             )}
-            
-            {/* <Link to="/register" className="btn-primary text-sm hidden sm:inline-block">
-              注册
-            </Link> */}
           </div>
         </div>
       </div>

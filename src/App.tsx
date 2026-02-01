@@ -46,10 +46,17 @@ function AppContent() {
 
     // 添加会话冲突监听器
     const handleSessionConflict = () => {
-      message.error('您的账号已在其他设备登录，将被强制退出');
-      navigate('/login', { state: { sessionConflict: true } });
+      // 只有当当前路径不是登录页面时，才处理会话冲突
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/login' && !currentPath.endsWith('/login')) {
+        message.error('您的账号已在其他设备登录，将被强制退出');
+        navigate('/login', { state: { sessionConflict: true } });
+      }
     };
     addSessionConflictListener(handleSessionConflict);
+    
+    // 清除可能存在的会话冲突标记
+    clearSessionConflict();
 
     return () => {
       window.removeEventListener(eventName, handleRouteNavigate);
@@ -75,10 +82,14 @@ function AppContent() {
   // 受保护的路由组件
   const ProtectedRoute = ({ children }) => {
     const isSessionValidResult = isSessionValid();
+    const hasToken = !!getToken();
     
     // 如果会话无效，重定向到登录页面
     if (!isSessionValidResult) {
-      return <Navigate to="/login" replace state={{ from: location, sessionConflict: !getToken() }} />;
+      // 只有当有token但会话无效时，才表示会话冲突
+      // 没有token时只是未登录，不是会话冲突
+      const sessionConflict = hasToken && !isSessionValidResult;
+      return <Navigate to="/login" replace state={{ from: location, sessionConflict }} />;
     }
     
     return children;

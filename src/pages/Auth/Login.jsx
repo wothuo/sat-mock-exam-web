@@ -17,21 +17,35 @@ function Login() {
   const [form] = Form.useForm();
   const [showSessionConflictAlert, setShowSessionConflictAlert] = useState(false);
 
-  // 检查是否有会话冲突
+  // 登录页面加载时，自动清除任何可能存在的会话冲突标记
+  // 确保每次登录尝试都是干净的状态
+  // 登录页面加载时，自动清除任何可能存在的会话冲突标记
+  // 确保每次登录尝试都是干净的状态
   useEffect(() => {
-    if (location.state?.sessionConflict || hasSessionConflict()) {
+    // 清除可能存在的会话冲突标记
+    clearSessionConflict();
+    
+    // 重置会话冲突警告状态
+    setShowSessionConflictAlert(false);
+    
+    // 只有当location中有明确的会话冲突状态时才显示警告
+    // 这通常发生在用户从其他页面被重定向过来的情况
+    if (location.state?.sessionConflict) {
       setShowSessionConflictAlert(true);
-      clearSessionConflict();
     }
   }, [location]);
 
   const handleSubmit = async (values) => {
-    console.log(values);
+    console.log('Login values:', values);
 
     setIsLoading(true);
     try {
-      const res = await login(values);
-      console.log(res);
+      const loginResult = await login(values);
+      console.log('Login response:', loginResult);
+      
+      // 根据后端响应结构，登录数据可能在data字段中
+      const res = loginResult.data || loginResult;
+      
       // 保存认证信息
       if (res.sessionId) {
         // 提取用户信息
@@ -43,19 +57,17 @@ function Login() {
           ...userInfo
         });
         message.success('登录成功！');
-        navigate('/');
+        
+        // 直接导航到主页，强制刷新页面以确保状态更新
+        window.location.href = '/';
       } else {
+        console.error('Login failed: No sessionId in response', res);
         message.error('登录失败：未获取到sessionID');
       }
     } catch (err) {
-      console.error(err);
-      // 检查是否为会话冲突错误
-      if (err.message?.includes('其他地方登录') || err.message?.includes('账号在其他设备登录')) {
-        message.error('登录失败：您的账号已在其他设备登录，请稍后重试');
-        setShowSessionConflictAlert(true);
-      } else {
-        message.error(err.message || '登录失败，请稍后重试');
-      }
+      console.error('Login error:', err);
+      // 登录失败时只显示错误信息
+      message.error(err.message || '登录失败，请稍后重试');
     } finally {
       setIsLoading(false);
     }
