@@ -1,83 +1,80 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
-import { Button, Card, Modal, Space, Table, Tag, message } from 'antd';
+import { Button, Card, message, Modal, Space, Spin, Table, Tag } from 'antd';
 
 import { DeleteOutlined, EditOutlined, FormOutlined } from '@ant-design/icons';
+
+import { getExamSetList } from '@/services';
 
 import ExamSetEditor from './ExamSetEditor';
 import SectionManager from './SectionManager';
 
 function ExamSetManagement() {
   const navigate = useNavigate();
-  const [examSets, setExamSets] = useState([
-    {
-      id: 1,
-      title: '2025年12月北美第4套',
-      subject: '数学',
-      source: '历年考题',
-      difficulty: 'Medium',
-      sections: [
-        {
-          id: 's1',
-          name: 'Section 1, Module 1: Math',
-          duration: 35,
-          questions: 22,
-          description: '不可使用计算器',
-          selectedQuestions: [1, 3, 8, 9, 11, 12, 13, 16, 19, 22, 33, 36]
-        },
-        {
-          id: 's2',
-          name: 'Section 1, Module 2: Math',
-          duration: 35,
-          questions: 22,
-          description: '可使用计算器',
-          selectedQuestions: [24, 28, 31, 39, 42, 45, 48, 51]
-        }
-      ],
-      totalDuration: 70,
-      totalQuestions: 44,
-      description: '包含代数、几何、数据分析等综合题型',
-      createdAt: '2024-01-15',
-      status: 'published'
-    },
-    {
-      id: 2,
-      title: '2025年12月北美第3套',
-      subject: '阅读',
-      source: '历年考题',
-      difficulty: 'Hard',
-      sections: [
-        {
-          id: 's1',
-          name: 'Section 1, Module 1: Reading and Writing',
-          duration: 32,
-          questions: 27,
-          description: '文学、历史类文章',
-          selectedQuestions: [2, 5, 7, 10, 14, 17, 20, 23, 25, 29, 32, 34]
-        },
-        {
-          id: 's2',
-          name: 'Section 1, Module 2: Reading and Writing',
-          duration: 33,
-          questions: 25,
-          description: '科学、社会科学类文章',
-          selectedQuestions: [37, 40, 43, 46, 49, 52, 4, 6, 15, 18]
-        }
-      ],
-      totalDuration: 65,
-      totalQuestions: 52,
-      description: '文学、历史、科学类文章阅读理解',
-      createdAt: '2024-01-14',
-      status: 'published'
-    }
-  ]);
+  const [examSets, setExamSets] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
 
   const [isEditorVisible, setIsEditorVisible] = useState(false);
   const [isSectionManagerVisible, setIsSectionManagerVisible] = useState(false);
   const [editingExamSet, setEditingExamSet] = useState(null);
   const [managingSections, setManagingSections] = useState(null);
+
+  // 获取套题列表
+  const fetchExamSetList = async (pageNum = 1, pageSize = 10) => {
+    setLoading(true);
+    try {
+      const params = {
+        examType: 'SAT', // 固定为SAT，后续可扩展为可选项
+        pageNum,
+        pageSize,
+      };
+      const result = await getExamSetList(params);
+      
+      if (result && result.list) {
+        // 转换数据格式以适配表格
+        const transformedData = result.list.map(item => ({
+          id: item.taskId,
+          taskId: item.taskId,
+          title: item.taskName,
+          source: item.examCategory || '暂无',
+          totalQuestions: item.questionCount || 0,
+          status: item.status === 1 ? 'published' : 'draft',
+          statusDesc: item.statusDesc || (item.status === 1 ? '已发布' : '草稿'),
+          examType: item.examType,
+          examYear: item.examYear,
+          examRegion: item.examRegion,
+          // 接口未返回的字段
+          totalDuration: null, // 暂无
+          sections: null, // 暂无
+          description: '', // 接口未返回描述
+        }));
+        
+        setExamSets(transformedData);
+        setPagination({
+          current: result.pageNum || pageNum,
+          pageSize: result.pageSize || pageSize,
+          total: result.total || 0,
+        });
+      }
+    } catch (error) {
+      console.error('获取套题列表失败:', error);
+      message.error('获取套题列表失败，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 初始化加载数据
+  useEffect(() => {
+    fetchExamSetList();
+  }, []);
 
   const columns = [
     {
@@ -88,7 +85,9 @@ function ExamSetManagement() {
       render: (text, record) => (
         <div>
           <div className="font-semibold text-gray-900">{text}</div>
-          <div className="text-xs text-gray-500 mt-1">{record.description}</div>
+          {record.description && (
+            <div className="text-xs text-gray-500 mt-1">{record.description}</div>
+          )}
         </div>
       )
     },
@@ -102,25 +101,15 @@ function ExamSetManagement() {
       )
     },
     {
-      title: '难度',
-      dataIndex: 'difficulty',
-      key: 'difficulty',
-      width: 100,
-      render: (difficulty) => (
-        <Tag color={
-          difficulty === 'Easy' ? 'success' :
-          difficulty === 'Medium' ? 'warning' : 'error'
-        }>
-          {difficulty}
-        </Tag>
-      )
-    },
-    {
       title: '题目组数量',
       key: 'sections',
       width: 120,
       render: (_, record) => (
-        <span className="font-medium">{record.sections.length} 个</span>
+        <span className="font-medium text-gray-400">
+          {record.sections !== null && record.sections !== undefined 
+            ? `${record.sections.length} 个` 
+            : '暂无'}
+        </span>
       )
     },
     {
@@ -138,7 +127,9 @@ function ExamSetManagement() {
       key: 'totalDuration',
       width: 100,
       render: (duration) => (
-        <span className="font-medium">{duration} 分钟</span>
+        <span className="font-medium text-gray-400">
+          {duration !== null && duration !== undefined ? `${duration} 分钟` : '暂无'}
+        </span>
       )
     },
     {
@@ -146,17 +137,11 @@ function ExamSetManagement() {
       dataIndex: 'status',
       key: 'status',
       width: 100,
-      render: (status) => (
+      render: (status, record) => (
         <Tag color={status === 'published' ? 'success' : 'default'}>
-          {status === 'published' ? '已发布' : '草稿'}
+          {record.statusDesc || (status === 'published' ? '已发布' : '草稿')}
         </Tag>
       )
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      width: 120
     },
     {
       title: '操作',
@@ -196,8 +181,8 @@ function ExamSetManagement() {
   ];
 
   const handleEdit = (record) => {
-    // 使用 navigate 跳转到编辑页面，传递套题 ID
-    navigate(`/exam-set-entry?id=${record.id}`);
+    // 使用 navigate 跳转到编辑页面，传递套题 ID（使用 taskId）
+    navigate(`/exam-set-entry?id=${record.taskId || record.id}`);
   };
 
   const handleDelete = (record) => {
@@ -208,7 +193,8 @@ function ExamSetManagement() {
       cancelText: '取消',
       okButtonProps: { danger: true },
       onOk: () => {
-        setExamSets(prev => prev.filter(item => item.id !== record.id));
+        // TODO: 后续需要调用删除接口
+        setExamSets(prev => prev.filter(item => (item.taskId || item.id) !== (record.taskId || record.id)));
         message.success('删除成功');
       }
     });
@@ -274,17 +260,27 @@ function ExamSetManagement() {
       </div>
 
       <Card>
-        <Table
-          columns={columns}
-          dataSource={examSets}
-          rowKey="id"
-          scroll={{ x: 1400 }}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showTotal: (total) => `共 ${total} 条记录`
-          }}
-        />
+        <Spin spinning={loading}>
+          <Table
+            columns={columns}
+            dataSource={examSets}
+            rowKey="taskId"
+            scroll={{ x: 1400 }}
+            pagination={{
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showTotal: (total) => `共 ${total} 条记录`,
+              onChange: (page, pageSize) => {
+                fetchExamSetList(page, pageSize);
+              },
+              onShowSizeChange: (current, size) => {
+                fetchExamSetList(1, size);
+              },
+            }}
+          />
+        </Spin>
       </Card>
 
       <ExamSetEditor
