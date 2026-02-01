@@ -3,11 +3,58 @@
  * 用于统一管理用户认证信息，支持token和sessionID两种认证方式
  */
 
-const TOKEN_KEY = 'auth_token'; // 兼容旧的token命名
+/**
+ * 高级会话管理工具
+ * 用于统一管理用户认证信息，支持会话冲突检测和自动处理
+ */
+
+const TOKEN_KEY = 'auth_token'; // 兼容旧的token命名，实际存储sessionID
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const TOKEN_EXPIRE_KEY = 'token_expire';
 const USER_INFO_KEY = 'user_info';
+const SESSION_CONFLICT_KEY = 'session_conflict'; // 会话冲突标记
 const TOKEN_EXPIRE_BUFFER = 300; // Token过期缓冲时间（秒），提前5分钟过期
+
+// 会话冲突监听器
+const sessionConflictListeners = [];
+
+/**
+ * 添加会话冲突监听器
+ * @param {Function} listener - 监听器函数
+ */
+export const addSessionConflictListener = (listener) => {
+  if (typeof listener === 'function' && !sessionConflictListeners.includes(listener)) {
+    sessionConflictListeners.push(listener);
+  }
+};
+
+/**
+ * 移除会话冲突监听器
+ * @param {Function} listener - 监听器函数
+ */
+export const removeSessionConflictListener = (listener) => {
+  const index = sessionConflictListeners.indexOf(listener);
+  if (index > -1) {
+    sessionConflictListeners.splice(index, 1);
+  }
+};
+
+/**
+ * 触发会话冲突事件
+ */
+export const triggerSessionConflict = () => {
+  // 保存会话冲突标记
+  localStorage.setItem(SESSION_CONFLICT_KEY, 'true');
+  
+  // 通知所有监听器
+  sessionConflictListeners.forEach(listener => {
+    try {
+      listener();
+    } catch (error) {
+      console.error('Session conflict listener error:', error);
+    }
+  });
+};
 
 /**
  * 获取访问token
@@ -128,7 +175,7 @@ export const setUserInfo = (userInfo) => {
 /**
  * 保存完整的认证信息
  * @param {Object} authData - 认证数据
- * @param {string} authData.token - 访问token
+ * @param {string} authData.token - 访问token（兼容旧字段）
  * @param {string} authData.sessionId - sessionID
  * @param {string} authData.refreshToken - 刷新token
  * @param {number} authData.expiresIn - 过期时间（秒）
@@ -136,12 +183,16 @@ export const setUserInfo = (userInfo) => {
  * @param {Object} userInfo - 用户信息
  */
 export const saveAuthData = ({ token, sessionId, refreshToken, expiresIn, sessionTimeout, ...userInfo }) => {
+  // 清除可能存在的会话冲突标记
+  clearSessionConflict();
+  
   // 优先使用sessionId，兼容token
   const authToken = sessionId || token;
   if (authToken) {
     setToken(authToken);
   }
   
+  // 刷新token在Cookie认证中可能不需要，但保留以兼容
   if (refreshToken) {
     setRefreshToken(refreshToken);
   }
@@ -161,16 +212,84 @@ export const saveAuthData = ({ token, sessionId, refreshToken, expiresIn, sessio
 };
 
 /**
- * 清除所有认证信息
+ * 会话心跳机制
+ * 定期检查会话有效性，处理会话过期和冲突
+ * @param {number} interval - 检查间隔（毫秒）
+ * @returns {Function} 清理函数
  */
-export const clearToken = () => {
+export const startSessionHeartbeat = (interval = 30000) => {
+  const intervalId = setInterval(() => {
+    // 检查会话有效性
+    if (!isSessionValid()) {
+      clearToken(true);
+    }
+  }, interval);
+  
+  return () => clearInterval(intervalId);
+};
+
+/**
+ * 清除所有认证信息
+ * @param {boolean} isConflict - 是否因会话冲突而清除
+ */
+export const clearToken = (isConflict = false) => {
   try {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
     localStorage.removeItem(TOKEN_EXPIRE_KEY);
     localStorage.removeItem(USER_INFO_KEY);
+    
+    if (isConflict) {
+      triggerSessionConflict();
+    }
   } catch (error) {
     console.error('Failed to clear tokens from localStorage:', error);
     // 清除失败不影响流程，只记录错误
   }
+};
+
+/**
+ * 检查是否存在会话冲突
+ * @returns {boolean} 是否存在会话冲突
+ */
+export const hasSessionConflict = () => {
+  try {
+    return localStorage.getItem(SESSION_CONFLICT_KEY) === 'true';
+  } catch (error) {
+    console.error('Failed to check session conflict:', error);
+    return false;
+  }
+};
+
+/**
+ * 清除会话冲突标记
+ */
+export const clearSessionConflict = () => {
+  try {
+    localStorage.removeItem(SESSION_CONFLICT_KEY);
+  } catch (error) {
+    console.error('Failed to clear session conflict flag:', error);
+  }
+};
+
+/**
+ * 验证会话有效性
+ * @returns {boolean} 会话是否有效
+ */
+export const isSessionValid = () => {
+  try {
+    const token = getToken();
+    if (!token) return false;
+    
+    // 检查是否过期
+    if (isTokenExpired()) return false;
+    
+    // 检查是否存在会话冲突
+    if (hasSessionConflict()) return false;
+    
+    return true;
+  } catch (error) {
+    console.error('Failed to validate session:', error);
+    return false;
+  };
 };

@@ -1,25 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
-import { Button, Form, Input, message } from 'antd';
+import { Button, Form, Input, message, Alert } from 'antd';
 
 import { ArrowLeftOutlined, LockOutlined } from '@ant-design/icons';
 
 import { login } from '../../services/auth';
-import { saveAuthData } from '../../utils/token';
+import { saveAuthData, clearSessionConflict, hasSessionConflict } from '../../utils/token';
 import './Login.css';
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [form] = Form.useForm();
+  const [showSessionConflictAlert, setShowSessionConflictAlert] = useState(false);
+
+  // 检查是否有会话冲突
+  useEffect(() => {
+    if (location.state?.sessionConflict || hasSessionConflict()) {
+      setShowSessionConflictAlert(true);
+      clearSessionConflict();
+    }
+  }, [location]);
 
   const handleSubmit = async (values) => {
     console.log(values);
 
     setIsLoading(true);
-    login(values).then(res => {
+    try {
+      const res = await login(values);
       console.log(res);
       // 保存认证信息
       if (res.sessionId) {
@@ -36,12 +47,18 @@ function Login() {
       } else {
         message.error('登录失败：未获取到sessionID');
       }
-    }).catch(err => {
+    } catch (err) {
       console.error(err);
-      message.error(err.message || '登录失败，请稍后重试');
-    }).finally(() => {
+      // 检查是否为会话冲突错误
+      if (err.message?.includes('其他地方登录') || err.message?.includes('账号在其他设备登录')) {
+        message.error('登录失败：您的账号已在其他设备登录，请稍后重试');
+        setShowSessionConflictAlert(true);
+      } else {
+        message.error(err.message || '登录失败，请稍后重试');
+      }
+    } finally {
       setIsLoading(false);
-    });
+    }
   };
 
   return (
@@ -58,6 +75,18 @@ function Login() {
             <h2 className="text-3xl font-bold text-gray-900 mb-2">欢迎回来</h2>
             <p className="text-gray-600">登录您的账户继续学习</p>
           </div>
+          
+          {/* 会话冲突警告 */}
+          {showSessionConflictAlert && (
+            <Alert
+              message="会话冲突"
+              description="您的账号已在其他设备登录，继续登录将使当前会话生效，其他设备上的会话将被终止。"
+              type="warning"
+              showIcon
+              closable
+              onClose={() => setShowSessionConflictAlert(false)}
+              className="mb-4"
+            />)}
 
           <Form
             form={form}

@@ -45,7 +45,11 @@ const axiosInstance: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // 启用Cookie支持，用于Session认证
 });
+
+// 会话冲突标记
+let isSessionConflict = false;
 
 // 请求拦截器队列（自定义拦截器，在 axios 拦截器之后执行）
 const customRequestInterceptors: Array<(config: RequestConfig) => RequestConfig | Promise<RequestConfig>> = [];
@@ -99,30 +103,12 @@ axiosInstance.interceptors.request.use(
     // 应用自定义请求拦截器
     const processedConfig = await applyCustomRequestInterceptors(customConfig);
     
-    // 处理认证token（默认 needAuth = false，只有显式设置为 true 时才需要认证）
-    if (processedConfig.needAuth === true) {
-      const token = getToken();
-      if (token) {
-        // 检查token是否过期
-        if (isTokenExpired()) {
-          clearToken();
-          const currentPath = window.location.hash.replace('#', '') || window.location.pathname;
-          if (currentPath !== LOGIN_PATH && !currentPath.endsWith(LOGIN_PATH)) {
-            navigate(LOGIN_PATH);
-          }
-          throw new Error('登录已过期，请重新登录');
-        }
-        // 使用X-Session-ID替代Bearer Token
-        config.headers['X-Session-ID'] = token;
-      } else if (isTokenExpired()) {
-        // Token过期，清除并跳转登录
-        clearToken();
-        const currentPath = window.location.hash.replace('#', '') || window.location.pathname;
-        if (currentPath !== LOGIN_PATH && !currentPath.endsWith(LOGIN_PATH)) {
-          navigate(LOGIN_PATH);
-        }
-        throw new Error('登录已过期，请重新登录');
-      }
+    // 获取sessionID
+    const sessionId = getToken();
+    
+    // 为所有请求添加X-Session-ID头（无论是否过期，都携带让后端验证）
+    if (sessionId) {
+      config.headers['X-Session-ID'] = sessionId;
     }
     
     return config;
@@ -140,9 +126,34 @@ axiosInstance.interceptors.response.use(
     // 应用自定义响应拦截器
     const processedResponse = await applyCustomResponseInterceptors(responseData);
     
-    // 处理业务错误（假设code !== 200表示业务错误）
+    // 处理业务错误
     if (processedResponse && typeof processedResponse === 'object' && processedResponse.code !== undefined) {
       if (processedResponse.code !== 200) {
+        // 检查是否为会话冲突错误
+        const isSessionConflictError = processedResponse.message?.includes('其他地方登录') ||
+                                      processedResponse.message?.includes('账号在其他设备登录');
+        
+        // 检查是否为认证相关错误
+        const isAuthError = processedResponse.code === 401 || 
+                          isSessionConflictError ||
+                          processedResponse.message?.includes('会话已过期') ||
+                          processedResponse.message?.includes('登录已过期');
+        
+        if (isAuthError) {
+          if (isSessionConflictError) {
+            isSessionConflict = true; // 标记为会话冲突
+            message.error('您的账号已在其他设备登录，将被强制退出');
+          } else {
+            message.error('登录已过期，请重新登录');
+          }
+          
+          clearToken();
+          const currentPath = window.location.hash.replace('#', '') || window.location.pathname;
+          if (currentPath !== LOGIN_PATH && !currentPath.endsWith(LOGIN_PATH)) {
+            navigate('/', { state: { from: currentPath, sessionConflict: isSessionConflict } });
+          }
+        }
+        
         const error = new Error(processedResponse.message || '请求失败');
         (error as any).code = processedResponse.code;
         (error as any).data = processedResponse.data;
@@ -158,14 +169,23 @@ axiosInstance.interceptors.response.use(
     if (error.response) {
       const { status, statusText } = error.response;
       
-      // 401未授权，清除token并跳转登录
+      // 401未授权，根据错误信息进行精细化处理
       if (status === 401) {
         clearToken();
         const currentPath = window.location.hash.replace('#', '') || window.location.pathname;
-        if (currentPath !== LOGIN_PATH && !currentPath.endsWith(LOGIN_PATH)) {
-          navigate(LOGIN_PATH);
+        
+        // 获取错误信息
+        let errorMessage = '登录信息已失效，请重新登录';
+        if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
         }
-        const authError = new Error('登录已过期，请重新登录');
+        
+        // 跳转到主页
+        if (currentPath !== LOGIN_PATH && !currentPath.endsWith(LOGIN_PATH)) {
+          navigate('/');
+        }
+        
+        const authError = new Error(errorMessage);
         (authError as any).code = 401;
         return Promise.reject(authError);
       }

@@ -15,9 +15,6 @@ import { get } from '../utils/request.ts';
  * @returns {Promise} 套题列表数据（包含分页信息）
  */
 export const getExamSetList = async (params) => {
-  const response = await get('/api/exam/task/set/list', params, {
-    // needAuth: true, // 需要认证
-  });
+  const response = await get('/exam/task/set/list', params);
   return response.data;
 };
-

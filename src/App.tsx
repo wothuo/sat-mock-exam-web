@@ -18,7 +18,8 @@ import QuestionBank from './pages/QuestionBank';
 import SpecialTraining from './pages/SpecialTraining';
 import SystemOverview from './pages/SystemOverview';
 import { getRouteNavigateEventName } from './utils/router';
-import { getToken, isTokenExpired } from './utils/token';
+import { getToken, isTokenExpired, startSessionHeartbeat, addSessionConflictListener, clearSessionConflict, isSessionValid } from './utils/token';
+import { message } from 'antd';
 
 function AppContent() {
   const navigate = useNavigate();
@@ -40,10 +41,29 @@ function AppContent() {
     const eventName = getRouteNavigateEventName();
     window.addEventListener(eventName, handleRouteNavigate);
 
+    // 启动会话心跳机制
+    const stopHeartbeat = startSessionHeartbeat(30000); // 每30秒检查一次
+
+    // 添加会话冲突监听器
+    const handleSessionConflict = () => {
+      message.error('您的账号已在其他设备登录，将被强制退出');
+      navigate('/login', { state: { sessionConflict: true } });
+    };
+    addSessionConflictListener(handleSessionConflict);
+
     return () => {
       window.removeEventListener(eventName, handleRouteNavigate);
+      stopHeartbeat(); // 清理心跳
+      // 移除监听器（注：实际实现需要添加移除方法）
     };
   }, [navigate]);
+
+  // 处理会话冲突的路由重定向
+  useEffect(() => {
+    if (location.state?.sessionConflict) {
+      clearSessionConflict();
+    }
+  }, [location]);
 
   // 检查是否需要认证
   const requiresAuth = (path) => {
@@ -54,12 +74,11 @@ function AppContent() {
 
   // 受保护的路由组件
   const ProtectedRoute = ({ children }) => {
-    const token = getToken();
-    const isExpired = isTokenExpired();
+    const isSessionValidResult = isSessionValid();
     
-    // 如果没有token或者token过期，重定向到登录页面
-    if (!token || isExpired) {
-      return <Navigate to="/login" replace state={{ from: location }} />;
+    // 如果会话无效，重定向到登录页面
+    if (!isSessionValidResult) {
+      return <Navigate to="/login" replace state={{ from: location, sessionConflict: !getToken() }} />;
     }
     
     return children;
@@ -70,11 +89,15 @@ function AppContent() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/exam/:examId" element={<ProtectedRoute><ExamContent /></ProtectedRoute>} />
+      
+      {/* 公开的主页路由 */}
+      <Route path="/" element={<Layout><Home /></Layout>} />
+      
+      {/* 受保护的其他功能路由 */}
       <Route path="/*" element={
         <ProtectedRoute>
           <Layout>
             <Routes>
-              <Route path="/" element={<Home />} />
               <Route path="/special-training" element={<SpecialTraining />} />
               <Route path="/mock-exam" element={<MockExam />} />
                   <Route path="/practice-record" element={<PracticeRecord />} />
