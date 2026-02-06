@@ -27,7 +27,7 @@ import {
 } from '@ant-design/icons';
 
 import RichTextEditor from './components/RichTextEditor';
-import { getExamSetList, createExamSet, createExamSection, batchCreateQuestions } from '@/services/exam';
+import { getExamSetList, createExamSet, updateExamSet, createExamSection, batchCreateQuestions } from '@/services/exam';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -71,18 +71,21 @@ function ExamSetEntry() {
       
       if (result && result.list) {
         // 查找对应ID的套题
-        const examSet = result.list.find(item => item.taskId === parseInt(id));
+        const examSet = result.list.find(item => item.examId === parseInt(id));
         
         if (examSet) {
+          console.log('获取到的套题详情:', examSet);
+          console.log('套题描述:', examSet.examDescription);
+          
           // 转换为组件需要的数据格式
           return {
-            id: examSet.taskId,
-            title: examSet.taskName,
+            id: examSet.examId,
+            title: examSet.examName,
             year: examSet.examYear,
             type: examSet.examType,
             region: examSet.examRegion,
             difficulty: examSet.difficulty || 'Medium',
-            description: examSet.description || '',
+            description: examSet.examDescription || '', // 使用正确的字段名examDescription
             sections: examSet.sections || [],
             // 其他需要的字段...
           };
@@ -259,26 +262,54 @@ function ExamSetEntry() {
         // 获取表单数据
         const baseInfo = form.getFieldsValue();
         
-        // 准备新增套题接口所需数据
-        const examData = {
-          examName: baseInfo.title,
-          examType: baseInfo.type,
-          examYear: baseInfo.year.toString(),
-          examRegion: baseInfo.region,
-          difficulty: baseInfo.difficulty.toUpperCase(), // 转换为大写
-          examDescription: baseInfo.description,
-          source: '官方样题', // 默认值，后续可从表单获取
-          creatorId: 1, // 假设当前用户ID为1，后续可从登录信息获取
-          status: 0
-        };
+        if (isEditMode) {
+          // 编辑模式：调用更新套题接口
+          const examId = parseInt(editId);
+          
+          // 准备更新套题接口所需数据
+          const examData = {
+            examId: examId,
+            examName: baseInfo.title,
+            examType: baseInfo.type,
+            examYear: baseInfo.year.toString(),
+            examRegion: baseInfo.region,
+            difficulty: baseInfo.difficulty.toUpperCase(), // 转换为大写
+            examDescription: baseInfo.description,
+            source: '官方样题', // 默认值，后续可从表单获取
+            status: 0
+          };
+          
+          // 调用更新套题接口
+          await updateExamSet(examData);
+          
+          // 保存套题ID
+          setExamId(examId);
+          
+          message.success('套题基础信息更新成功');
+        } else {
+          // 新增模式：调用新增套题接口
+          // 准备新增套题接口所需数据
+          const examData = {
+            examName: baseInfo.title,
+            examType: baseInfo.type,
+            examYear: baseInfo.year.toString(),
+            examRegion: baseInfo.region,
+            difficulty: baseInfo.difficulty.toUpperCase(), // 转换为大写
+            examDescription: baseInfo.description,
+            source: '官方样题', // 默认值，后续可从表单获取
+            creatorId: 1, // 假设当前用户ID为1，后续可从登录信息获取
+            status: 0
+          };
+          
+          // 调用新增套题接口
+          const result = await createExamSet(examData);
+          
+          // 保存返回的套题ID
+          setExamId(result.examId);
+          
+          message.success('套题基础信息保存成功');
+        }
         
-        // 调用新增套题接口
-        const result = await createExamSet(examData);
-        
-        // 保存返回的套题ID
-        setExamId(result.examId);
-        
-        message.success('套题基础信息保存成功');
         setCurrentStep(1);
       } catch (error) {
         message.error('请完善套题基础信息或保存失败');
@@ -308,27 +339,38 @@ function ExamSetEntry() {
     try {
       const values = await sectionForm.validateFields();
       
-      // 准备新增Section接口所需数据
-      const sectionData = {
-        examId: examId, // 使用之前保存的套题ID
-        sectionName: values.name,
-        sectionCategory: values.subject,
-        sectionTiming: values.duration,
-        creatorId: 1, // 假设当前用户ID为1，后续可从登录信息获取
-        status: 0
-      };
-      
-      // 调用新增Section接口
-      const result = await createExamSection(sectionData);
-      
       if (editingSection) {
-        // 编辑模式
+        // 编辑模式：调用更新Section接口
+        const sectionData = {
+          sectionId: editingSection.sectionId, // 使用现有Section ID
+          examId: examId, // 使用之前保存的套题ID
+          sectionName: values.name,
+          sectionCategory: values.subject,
+          sectionTiming: values.duration,
+          status: 0
+        };
+        
+        // 调用更新Section接口
+        await updateExamSection(sectionData);
+        
         setSections(prev => prev.map(s => 
-          s.id === editingSection.id ? { ...s, ...values, sectionId: result.sectionId } : s
+          s.id === editingSection.id ? { ...s, ...values } : s
         ));
         message.success('Section 已更新');
       } else {
-        // 新增模式
+        // 新增模式：调用新增Section接口
+        const sectionData = {
+          examId: examId, // 使用之前保存的套题ID
+          sectionName: values.name,
+          sectionCategory: values.subject,
+          sectionTiming: values.duration,
+          creatorId: 1, // 假设当前用户ID为1，后续可从登录信息获取
+          status: 0
+        };
+        
+        // 调用新增Section接口
+        const result = await createExamSection(sectionData);
+        
         const newSection = { 
           ...values, 
           id: result.sectionId, // 使用接口返回的Section ID

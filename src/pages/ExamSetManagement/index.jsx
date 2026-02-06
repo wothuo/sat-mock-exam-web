@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
-import { Button, Card, message, Modal, Space, Spin, Table, Tag } from 'antd';
+import { Button, Card, Input, message, Modal, Space, Spin, Table, Tag } from 'antd';
 
-import { DeleteOutlined, EditOutlined, FormOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, FormOutlined, SearchOutlined } from '@ant-design/icons';
 
-import { getExamSetList } from '@/services';
+import { getExamSetList } from '@/services/exam';
 
 import ExamSetEditor from './ExamSetEditor';
 import SectionManager from './SectionManager';
@@ -20,6 +20,7 @@ function ExamSetManagement() {
     pageSize: 10,
     total: 0,
   });
+  const [searchKeyword, setSearchKeyword] = useState('');
 
   const [isEditorVisible, setIsEditorVisible] = useState(false);
   const [isSectionManagerVisible, setIsSectionManagerVisible] = useState(false);
@@ -27,7 +28,10 @@ function ExamSetManagement() {
   const [managingSections, setManagingSections] = useState(null);
 
   // 获取套题列表
-  const fetchExamSetList = async (pageNum = 1, pageSize = 10) => {
+  const fetchExamSetList = async (pageNum = 1, pageSize = 10, keyword) => {
+    // 使用当前searchKeyword作为默认值（如果没有提供keyword参数）
+    const actualKeyword = keyword !== undefined ? keyword : searchKeyword;
+    console.log('调用fetchExamSetList函数:', { pageNum, pageSize, keyword: actualKeyword });
     setLoading(true);
     try {
       const params = {
@@ -36,8 +40,15 @@ function ExamSetManagement() {
         pageSize,
       };
       
+      // 只有当关键词有值时才添加到参数中
+      if (actualKeyword && actualKeyword.trim() !== '') {
+        params.examName = actualKeyword;
+      }
+      
+      console.log('准备发送请求，参数:', params);
       // 调用API获取套题列表
       const result = await getExamSetList(params);
+      console.log('请求返回结果:', result);
       
       // 适配后端的分页查询结构
       if (result && result.list) {
@@ -51,15 +62,15 @@ function ExamSetManagement() {
           title: item.examName,
           source: item.source || '暂无',
           totalQuestions: item.questionCount || 0,
-          status: 'published', // 后端没有返回状态字段，默认设为已发布
-          statusDesc: '已发布', // 默认状态描述
+          status: item.status === 1 ? 'published' : 'draft', // 根据后端返回的状态字段判断
+          statusDesc: item.status === 1 ? '已发布' : '草稿', // 使用状态字段生成描述
           examType: item.examType,
           examYear: item.examYear,
           examRegion: item.examRegion,
           // 使用接口返回的字段
           totalDuration: item.examDuration, // 从接口获取总时长
           sections: null, // 暂无
-          description: '', // 接口未返回描述
+          description: item.examDescription || '', // 使用正确的字段名examDescription
         }));
         
         setExamSets(transformedData);
@@ -78,17 +89,48 @@ function ExamSetManagement() {
         console.log('分页信息:', { current: result.pageNum || pageNum, pageSize: result.pageSize || pageSize, total: total });
       } else {
         console.log('未获取到套题数据或数据格式不正确:', result);
+        // 确保在无数据情况下也更新状态
+        setExamSets([]);
+        setPagination({
+          current: pageNum,
+          pageSize: pageSize,
+          total: 0,
+        });
       }
     } catch (error) {
       console.error('获取套题列表失败:', error);
+      console.error('错误详情:', error.stack);
       message.error('获取套题列表失败，请稍后重试');
+      // 确保在错误情况下也更新状态
+      setExamSets([]);
+      setPagination({
+        current: pageNum,
+        pageSize: pageSize,
+        total: 0,
+      });
     } finally {
       setLoading(false);
     }
   };
+  
+  // 处理搜索
+  const handleSearch = () => {
+    // 搜索时重置到第一页
+    setPagination(prev => ({ ...prev, current: 1 }));
+    fetchExamSetList(1, pagination.pageSize, searchKeyword);
+  };
+  
+  // 处理重置搜索
+  const handleReset = () => {
+    setSearchKeyword('');
+    // 重置时重置到第一页
+    setPagination(prev => ({ ...prev, current: 1 }));
+    fetchExamSetList(1, pagination.pageSize, '');
+  };
 
   // 初始化加载数据
   useEffect(() => {
+    console.log('开始加载套题列表');
     fetchExamSetList();
   }, []);
 
@@ -197,7 +239,8 @@ function ExamSetManagement() {
   ];
 
   const handleEdit = (record) => {
-    // 使用 navigate 跳转到编辑页面，传递套题 ID（使用 taskId）
+    console.log('编辑套题:', record);
+    // 使用 navigate 跳转到编辑页面，传递套题 ID（使用 taskId，保持与原代码兼容）
     navigate(`/exam-set-entry?id=${record.taskId || record.id}`);
   };
 
@@ -260,18 +303,48 @@ function ExamSetManagement() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <div className="flex items-center justify-end">
-          <Space size="middle">
-            <Button
-              size="large"
-              icon={<FormOutlined />}
-              onClick={() => navigate('/exam-set-entry')}
-              className="rounded-xl border-2 border-red-500 text-red-600 hover:text-white hover:bg-red-600 hover:border-red-600 font-bold transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-red-100"
-            >
-              新增题库
-            </Button>
-          </Space>
+      <div className="mt-6 mb-8">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          {/* 搜索框 */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
+            <div className="relative w-full sm:w-64">
+              <Input
+                placeholder="请输入套题名称"
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                onPressEnter={handleSearch}
+                prefix={<SearchOutlined className="text-gray-400" />}
+                className="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200"
+                allowClear
+                onClear={handleReset}
+              />
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button 
+                type="primary" 
+                onClick={handleSearch}
+                className="flex-1 sm:flex-none h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <SearchOutlined className="mr-1" />搜索
+              </Button>
+              <Button 
+                onClick={handleReset}
+                className="flex-1 sm:flex-none h-11 px-6 rounded-xl border-gray-200 hover:border-gray-300 hover:bg-gray-50 font-medium transition-all duration-200"
+              >
+                重置
+              </Button>
+            </div>
+          </div>
+          
+          {/* 新增按钮 */}
+          <Button
+            size="large"
+            icon={<FormOutlined />}
+            onClick={() => navigate('/exam-set-entry')}
+            className="rounded-xl border-2 border-red-500 text-red-600 hover:text-white hover:bg-red-600 hover:border-red-600 font-bold transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-red-100"
+          >
+            新增题库
+          </Button>
         </div>
       </div>
 

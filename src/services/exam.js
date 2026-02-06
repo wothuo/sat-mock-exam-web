@@ -39,6 +39,25 @@ export const createExamSet = async (data) => {
 };
 
 /**
+ * 更新套题
+ * @param {Object} data - 套题数据
+ * @param {number} data.examId - 套题ID
+ * @param {string} data.examName - 套题名称
+ * @param {string} data.examType - 套题类型（如：SAT）
+ * @param {string} data.examYear - 套题年份
+ * @param {string} data.examRegion - 套题地区
+ * @param {string} data.difficulty - 套题难度（EASY/MEDIUM/HARD）
+ * @param {string} [data.examDescription] - 套题描述
+ * @param {string} [data.source] - 套题来源
+ * @param {number} [data.status] - 状态（0-正常/1-禁用，默认0）
+ * @returns {Promise} 更新后的套题数据
+ */
+export const updateExamSet = async (data) => {
+  const response = await post('/exam/update', data);
+  return response.data;
+};
+
+/**
  * 新增套题Section
  * @param {Object} data - Section数据
  * @param {number} data.examId - 关联套题ID
@@ -51,6 +70,22 @@ export const createExamSet = async (data) => {
  */
 export const createExamSection = async (data) => {
   const response = await post('/exam/create/section', data);
+  return response.data;
+};
+
+/**
+ * 更新套题Section
+ * @param {Object} data - Section数据
+ * @param {number} data.sectionId - Section ID
+ * @param {number} data.examId - 关联套题ID
+ * @param {string} data.sectionName - Section名称
+ * @param {string} data.sectionCategory - Section分类（如：阅读语法/数学）
+ * @param {number} data.sectionTiming - Section限时（分钟）
+ * @param {number} [data.status] - 状态（0-正常/1-禁用，默认0）
+ * @returns {Promise} 更新后的Section数据
+ */
+export const updateExamSection = async (data) => {
+  const response = await post('/exam/update/section', data);
   return response.data;
 };
 
