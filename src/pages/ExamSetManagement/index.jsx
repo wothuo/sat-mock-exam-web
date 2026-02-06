@@ -35,33 +35,49 @@ function ExamSetManagement() {
         pageNum,
         pageSize,
       };
+      
+      // 调用API获取套题列表
       const result = await getExamSetList(params);
       
+      // 适配后端的分页查询结构
       if (result && result.list) {
+        // getExamSetList已经在exam.js中返回了response.data
+        const examList = result.list || [];
+        
         // 转换数据格式以适配表格
-        const transformedData = result.list.map(item => ({
-          id: item.taskId,
-          taskId: item.taskId,
-          title: item.taskName,
-          source: item.examCategory || '暂无',
+        const transformedData = examList.map(item => ({
+          id: item.examId,
+          taskId: item.examId, // 保持与原代码兼容
+          title: item.examName,
+          source: item.source || '暂无',
           totalQuestions: item.questionCount || 0,
-          status: item.status === 1 ? 'published' : 'draft',
-          statusDesc: item.statusDesc || (item.status === 1 ? '已发布' : '草稿'),
+          status: 'published', // 后端没有返回状态字段，默认设为已发布
+          statusDesc: '已发布', // 默认状态描述
           examType: item.examType,
           examYear: item.examYear,
           examRegion: item.examRegion,
-          // 接口未返回的字段
-          totalDuration: null, // 暂无
+          // 使用接口返回的字段
+          totalDuration: item.examDuration, // 从接口获取总时长
           sections: null, // 暂无
           description: '', // 接口未返回描述
         }));
         
         setExamSets(transformedData);
+        
+        // 处理total为0但实际有数据的情况
+        const total = result.total > 0 ? result.total : examList.length;
+        
         setPagination({
           current: result.pageNum || pageNum,
           pageSize: result.pageSize || pageSize,
-          total: result.total || 0,
+          total: total,
         });
+        
+        // 调试信息
+        console.log('获取到的套题数据:', transformedData);
+        console.log('分页信息:', { current: result.pageNum || pageNum, pageSize: result.pageSize || pageSize, total: total });
+      } else {
+        console.log('未获取到套题数据或数据格式不正确:', result);
       }
     } catch (error) {
       console.error('获取套题列表失败:', error);
@@ -301,4 +317,3 @@ function ExamSetManagement() {
 }
 
 export default ExamSetManagement;
-

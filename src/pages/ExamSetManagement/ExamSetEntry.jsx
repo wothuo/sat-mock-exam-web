@@ -27,6 +27,7 @@ import {
 } from '@ant-design/icons';
 
 import RichTextEditor from './components/RichTextEditor';
+import { getExamSetList, createExamSet, createExamSection, batchCreateQuestions } from '@/services/exam';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -56,69 +57,44 @@ function ExamSetEntry() {
   const autoSaveTimerRef = useRef(null);
   const [draftChecked, setDraftChecked] = useState(false);
 
-  const fetchExamSetData = (id) => {
-    const mockExamSets = [
-      {
-        id: 1,
-        title: '2025年12月北美第4套',
-        year: 2025,
-        type: 'SAT',
-        region: '北美',
-        difficulty: 'Medium',
-        description: '包含代数、几何、数据分析等综合题型',
-        sections: [
-          {
-            id: 's1',
-            name: 'Section 1, Module 1: Math',
-            subject: '数学',
-            duration: 35,
-            questions: 22,
-            description: '不可使用计算器',
-            selectedQuestions: [1, 3, 8, 9, 11, 12, 13, 16, 19, 22, 33, 36]
-          },
-          {
-            id: 's2',
-            name: 'Section 1, Module 2: Math',
-            subject: '数学',
-            duration: 35,
-            questions: 22,
-            description: '可使用计算器',
-            selectedQuestions: [24, 28, 31, 39, 42, 45, 48, 51]
-          }
-        ]
-      },
-      {
-        id: 2,
-        title: '2025年12月北美第3套',
-        year: 2025,
-        type: 'SAT',
-        region: '北美',
-        difficulty: 'Hard',
-        description: '文学、历史、科学类文章阅读理解',
-        sections: [
-          {
-            id: 's1',
-            name: 'Section 1, Module 1: Reading and Writing',
-            subject: '阅读',
-            duration: 32,
-            questions: 27,
-            description: '文学、历史类文章',
-            selectedQuestions: [2, 5, 7, 10, 14, 17, 20, 23, 25, 29, 32, 34]
-          },
-          {
-            id: 's2',
-            name: 'Section 1, Module 2: Reading and Writing',
-            subject: '阅读',
-            duration: 33,
-            questions: 25,
-            description: '科学、社会科学类文章',
-            selectedQuestions: [37, 40, 43, 46, 49, 52, 4, 6, 15, 18]
-          }
-        ]
+  const fetchExamSetData = async (id) => {
+    try {
+      // 这里需要根据实际后端接口进行修改，当前假设从getExamSetList中过滤出单个套题
+      // 实际项目中应该有专门的获取单个套题详情的接口
+      const params = {
+        examType: 'SAT',
+        pageNum: 1,
+        pageSize: 100 // 足够大的数量以确保能获取到所有套题
+      };
+      
+      const result = await getExamSetList(params);
+      
+      if (result && result.list) {
+        // 查找对应ID的套题
+        const examSet = result.list.find(item => item.taskId === parseInt(id));
+        
+        if (examSet) {
+          // 转换为组件需要的数据格式
+          return {
+            id: examSet.taskId,
+            title: examSet.taskName,
+            year: examSet.examYear,
+            type: examSet.examType,
+            region: examSet.examRegion,
+            difficulty: examSet.difficulty || 'Medium',
+            description: examSet.description || '',
+            sections: examSet.sections || [],
+            // 其他需要的字段...
+          };
+        }
       }
-    ];
-
-    return mockExamSets.find(exam => exam.id === parseInt(id));
+      
+      return null;
+    } catch (error) {
+      console.error('获取套题数据失败:', error);
+      message.error('获取套题数据失败');
+      return null;
+    }
   };
 
   const loadDraft = () => {
@@ -150,6 +126,7 @@ function ExamSetEntry() {
         sections,
         questions,
         currentStep,
+        examId, // 保存套题ID
         savedAt: new Date().toISOString()
       };
       
@@ -172,61 +149,71 @@ function ExamSetEntry() {
   };
 
   useEffect(() => {
-    if (editId) {
-      setIsEditMode(true);
-      const examData = fetchExamSetData(editId);
-      
-      if (examData) {
-        form.setFieldsValue({
-          title: examData.title,
-          year: examData.year,
-          type: examData.type,
-          region: examData.region,
-          difficulty: examData.difficulty,
-          description: examData.description
-        });
+    const loadExamData = async () => {
+      if (editId) {
+        setIsEditMode(true);
+        const examData = await fetchExamSetData(editId);
+        
+        if (examData) {
+          form.setFieldsValue({
+            title: examData.title,
+            year: examData.year,
+            type: examData.type,
+            region: examData.region,
+            difficulty: examData.difficulty,
+            description: examData.description
+          });
 
-        setSections(examData.sections || []);
+          setSections(examData.sections || []);
+          setExamId(examData.id); // 保存套题ID
 
-        const mockQuestions = examData.sections.flatMap(section => 
-          section.selectedQuestions.map(qId => ({
-            id: qId,
-            sectionId: section.id,
-            subject: section.subject,
-            interactionType: 'CHOICE',
-            type: questionTypesMap[section.subject][0],
-            difficulty: 'Medium',
-            content: `题目 ${qId} 的内容`,
-            options: ['选项A', '选项B', '选项C', '选项D'],
-            correctAnswer: 'A',
-            explanation: '解析内容'
-          }))
-        );
-        setQuestions(mockQuestions);
+          // 在实际项目中，这里应该调用获取题目列表的接口
+          // 暂时使用模拟数据
+          const mockQuestions = examData.sections.flatMap(section => 
+            (section.selectedQuestions || []).map(qId => ({
+              id: qId,
+              sectionId: section.id,
+              subject: section.subject,
+              interactionType: 'CHOICE',
+              type: questionTypesMap[section.subject] ? questionTypesMap[section.subject][0] : '未分类',
+              difficulty: 'Medium',
+              content: `题目 ${qId} 的内容`,
+              options: ['选项A', '选项B', '选项C', '选项D'],
+              correctAnswer: 'A',
+              explanation: '解析内容'
+            }))
+          );
+          setQuestions(mockQuestions);
+        }
+      } else if (!draftChecked) {
+        setDraftChecked(true);
+        const draft = loadDraft();
+        if (draft) {
+          Modal.confirm({
+            title: '发现未完成的草稿',
+            content: `上次保存时间：${new Date(draft.savedAt).toLocaleString()}，是否恢复？`,
+            okText: '恢复草稿',
+            cancelText: '放弃草稿',
+            onOk: () => {
+              form.setFieldsValue(draft.baseInfo);
+              setSections(draft.sections || []);
+              setQuestions(draft.questions || []);
+              setCurrentStep(draft.currentStep || 0);
+              setLastSaveTime(new Date(draft.savedAt));
+              if (draft.examId) {
+                setExamId(draft.examId); // 恢复草稿中的套题ID
+              }
+              message.success('草稿已恢复');
+            },
+            onCancel: () => {
+              clearDraft();
+            }
+          });
+        }
       }
-    } else if (!draftChecked) {
-      setDraftChecked(true);
-      const draft = loadDraft();
-      if (draft) {
-        Modal.confirm({
-          title: '发现未完成的草稿',
-          content: `上次保存时间：${new Date(draft.savedAt).toLocaleString()}，是否恢复？`,
-          okText: '恢复草稿',
-          cancelText: '放弃草稿',
-          onOk: () => {
-            form.setFieldsValue(draft.baseInfo);
-            setSections(draft.sections || []);
-            setQuestions(draft.questions || []);
-            setCurrentStep(draft.currentStep || 0);
-            setLastSaveTime(new Date(draft.savedAt));
-            message.success('草稿已恢复');
-          },
-          onCancel: () => {
-            clearDraft();
-          }
-        });
-      }
-    }
+    };
+
+    loadExamData();
   }, [editId, draftChecked]);
 
   useEffect(() => {
@@ -261,13 +248,40 @@ function ExamSetEntry() {
     '数学': ['一次函数', '二次函数', '几何', '统计']
   };
 
+  // 保存套题ID，用于后续操作
+  const [examId, setExamId] = useState(null);
+
   const handleNext = async () => {
     if (currentStep === 0) {
       try {
         await form.validateFields(['title', 'year', 'type', 'difficulty', 'region', 'description']);
+        
+        // 获取表单数据
+        const baseInfo = form.getFieldsValue();
+        
+        // 准备新增套题接口所需数据
+        const examData = {
+          examName: baseInfo.title,
+          examType: baseInfo.type,
+          examYear: baseInfo.year.toString(),
+          examRegion: baseInfo.region,
+          difficulty: baseInfo.difficulty.toUpperCase(), // 转换为大写
+          examDescription: baseInfo.description,
+          source: '官方样题', // 默认值，后续可从表单获取
+          creatorId: 1, // 假设当前用户ID为1，后续可从登录信息获取
+          status: 0
+        };
+        
+        // 调用新增套题接口
+        const result = await createExamSet(examData);
+        
+        // 保存返回的套题ID
+        setExamId(result.examId);
+        
+        message.success('套题基础信息保存成功');
         setCurrentStep(1);
       } catch (error) {
-        message.error('请完善套题基础信息');
+        message.error('请完善套题基础信息或保存失败');
       }
     } else if (currentStep === 1) {
       if (sections.length === 0) {
@@ -293,17 +307,42 @@ function ExamSetEntry() {
   const handleSaveSection = async () => {
     try {
       const values = await sectionForm.validateFields();
+      
+      // 准备新增Section接口所需数据
+      const sectionData = {
+        examId: examId, // 使用之前保存的套题ID
+        sectionName: values.name,
+        sectionCategory: values.subject,
+        sectionTiming: values.duration,
+        creatorId: 1, // 假设当前用户ID为1，后续可从登录信息获取
+        status: 0
+      };
+      
+      // 调用新增Section接口
+      const result = await createExamSection(sectionData);
+      
       if (editingSection) {
-        setSections(prev => prev.map(s => s.id === editingSection.id ? { ...s, ...values } : s));
+        // 编辑模式
+        setSections(prev => prev.map(s => 
+          s.id === editingSection.id ? { ...s, ...values, sectionId: result.sectionId } : s
+        ));
         message.success('Section 已更新');
       } else {
-        const newSection = { ...values, id: `s${Date.now()}`, selectedQuestions: [] };
+        // 新增模式
+        const newSection = { 
+          ...values, 
+          id: result.sectionId, // 使用接口返回的Section ID
+          sectionId: result.sectionId,
+          selectedQuestions: [] 
+        };
         setSections(prev => [...prev, newSection]);
         message.success('Section 已添加');
       }
+      
       setIsSectionModalVisible(false);
     } catch (error) {
-      console.error('Validate Failed:', error);
+      console.error('保存Section失败:', error);
+      message.error('保存Section失败，请稍后重试');
     }
   };
 
@@ -386,26 +425,42 @@ function ExamSetEntry() {
     setShowSummaryModal(true);
   };
 
-  const handleConfirmSubmit = () => {
-    const baseInfo = form.getFieldsValue();
-    const finalData = {
-      id: editId ? parseInt(editId) : Date.now(),
-      ...baseInfo,
-      sections: sections.map(s => ({
-        ...s,
-        selectedQuestions: questions.filter(q => q.sectionId === s.id).map(q => q.id)
-      })),
-      totalQuestions: questions.length,
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-
-    console.log(isEditMode ? '更新套题数据:' : '提交完整套题数据:', finalData);
-    
-    clearDraft();
-    setShowSummaryModal(false);
-    
-    message.success(isEditMode ? '套题更新成功！' : '套题录入成功！');
-    navigate('/exam-set-management');
+  const handleConfirmSubmit = async () => {
+    try {
+      // 准备批量新增题目接口所需数据
+      const questionsData = questions.map(question => {
+        // 查找对应的section以获取sectionId
+        const section = sections.find(s => s.id === question.sectionId);
+        
+        return {
+          examId: examId, // 使用之前保存的套题ID
+          sectionId: section ? section.sectionId : question.sectionId, // 使用接口返回的Section ID
+          questionType: question.interactionType, // 转换为后端需要的字段名
+          questionCategory: question.subject.toUpperCase(), // 转换为大写
+          questionSubCategory: question.type, // 题目类型
+          difficulty: question.difficulty.toUpperCase(), // 转换为大写
+          questionContent: question.content,
+          questionDescription: question.description || '',
+          optionA: question.options[0] || '',
+          optionB: question.options[1] || '',
+          optionC: question.options[2] || '',
+          optionD: question.options[3] || '',
+          answer: question.correctAnswer
+        };
+      });
+      
+      // 调用批量新增题目接口
+      await batchCreateQuestions(questionsData);
+      
+      clearDraft();
+      setShowSummaryModal(false);
+      
+      message.success(isEditMode ? '套题更新成功！' : '套题录入成功！');
+      navigate('/exam-set-management');
+    } catch (error) {
+      console.error('提交套题失败:', error);
+      message.error('提交套题失败，请稍后重试');
+    }
   };
 
   const formatText = (text) => {
@@ -1418,4 +1473,3 @@ function ExamSetEntry() {
 }
 
 export default ExamSetEntry;
-
