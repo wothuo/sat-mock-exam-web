@@ -500,7 +500,7 @@ function ExamSetEntry() {
         if (!result) {
           // 暂存Section信息存放在Section列表中
           const newSection = {
-            id: Date.now(), // 使用当前时间戳作为临时ID
+            id: Date.now() * -1, // 使用当前时间戳的负值作为临时ID
             examId: examId, // 使用之前保存的套题ID
             name: values.name,
             subject: values.subject,
@@ -525,8 +525,14 @@ function ExamSetEntry() {
   };
 
   const removeSection = (id) => {
-    setSections(prev => prev.filter(s => s.id !== id));
-    setQuestions(prev => prev.filter(q => q.sectionId !== id));
+    // 设置section的delFlag为1（软删除）
+    setSections(prev => prev.map(s => 
+      s.id === id ? { ...s, delFlag: '1' } : s
+    ));
+    // 设置该section下所有题目的delFlag为1
+    setQuestions(prev => prev.map(q => 
+      q.sectionId === id ? { ...q, delFlag: '1' } : q
+    ));
   };
 
   const addQuestion = () => {
@@ -534,7 +540,7 @@ function ExamSetEntry() {
       message.warning('请先在第二步定义 Section 信息');
       return;
     }
-    const newId = Date.now();
+    const newId = Date.now() * -1;
     const defaultSection = sections[0];
     const questionTypes = questionTypesMap[defaultSection.subject] || [];
     const newQuestion = {
@@ -630,14 +636,14 @@ function ExamSetEntry() {
 
       // 准备examSections数据
       examSections = sections.map(section => ({
-
         ...(isEditMode && { examId: parseInt(editId) }), // 编辑模式下包含 examId
-        ...(isEditMode && { sectionId: section.id }), // 编辑模式下包含 examId
+        ...(isEditMode && { sectionId: section.id }), // 编辑模式下包含 sectionId
         sectionName: section.name,
         sectionCategory: section.subject,
         sectionDifficulty: (section.difficulty || '').toUpperCase(), // 转换为大写，处理undefined
         sectionTiming: section.duration,
-        status: 0
+        status: 0,
+        delFlag: section.delFlag || '0' // 添加删除标记，默认值为'0'（未删除）
       }));
       
       // 准备questions数据
@@ -658,8 +664,19 @@ function ExamSetEntry() {
           optionC: question.options[2] || '',
           optionD: question.options[3] || '',
           answer: question.correctAnswer,
-          analysis: question.explanation || ''
+          analysis: question.explanation || '',
+          delFlag: question.delFlag || '0' // 添加删除标记，默认值为'0'（未删除）
         };
+      });
+
+      // 打印提交请求内容
+      console.log('提交套题请求数据:', {
+        mode: isEditMode ? '编辑模式' : '新增模式',
+        examPool: examPool,
+        examSections: examSections,
+        questions: questionsData,
+        sectionsCount: examSections.length,
+        questionsCount: questionsData.length
       });
 
       if (isEditMode) {
@@ -1042,7 +1059,9 @@ function ExamSetEntry() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {sections.map((section, index) => (
+                {sections
+                  .filter(section => section.delFlag !== '1') // 过滤掉已删除的section
+                  .map((section, index) => (
                   <Card 
                     key={section.id}
                     className="rounded-2xl border-gray-100 shadow-sm hover:shadow-md transition-shadow"
@@ -1058,16 +1077,61 @@ function ExamSetEntry() {
                           <div className="flex items-center flex-shrink-0 ml-2">
                             <Tag color="purple" className="m-0 rounded-md border-0 font-bold text-[10px] mr-2">{section.subject}</Tag>
                             <Button type="text" size="small" icon={<EditOutlined className="text-blue-500" />} onClick={() => handleEditSection(section)} />
-                            <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={() => removeSection(section.id)} />
+                            <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={() => {
+                              Modal.confirm({
+                                icon: null, // 禁用默认的感叹号图标
+                                title: (
+                                  <div className="flex items-center space-x-2">
+                                    <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                                      <DeleteOutlined className="text-red-600 text-sm" />
+                                    </div>
+                                    <span className="text-red-700 font-semibold">确认删除Section</span>
+                                  </div>
+                                ),
+                                content: (
+                                  <div className="py-2">
+                                    <div className="text-gray-800 mb-2">
+                                      您即将删除Section：
+                                      <span className="font-semibold text-purple-600 ml-1">"{section.name}"</span>
+                                    </div>
+                                    <div className="text-red-600 text-sm bg-red-50 rounded-lg p-3 border border-red-200">
+                                      <span>同时将删除该Section下的所有题目，且不可恢复！</span>
+                                    </div>
+                                  </div>
+                                ),
+                                okText: '确认删除',
+                                cancelText: '取消',
+                                okButtonProps: { 
+                                  danger: true,
+                                  className: 'h-10 px-6 font-medium'
+                                },
+                                cancelButtonProps: {
+                                  className: 'h-10 px-6 font-medium'
+                                },
+                                className: 'delete-confirm-modal',
+                                onOk: () => removeSection(section.id)
+                              });
+                            }} />
                           </div>
                         </div>
                       </div>
                     }
                   >
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center px-4">
                       <div>
                         <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Duration</div>
                         <div className="font-bold text-gray-700">{section.duration} min</div>
+                      </div>
+                      <div className="flex items-center">
+                        <div className="text-right">
+                          <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Difficulty</div>
+                          <div className="flex items-center justify-end">
+                            <i className={`fas fa-star ${section.difficulty === 'Easy' ? 'text-green-500' : section.difficulty === 'Hard' ? 'text-red-500' : 'text-yellow-500'} text-sm`} />
+                            <span className="text-xs font-medium ml-1 text-gray-600">
+                              {section.difficulty === 'Easy' ? '简单' : section.difficulty === 'Hard' ? '困难' : '中等'}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                       {section.description && (
                         <div className="text-right flex-1 ml-4">
@@ -1222,36 +1286,52 @@ function ExamSetEntry() {
                   </Button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
-                  {questions.map((q, index) => (
+                  {questions.map((q, index) => {
+                    const isDeleted = q.delFlag === '1';
+                    const section = sections.find(s => s.id === q.sectionId);
+                    const isSectionDeleted = section?.delFlag === '1';
+                    
+                    return (
                     <div 
-                      key={q.id}
-                      onClick={() => setSelectedQuestionId(q.id)}
-                      className={`p-2.5 rounded-xl cursor-pointer transition-all border-2 ${
-                        selectedQuestionId === q.id 
-                          ? 'border-blue-500 bg-blue-50 shadow-sm' 
-                          : 'border-transparent hover:bg-gray-50'
+                      key={q.id || `question-${index}`}
+                      onClick={() => !isDeleted && setSelectedQuestionId(q.id)}
+                      className={`p-2.5 rounded-xl transition-all border-2 ${
+                        isDeleted 
+                          ? 'border-red-200 bg-red-50/50 cursor-not-allowed' 
+                          : selectedQuestionId === q.id 
+                            ? 'border-blue-500 bg-blue-50 shadow-sm cursor-pointer' 
+                            : 'border-transparent hover:bg-gray-50 cursor-pointer'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1.5">
                         <div className="flex items-center space-x-2">
                           <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                            selectedQuestionId === q.id ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                            isDeleted 
+                              ? 'bg-red-500 text-white' 
+                              : selectedQuestionId === q.id 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-gray-200 text-gray-500'
                           }`}>
-                            {index + 1}
+                            {isDeleted ? '×' : index + 1}
                           </span>
                           <Tag color={q.interactionType === 'CHOICE' ? 'blue' : 'green'} className="m-0 border-0 text-[9px] font-bold px-1.5 leading-3">
                             {q.interactionType === 'CHOICE' ? 'CHOICE' : 'BLANK'}
                           </Tag>
                         </div>
-                        <Tag color="purple" className="m-0 border-0 text-[9px] font-bold px-1 leading-3">
-                          {sections.find(s => s.id === q.sectionId)?.name.split(':')[0] || '未分配'}
+                        <Tag color={isSectionDeleted ? 'red' : 'purple'} className="m-0 border-0 text-[9px] font-bold px-1 leading-3">
+                          {section?.name?.split(':')[0] || '未分配'}
+                          {isSectionDeleted && ' (已删除)'}
                         </Tag>
                       </div>
-                      <div className="text-[10px] text-gray-500 font-medium leading-tight">
-                        {q.status || '已录入'}
+                      <div className="text-[10px] font-medium leading-tight">
+                        {isDeleted ? (
+                          <span className="text-red-500">已删除</span>
+                        ) : (
+                          <span className="text-gray-500">{q.status || '已录入'}</span>
+                        )}
                       </div>
                     </div>
-                  ))}
+                  )})}
                   {questions.length === 0 && (
                     <div className="py-20 text-center">
                       <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="暂无题目" />
@@ -1576,16 +1656,11 @@ function ExamSetEntry() {
           </div>
 
           <div className="mt-8 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-5">
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                <i className="fas fa-exclamation-triangle text-white text-sm"></i>
-              </div>
-              <div>
-                <h4 className="font-bold text-amber-900 mb-2">提交前请确认</h4>
-                <p className="text-sm text-amber-800 leading-relaxed">
-                  请仔细核对各 Section 的题目数量和分布情况，确认无误后点击「确认提交」完成录入。提交后将无法修改，如需调整请点击「返回修改」。
-                </p>
-              </div>
+            <div>
+              <h4 className="font-bold text-amber-900 mb-2">提交前请确认</h4>
+              <p className="text-sm text-amber-800 leading-relaxed">
+                请仔细核对各 Section 的题目数量和分布情况，确认无误后点击「确认提交」完成录入。提交后将无法修改，如需调整请点击「返回修改」。
+              </p>
             </div>
           </div>
         </div>
@@ -1632,11 +1707,17 @@ function ExamSetEntry() {
                 optionLabelProp="children"
                 classNames={{ popup: 'section-dropdown' }}
                 onChange={(value) => {
-                  // 根据选择的Section自动设置科目
+                  // 根据选择的Section自动设置科目和默认时长
                   if (value.includes('Reading and Writing')) {
-                    sectionForm.setFieldsValue({ subject: '阅读语法' });
+                    sectionForm.setFieldsValue({ 
+                      subject: '阅读语法',
+                      duration: 32 
+                    });
                   } else if (value.includes('Math')) {
-                    sectionForm.setFieldsValue({ subject: '数学' });
+                    sectionForm.setFieldsValue({ 
+                      subject: '数学',
+                      duration: 35 
+                    });
                   }
                 }}
               >

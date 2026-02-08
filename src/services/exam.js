@@ -287,3 +287,13 @@ export const updateExamSectionAndQuestion = async (data) => {
   const response = await post('/exam/update/submit', data);
   return response.data;
 };
+
+/**
+ * 删除套题
+ * @param {number} examId - 套题ID
+ * @returns {Promise} 删除结果
+ */
+export const deleteExam = async (examId) => {
+  const response = await post('/exam/delete', examId);
+  return response.data;
+};
