@@ -13,6 +13,7 @@ import {
     Modal,
     Select,
     Space,
+    Spin,
     Steps,
     Tag,
     message
@@ -22,8 +23,7 @@ import {
     CheckCircleOutlined,
     DeleteOutlined,
     EditOutlined,
-    PlusOutlined,
-    SaveOutlined
+    PlusOutlined
 } from '@ant-design/icons';
 
 import {
@@ -37,13 +37,15 @@ import {
 } from '@/services/exam';
 
 import RichTextEditor from './components/RichTextEditor';
+import ExamSetBaseInfoForm from './components/ExamSetBaseInfoForm';
+import ExamSetSectionStep from './components/ExamSetSectionStep';
+import { parseQuestionOptions, getQuestionOptionsForSubmit } from './examSetEntryUtils';
 
 const { Option } = Select;
 const { TextArea } = Input;
 const { Panel } = Collapse;
 
 const DRAFT_STORAGE_KEY = 'exam_set_draft';
-const DRAFT_EXPIRY_DAYS = 90;
 
 function ExamSetEntry() {
   const navigate = useNavigate();
@@ -61,13 +63,16 @@ function ExamSetEntry() {
   const [editingSection, setEditingSection] = useState(null);
   const [sectionForm] = Form.useForm();
   
-  const [lastSaveTime, setLastSaveTime] = useState(null);
-  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
-  const autoSaveTimerRef = useRef(null);
   const questionListRef = useRef(null);
-  const [draftChecked, setDraftChecked] = useState(false);
+  const [examId, setExamId] = useState(null);
+  const [examData, setExamData] = useState(null);
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [stepNextLoading, setStepNextLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [sectionSaveLoading, setSectionSaveLoading] = useState(false);
 
   const fetchExamSetData = async (id) => {
+    setFetchLoading(true);
     try {
       // 这里需要根据实际后端接口进行修改，当前假设从getExamSetList中过滤出单个套题
       // 实际项目中应该有专门的获取单个套题详情的接口
@@ -76,18 +81,13 @@ function ExamSetEntry() {
         pageNum: 1,
         pageSize: 100 // 足够大的数量以确保能获取到所有套题
       };
-      
+
       const result = await getExamSetList(params);
-      
+
       if (result && result.list) {
-        // 查找对应ID的套题
-        const examSet = result.list.find(item => item.examId === parseInt(id));
-        
+        const examSet = result.list.find(item => item.examId === parseInt(id, 10));
+
         if (examSet) {
-          console.log('获取到的套题详情:', examSet);
-          console.log('套题描述:', examSet.examDescription);
-          
-          // 转换为组件需要的数据格式
           return {
             id: examSet.examId,
             title: examSet.examName,
@@ -104,60 +104,18 @@ function ExamSetEntry() {
       
       return null;
     } catch (error) {
-      console.error('获取套题数据失败:', error);
       message.error('获取套题数据失败');
       return null;
-    }
-  };
-
-  const loadDraft = () => {
-    try {
-      const draftStr = localStorage.getItem(DRAFT_STORAGE_KEY);
-      if (!draftStr) return null;
-      
-      const draft = JSON.parse(draftStr);
-      const now = new Date().getTime();
-      const expiryTime = new Date(draft.savedAt).getTime() + (DRAFT_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
-      
-      if (now > expiryTime) {
-        localStorage.removeItem(DRAFT_STORAGE_KEY);
-        return null;
-      }
-      
-      return draft;
-    } catch (error) {
-      console.error('加载草稿失败:', error);
-      return null;
-    }
-  };
-
-  const saveDraft = () => {
-    try {
-      const baseInfo = form.getFieldsValue();
-      const draft = {
-        baseInfo,
-        sections,
-        questions,
-        currentStep,
-        examId, // 保存套题ID
-        savedAt: new Date().toISOString()
-      };
-      
-      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
-      setLastSaveTime(new Date());
-      message.success('草稿已保存');
-    } catch (error) {
-      console.error('保存草稿失败:', error);
-      message.error('草稿保存失败');
+    } finally {
+      setFetchLoading(false);
     }
   };
 
   const clearDraft = () => {
     try {
       localStorage.removeItem(DRAFT_STORAGE_KEY);
-      setLastSaveTime(null);
-    } catch (error) {
-      console.error('清除草稿失败:', error);
+    } catch {
+      // 静默失败
     }
   };
 
@@ -165,24 +123,22 @@ function ExamSetEntry() {
     const loadExamData = async () => {
       if (editId) {
         setIsEditMode(true);
-        const examData = await fetchExamSetData(editId);
+        const data = await fetchExamSetData(editId);
         
-        if (examData) {
+        if (data) {
           form.setFieldsValue({
-            title: examData.title,
-            year: examData.year,
-            type: examData.type,
-            region: examData.region,
-            difficulty: examData.difficulty,
-            description: examData.description
+            title: data.title,
+            year: data.year,
+            type: data.type,
+            region: data.region,
+            difficulty: data.difficulty,
+            description: data.description
           });
 
-          setSections(examData.sections || []);
-          setExamId(examData.id); // 保存套题ID
+          setSections(data.sections || []);
+          setExamId(data.id);
 
-          // 在实际项目中，这里应该调用获取题目列表的接口
-          // 暂时使用模拟数据
-          const mockQuestions = examData.sections.flatMap(section => 
+          const mockQuestions = (data.sections || []).flatMap(section => 
             (section.selectedQuestions || []).map(qId => ({
               id: qId,
               sectionId: section.id,
@@ -199,90 +155,33 @@ function ExamSetEntry() {
           );
           setQuestions(mockQuestions);
         }
-      } else if (!draftChecked) {
-        setDraftChecked(true);
-        const draft = loadDraft();
-        if (draft) {
-          Modal.confirm({
-            title: '发现未完成的草稿',
-            content: `上次保存时间：${new Date(draft.savedAt).toLocaleString()}，是否恢复？`,
-            okText: '恢复草稿',
-            cancelText: '放弃草稿',
-            onOk: () => {
-              form.setFieldsValue(draft.baseInfo);
-              setSections(draft.sections || []);
-              setQuestions(draft.questions || []);
-              setCurrentStep(draft.currentStep || 0);
-              setLastSaveTime(new Date(draft.savedAt));
-              if (draft.examId) {
-                setExamId(draft.examId); // 恢复草稿中的套题ID
-              }
-              message.success('草稿已恢复');
-            },
-            onCancel: () => {
-              clearDraft();
-            }
-          });
-        }
       }
     };
 
     loadExamData();
-  }, [editId, draftChecked]);
-
-  useEffect(() => {
-    if (!isEditMode && autoSaveEnabled) {
-      if (autoSaveTimerRef.current) {
-        clearInterval(autoSaveTimerRef.current);
-      }
-      
-      autoSaveTimerRef.current = setInterval(() => {
-        const baseInfo = form.getFieldsValue();
-        if (baseInfo.title || sections.length > 0 || questions.length > 0) {
-          saveDraft();
-        }
-      }, 30000);
-    }
-    
-    return () => {
-      if (autoSaveTimerRef.current) {
-        clearInterval(autoSaveTimerRef.current);
-      }
-    };
-  }, [isEditMode, autoSaveEnabled, sections, questions]);
+  }, [editId]);
 
   const subjects = ['数学', '阅读', '语法'];
   const difficulties = ['Easy', 'Medium', 'Hard'];
-  const regions = ['北美', '亚太', '欧洲', '其他'];
-  const examTypes = ['SAT', 'IELTS', 'TOEFL', 'GRE'];
-  const years = [2025, 2024, 2023, 2022, 2021];
-  const sources = ['历年真题', '官方样题', '模拟试题', '机构题库', '教师自编', '其他'];
 
   const questionTypesMap = {
     '阅读语法': ['词汇题', '结构目的题', '主旨细节题', '推断题', '标点符号', '句子连接', '逻辑词'],
     '数学': ['一次函数', '二次函数', '几何', '统计']
   };
 
-  // 保存套题ID，用于后续操作
-  const [examId, setExamId] = useState(null);
-  // 暂存套题信息，用于后续操作
-  const [examData, setExamData] = useState(null);
-
   const handleNext = async () => {
     if (currentStep === 0) {
+      setStepNextLoading(true);
       try {
         await form.validateFields(['title', 'year', 'type', 'difficulty', 'region', 'description']);
-        
-        // 获取表单数据
+
         const baseInfo = form.getFieldsValue();
-        
+
         if (isEditMode) {
-          // 编辑模式：编辑后需要校验套题是否存在
-          const examId = parseInt(editId);
+          const editExamId = parseInt(editId, 10);
           
-          // 准备更新套题接口所需数据
-          const examData = {
-            examId: examId,
+          const payload = {
+            examId: editExamId,
             examName: baseInfo.title,
             examType: baseInfo.type,
             examYear: baseInfo.year.toString(),
@@ -292,26 +191,17 @@ function ExamSetEntry() {
             source: baseInfo.source || '官方样题', // 默认值，后续可从表单获取
             status: 0
           };
-          
-          // 调用checkExamExists接口检查套题是否存在
-          const examExists = await checkExamExists(examData);
-          console.log('checkExamExists接口返回结果:', examExists); // 添加调试日志
+
+          const examExists = await checkExamExists(payload);
           if (examExists) {
             message.warning('套题已存在，请检查套题名称、年份、类型、区域、难度或描述是否重复');
             return;
           }
-          // 暂存套题信息
-          setExamData(examData);
-          
-          // 保存套题ID
-          setExamId(examId);
+          setExamData(payload);
+          setExamId(editExamId);
 
-          // 编辑模式下
-          // 调用getSectionListByExamId接口查询section列表信息
-          if (isEditMode && examId) {
-            console.log('调用getSectionListByExamId接口，examId:', examId); // 添加调试日志
-            try {
-              const sectionListData = await getSectionListByExamId(examId);
+          try {
+            const sectionListData = await getSectionListByExamId(editExamId);
               if (sectionListData && sectionListData.length > 0) {
                 // 转换数据格式以匹配前端需求
                 const formattedSections = sectionListData.map(section => ({
@@ -325,10 +215,8 @@ function ExamSetEntry() {
                 setSections(formattedSections);
                 message.success('Section列表信息已更新');
               }
-            } catch (error) {
-              console.error('获取Section列表失败:', error);
-              message.error('获取Section列表信息失败');
-            }
+          } catch (error) {
+            message.error('获取Section列表信息失败');
           }
 
           message.success('套题基础信息更新成功');
@@ -365,94 +253,52 @@ function ExamSetEntry() {
         setCurrentStep(1);
       } catch (error) {
         message.error('请完善套题基础信息或保存失败');
+      } finally {
+        setStepNextLoading(false);
       }
     } else if (currentStep === 1) {
       if (sections.length === 0) {
         message.warning('请至少添加一个 Section');
         return;
       }
-      // 调用getQuestionListByExamId接口查询question列表信息
       if (isEditMode && examId) {
-        console.log('调用getQuestionListByExamId接口，examId:', examId); // 添加调试日志
+        setStepNextLoading(true);
         try {
           const questionListData = await getQuestionListByExamId(examId);
           if (questionListData && questionListData.length > 0) {
-            // 转换数据格式以匹配前端需求
-            // 根据接口文档，返回数据结构为: [{question: {...}, sectionName: "..."}]
             const formattedQuestions = questionListData.map(item => {
-            const { question, sectionName } = item;
-            // 健壮的options数据解析方案，处理多种可能的格式
-            let optionsArray = ['', '', '', ''];
-            
-            try {
-              if (question.options) {
-                // 情况1：如果options已经是数组，直接使用
-                if (Array.isArray(question.options)) {
-                  optionsArray = [...question.options];
-                  // 确保数组至少有4个元素
-                  while (optionsArray.length < 4) {
-                    optionsArray.push('');
-                  }
-                }
-                // 情况2：如果options是JSON字符串，解析为对象
-                else if (typeof question.options === 'string') {
-                  const optionsObj = JSON.parse(question.options);
-                  if (typeof optionsObj === 'object' && optionsObj !== null) {
-                    // 尝试多种可能的字段命名
-                    optionsArray = [
-                      optionsObj.optionA || optionsObj.A || optionsObj.a || optionsObj[0] || '',
-                      optionsObj.optionB || optionsObj.B || optionsObj.b || optionsObj[1] || '',
-                      optionsObj.optionC || optionsObj.C || optionsObj.c || optionsObj[2] || '',
-                      optionsObj.optionD || optionsObj.D || optionsObj.d || optionsObj[3] || ''
-                    ];
-                  }
-                }
-                // 情况3：如果options是对象，直接处理
-                else if (typeof question.options === 'object') {
-                  const optionsObj = question.options;
-                  optionsArray = [
-                    optionsObj.optionA || optionsObj.A || optionsObj.a || optionsObj[0] || '',
-                    optionsObj.optionB || optionsObj.B || optionsObj.b || optionsObj[1] || '',
-                    optionsObj.optionC || optionsObj.C || optionsObj.c || optionsObj[2] || '',
-                    optionsObj.optionD || optionsObj.D || optionsObj.d || optionsObj[3] || ''
-                  ];
-                }
-              }
-            } catch (e) {
-              console.error('解析options失败:', e);
-              // 解析失败时使用默认空数组
-              optionsArray = ['', '', '', ''];
-            }
-
-            return {
-              id: question.questionId,
-              sectionId: question.sectionId,
-              sectionName: sectionName,
-              questionCategory: question.questionCategory,
-              questionSubCategory: question.questionSubCategory,
-              difficulty: question.difficulty,
-              type: question.questionType,
-              interactionType: question.questionType, // 添加 interactionType 字段，与 type 保持一致
-              content: question.questionContent,
-              description: question.questionDescription,
-              options: optionsArray,
-              answer: question.answer,
-              correctAnswer: question.answer || '', // 映射answer到correctAnswer
-              explanation: question.analysis || '', // 映射analysis到explanation
-              score: question.score,
-              status: question.status,
-              delFlag: question.delFlag,
-              creatorId: question.creatorId,
-              createTime: question.createTime,
-              updateTime: question.updateTime
-            };
-          });
+              const { question, sectionName } = item;
+              const optionsArray = parseQuestionOptions(question.options);
+              return {
+                id: question.questionId,
+                sectionId: question.sectionId,
+                sectionName,
+                questionCategory: question.questionCategory,
+                questionSubCategory: question.questionSubCategory,
+                difficulty: question.difficulty,
+                type: question.questionType,
+                interactionType: question.questionType,
+                content: question.questionContent,
+                description: question.questionDescription,
+                options: optionsArray,
+                answer: question.answer,
+                correctAnswer: question.answer || '',
+                explanation: question.analysis || '',
+                score: question.score,
+                status: question.status,
+                delFlag: question.delFlag,
+                creatorId: question.creatorId,
+                createTime: question.createTime,
+                updateTime: question.updateTime
+              };
+            });
             setQuestions(formattedQuestions);
             message.success('Question列表信息已更新');
           }
         } catch (error) {
-          console.error('获取Question列表失败:', error);
           message.error('获取Question列表信息失败');
+        } finally {
+          setStepNextLoading(false);
         }
       }
       setCurrentStep(2);
@@ -474,6 +320,7 @@ function ExamSetEntry() {
   };
 
   const handleSaveSection = async () => {
+    setSectionSaveLoading(true);
     try {
       const values = await sectionForm.validateFields();
       
@@ -521,8 +368,9 @@ function ExamSetEntry() {
       
       setIsSectionModalVisible(false);
     } catch (error) {
-      console.error('保存Section失败:', error);
       message.error('保存Section失败，请稍后重试');
+    } finally {
+      setSectionSaveLoading(false);
     }
   };
 
@@ -607,12 +455,13 @@ function ExamSetEntry() {
   const [summaryFormValues, setSummaryFormValues] = useState({});
 
   const handleSubmit = async () => {
-    if (questions.length === 0) {
+    const activeQuestionsList = questions.filter(q => q.delFlag !== '1');
+    if (activeQuestionsList.length === 0) {
       message.warning('请至少录入一道题目');
       return;
     }
 
-    const unassigned = questions.some(q => !q.sectionId);
+    const unassigned = activeQuestionsList.some(q => !q.sectionId);
     if (unassigned) {
       message.error('存在未分配 Section 的题目，请检查');
       return;
@@ -625,99 +474,82 @@ function ExamSetEntry() {
 
   const handleConfirmSubmit = async () => {
     let examPool, examSections, questionsData;
+    setSubmitLoading(true);
     try {
-      // 获取表单数据
       const baseInfo = form.getFieldsValue();
-      
-      // 准备examPool数据
+
       examPool = {
-        ...(isEditMode && { examId: parseInt(editId) }), // 新增套题时 不包含examId字段
+        ...(isEditMode && { examId: parseInt(editId, 10) }),
         examName: baseInfo.title,
         examType: baseInfo.type,
         examYear: baseInfo.year?.toString(),
         examRegion: baseInfo.region,
-        difficulty: (baseInfo.difficulty || '').toUpperCase(), // 转换为大写，处理undefined
+        difficulty: (baseInfo.difficulty || '').toUpperCase(),
         examDescription: baseInfo.description,
-        source: baseInfo.source || '官方样题', // 从表单获取，默认值为官方样题
-        creatorId: 1, // TODO 假设当前用户ID为1，后续可从登录信息获取
+        source: baseInfo.source || '官方样题',
+        creatorId: 1,
         status: 0
       };
 
-      // 准备examSections数据
-      examSections = sections.map(section => ({
-        ...(isEditMode && { examId: parseInt(editId) }), // 编辑模式下包含 examId
-        ...(isEditMode && { sectionId: section.id }), // 编辑模式下包含 sectionId
+      // 编辑模式提交全部 section/question（含 delFlag）供后端软删；新增模式仅提交未删除项
+      const sectionsToSubmit = isEditMode ? sections : sections.filter(s => s.delFlag !== '1');
+      const questionsToSubmit = isEditMode ? questions : questions.filter(q => q.delFlag !== '1');
+
+      examSections = sectionsToSubmit.map(section => ({
+        ...(isEditMode && { examId: parseInt(editId, 10) }),
+        ...(isEditMode && { sectionId: section.id }),
         sectionName: section.name,
         sectionCategory: section.subject,
-        sectionDifficulty: (section.difficulty || '').toUpperCase(), // 转换为大写，处理undefined
+        sectionDifficulty: (section.difficulty || '').toUpperCase(),
         sectionTiming: section.duration,
         status: 0,
-        delFlag: section.delFlag || '0' // 添加删除标记，默认值为'0'（未删除）
+        delFlag: section.delFlag || '0'
       }));
-      
-      // 准备questions数据
-      questionsData = questions.map(question => {
 
+      questionsData = questionsToSubmit.map(question => {
+        const [optionA, optionB, optionC, optionD] = getQuestionOptionsForSubmit(question);
         return {
-          ...(isEditMode && { questionId: question.id }), // 编辑模式下包含 questionId
+          ...(isEditMode && { questionId: question.id }),
           sectionId: question.sectionId,
           sectionName: question.sectionName,
           questionType: question.interactionType,
-          questionCategory: (question.subject || '').toUpperCase(), // 转换为大写，处理undefined
+          questionCategory: (question.subject || '').toUpperCase(),
           questionSubCategory: question.type,
-          difficulty: (question.difficulty || '').toUpperCase(), // 转换为大写，处理undefined
+          difficulty: (question.difficulty || '').toUpperCase(),
           questionContent: question.content,
           questionDescription: question.description || '',
-          optionA: question.options[0] || '',
-          optionB: question.options[1] || '',
-          optionC: question.options[2] || '',
-          optionD: question.options[3] || '',
+          optionA,
+          optionB,
+          optionC,
+          optionD,
           answer: question.correctAnswer,
           analysis: question.explanation || '',
-          delFlag: question.delFlag || '0' // 添加删除标记，默认值为'0'（未删除）
+          delFlag: question.delFlag || '0'
         };
       });
 
-      // 打印提交请求内容
-      console.log('提交套题请求数据:', {
-        mode: isEditMode ? '编辑模式' : '新增模式',
-        examPool: examPool,
-        examSections: examSections,
-        questions: questionsData,
-        sectionsCount: examSections.length,
-        questionsCount: questionsData.length
-      });
-
       if (isEditMode) {
-        // 编辑模式：调用updateExamSectionAndQuestion接口
-        // TODO Redundant 'await' for a non-promise type
         await updateExamSectionAndQuestion({
           examPool,
           examSections,
           questions: questionsData
         });
       } else {
-        // 新增模式：调用submitExamSet接口
         await submitExamSet({
           examPool,
           examSections,
           questions: questionsData
         });
       }
-      
+
       clearDraft();
       setShowSummaryModal(false);
-      
       message.success(isEditMode ? '套题更新成功！' : '套题录入成功！');
       navigate('/exam-set-management');
     } catch (error) {
-      console.error('提交套题失败:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        requestData: { examPool, examSections, questionsData } // 注意：敏感数据需脱敏
-      });
       message.error('提交套题失败，请稍后重试');
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -913,6 +745,14 @@ function ExamSetEntry() {
     }
   }, [currentStep, selectedQuestionId, questions]);
 
+  if (fetchLoading && editId) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8 flex items-center justify-center min-h-[400px]">
+        <Spin size="large" tip="加载套题数据中..." />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-8">
@@ -944,247 +784,25 @@ function ExamSetEntry() {
           }}
         >
           <div className={currentStep === 0 ? 'block' : 'hidden'}>
-            <Card className="rounded-3xl shadow-sm border-gray-100">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                <Form.Item
-                  name="title"
-                  label={<span className="font-bold text-gray-700">套题名称</span>}
-                  rules={[{ required: true, message: '请输入套题名称' }]}
-                >
-                  <Input placeholder="例如：2025年3月北美SAT真题" className="h-11 rounded-xl" />
-                </Form.Item>
-
-                <Form.Item
-                  name="year"
-                  label={<span className="font-bold text-gray-700">套题年份</span>}
-                  rules={[{ required: true, message: '请选择年份' }]}
-                >
-                  <Select placeholder="选择年份" className="h-11 rounded-xl">
-                    {years.map(y => <Option key={y} value={y}>{y} 年</Option>)}
-                  </Select>
-                </Form.Item>
-
-                <Form.Item
-                  name="type"
-                  label={<span className="font-bold text-gray-700">考试类型</span>}
-                  rules={[{ required: true, message: '请选择考试类型' }]}
-                >
-                  <Select placeholder="选择类型" className="h-11 rounded-xl">
-                    {examTypes.map(t => (
-                      <Option key={t} value={t} disabled={t !== 'SAT'}>
-                        {t}{t !== 'SAT' ? ' (暂不支持)' : ''}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-
-                <Form.Item
-                  name="region"
-                  label={<span className="font-bold text-gray-700">考试地区</span>}
-                  rules={[{ required: true, message: '请选择地区' }]}
-                >
-                  <Select placeholder="选择地区" className="h-11 rounded-xl">
-                    {regions.map(r => <Option key={r} value={r}>{r}</Option>)}
-                  </Select>
-                </Form.Item>
-
-                <Form.Item
-                  name="difficulty"
-                  label={<span className="font-bold text-gray-700">整体难度</span>}
-                  rules={[{ required: true, message: '请选择难度' }]}
-                >
-                  <Select placeholder="选择难度" className="h-11 rounded-xl">
-                    {difficulties.map(d => <Option key={d} value={d}>{d}</Option>)}
-                  </Select>
-                </Form.Item>
-
-                <Form.Item
-                  name="source"
-                  label={<span className="font-bold text-gray-700">套题来源</span>}
-                  initialValue="历年真题"
-                  rules={[{ required: true, message: '请选择套题来源' }]}
-                >
-                  <Select placeholder="选择套题来源" className="h-11 rounded-xl">
-                    {sources.map(s => (
-                      <Option key={s} value={s} disabled={s !== '历年真题'}>
-                        {s}{s !== '历年真题' ? ' (暂不支持)' : ''}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-
-                <Form.Item
-                  name="description"
-                  label={<span className="font-bold text-gray-700">套题描述</span>}
-                  rules={[{ required: true, message: '请输入套题描述' }]}
-                  className="md:col-span-2"
-                >
-                  <TextArea 
-                    placeholder="简要描述该套题的内容和特点，例如：包含代数、几何、数据分析等综合题型" 
-                    rows={3} 
-                    className="rounded-xl" 
-                  />
-                </Form.Item>
-              </div>
-
-              <div className="mt-8 flex justify-between">
-                {!isEditMode && (
-                  <Button 
-                    icon={<SaveOutlined />}
-                    size="large" 
-                    onClick={saveDraft}
-                    className="h-12 px-8 rounded-xl"
-                  >
-                    保存草稿
-                  </Button>
-                )}
-                <Button 
-                  type="primary" 
-                  size="large" 
-                  onClick={handleNext}
-                  className="h-12 px-10 rounded-xl bg-red-600 hover:bg-red-700 border-0 font-bold ml-auto"
-                >
-                  下一步：{isEditMode ? '修改' : '配置'} Section 信息
-                </Button>
-              </div>
-            </Card>
+            <ExamSetBaseInfoForm
+              form={form}
+              loading={stepNextLoading}
+              isEditMode={isEditMode}
+              onNext={handleNext}
+            />
           </div>
 
           <div className={currentStep === 1 ? 'block' : 'hidden'}>
-            <div className="space-y-6">
-              <div className="flex items-center justify-between bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900 m-0">Section 结构规划</h2>
-                  <p className="text-sm text-gray-500 m-0">定义套题的模块组成（如 Module 1, Module 2）</p>
-                </div>
-                <Button 
-                  type="primary" 
-                  icon={<PlusOutlined />} 
-                  onClick={handleAddSection}
-                  className="h-11 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 font-bold"
-                >
-                  添加 Section
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {sections
-                  .filter(section => section.delFlag !== '1') // 过滤掉已删除的section
-                  .map((section, index) => (
-                  <Card 
-                    key={section.id}
-                    className="rounded-2xl border-gray-100 shadow-sm hover:shadow-md transition-shadow"
-                    title={
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center min-w-0 flex-1">
-                            <span className="w-6 h-6 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0">
-                              {index + 1}
-                            </span>
-                            <span className="font-bold text-gray-700 ml-2 truncate" title={section.name}>{section.name}</span>
-                          </div>
-                          <div className="flex items-center flex-shrink-0 ml-2">
-                            <Tag color="purple" className="m-0 rounded-md border-0 font-bold text-[10px] mr-2">{section.subject}</Tag>
-                            <Button type="text" size="small" icon={<EditOutlined className="text-blue-500" />} onClick={() => handleEditSection(section)} />
-                            <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={() => {
-                              Modal.confirm({
-                                icon: null, // 禁用默认的感叹号图标
-                                title: (
-                                  <div className="flex items-center space-x-2">
-                                    <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
-                                      <DeleteOutlined className="text-red-600 text-sm" />
-                                    </div>
-                                    <span className="text-red-700 font-semibold">确认删除Section</span>
-                                  </div>
-                                ),
-                                content: (
-                                  <div className="py-2">
-                                    <div className="text-gray-800 mb-2">
-                                      您即将删除Section：
-                                      <span className="font-semibold text-purple-600 ml-1">"{section.name}"</span>
-                                    </div>
-                                    <div className="text-red-600 text-sm bg-red-50 rounded-lg p-3 border border-red-200">
-                                      <span>同时将删除该Section下的所有题目，且不可恢复！</span>
-                                    </div>
-                                  </div>
-                                ),
-                                okText: '确认删除',
-                                cancelText: '取消',
-                                okButtonProps: { 
-                                  danger: true,
-                                  className: 'h-10 px-6 font-medium'
-                                },
-                                cancelButtonProps: {
-                                  className: 'h-10 px-6 font-medium'
-                                },
-                                className: 'delete-confirm-modal',
-                                onOk: () => removeSection(section.id)
-                              });
-                            }} />
-                          </div>
-                        </div>
-                      </div>
-                    }
-                  >
-                    <div className="flex justify-between items-center px-4">
-                      <div>
-                        <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Duration</div>
-                        <div className="font-bold text-gray-700">{section.duration} min</div>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="text-right">
-                          <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Difficulty</div>
-                          <div className="flex items-center justify-end">
-                            <i className={`fas fa-star ${section.difficulty === 'Easy' ? 'text-green-500' : section.difficulty === 'Hard' ? 'text-red-500' : 'text-yellow-500'} text-sm`} />
-                            <span className="text-xs font-medium ml-1 text-gray-600">
-                              {section.difficulty === 'Easy' ? '简单' : section.difficulty === 'Hard' ? '困难' : '中等'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      {section.description && (
-                        <div className="text-right flex-1 ml-4">
-                          <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Description</div>
-                          <div className="text-sm text-gray-600">{section.description}</div>
-                        </div>
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-
-              {sections.length === 0 && (
-                <Card className="rounded-3xl border-dashed border-2 border-gray-200 py-12 text-center">
-                  <Empty description="请先添加 Section 结构" />
-                </Card>
-              )}
-
-              <div className="flex items-center justify-between pt-8">
-                <Button size="large" onClick={() => setCurrentStep(0)} className="h-12 px-8 rounded-xl">
-                  上一步
-                </Button>
-                <Space>
-                  {!isEditMode && (
-                    <Button 
-                      icon={<SaveOutlined />}
-                      size="large" 
-                      onClick={saveDraft}
-                      className="h-12 px-8 rounded-xl"
-                    >
-                      保存草稿
-                    </Button>
-                  )}
-                  <Button 
-                    type="primary" 
-                    size="large" 
-                    onClick={handleNext}
-                    className="h-12 px-10 rounded-xl bg-red-600 hover:bg-red-700 border-0 font-bold"
-                  >
-                    下一步：{isEditMode ? '修改' : '录入'}题目内容
-                  </Button>
-                </Space>
-              </div>
-            </div>
+            <ExamSetSectionStep
+              sections={sections}
+              loading={stepNextLoading}
+              isEditMode={isEditMode}
+              onAddSection={handleAddSection}
+              onEditSection={handleEditSection}
+              onRemoveSection={removeSection}
+              onPrev={() => setCurrentStep(0)}
+              onNext={handleNext}
+            />
           </div>
 
           <div className={currentStep === 2 ? 'block' : 'hidden'}>
@@ -1529,16 +1147,6 @@ function ExamSetEntry() {
                 上一步：修改 Section 信息
               </Button>
               <Space>
-                {!isEditMode && (
-                  <Button 
-                    icon={<SaveOutlined />}
-                    size="large" 
-                    onClick={saveDraft}
-                    className="h-12 px-8 rounded-xl"
-                  >
-                    保存草稿
-                  </Button>
-                )}
                 <Button 
                   type="primary" 
                   size="large" 
@@ -1573,6 +1181,7 @@ function ExamSetEntry() {
         width={900}
         className="summary-modal"
         okButtonProps={{
+          loading: submitLoading,
           className: 'h-11 px-8 rounded-xl bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 border-0 font-bold shadow-lg'
         }}
         cancelButtonProps={{
@@ -1599,7 +1208,7 @@ function ExamSetEntry() {
                 </div>
                 <div className="bg-white rounded-xl p-4 shadow-sm">
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">总题目数</div>
-                  <div className="text-2xl font-black text-red-600">{questions.length} <span className="text-sm font-bold text-gray-400">题</span></div>
+                  <div className="text-2xl font-black text-red-600">{questions.filter(q => q.delFlag !== '1').length} <span className="text-sm font-bold text-gray-400">题</span></div>
                 </div>
               </div>
             </div>
@@ -1613,8 +1222,9 @@ function ExamSetEntry() {
               <h3 className="text-lg font-bold text-gray-900 m-0">各 Section 题目分布</h3>
             </div>
             
-            {sections.map((section, index) => {
-              const sectionQuestions = questions.filter(q => q.sectionId === section.id);
+            {sections.filter(s => s.delFlag !== '1').map((section, index) => {
+              const activeQuestionsList = questions.filter(q => q.delFlag !== '1');
+              const sectionQuestions = activeQuestionsList.filter(q => q.sectionId === section.id);
 
               return (
                 <div key={section.id} className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-100 rounded-2xl p-5 hover:shadow-lg transition-all duration-300">
@@ -1657,7 +1267,7 @@ function ExamSetEntry() {
                           已录入 {sectionQuestions.length} 道题目
                         </span>
                         <span className="text-xs text-blue-600 font-medium">
-                          占比 {Math.round((sectionQuestions.length / questions.length) * 100)}%
+                          占比 {activeQuestionsList.length > 0 ? Math.round((sectionQuestions.length / activeQuestionsList.length) * 100) : 0}%
                         </span>
                       </div>
                     </div>
@@ -1698,6 +1308,7 @@ function ExamSetEntry() {
         width={600}
         className="section-modal"
         okButtonProps={{
+          loading: sectionSaveLoading,
           className: 'h-11 px-8 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 border-0 font-bold shadow-lg'
         }}
         cancelButtonProps={{
