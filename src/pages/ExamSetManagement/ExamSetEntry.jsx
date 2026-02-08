@@ -26,8 +26,17 @@ import {
     SaveOutlined
 } from '@ant-design/icons';
 
+import {
+  getExamSetList,
+  checkExamExists,
+  checkSectionExists,
+  submitExamSet,
+  getSectionListByExamId,
+  getQuestionListByExamId,
+  updateExamSectionAndQuestion
+} from '@/services/exam';
+
 import RichTextEditor from './components/RichTextEditor';
-import { getExamSetList, createExamSet, updateExamSet, createExamSection, batchCreateQuestions } from '@/services/exam';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -176,6 +185,7 @@ function ExamSetEntry() {
             (section.selectedQuestions || []).map(qId => ({
               id: qId,
               sectionId: section.id,
+              sectionName: section.name,
               subject: section.subject,
               interactionType: 'CHOICE',
               type: questionTypesMap[section.subject] ? questionTypesMap[section.subject][0] : '未分类',
@@ -245,6 +255,7 @@ function ExamSetEntry() {
   const regions = ['北美', '亚太', '欧洲', '其他'];
   const examTypes = ['SAT', 'IELTS', 'TOEFL', 'GRE'];
   const years = [2025, 2024, 2023, 2022, 2021];
+  const sources = ['历年真题', '官方样题', '模拟试题', '机构题库', '教师自编', '其他'];
 
   const questionTypesMap = {
     '阅读语法': ['词汇题', '结构目的题', '主旨细节题', '推断题', '标点符号', '句子连接', '逻辑词'],
@@ -253,6 +264,8 @@ function ExamSetEntry() {
 
   // 保存套题ID，用于后续操作
   const [examId, setExamId] = useState(null);
+  // 暂存套题信息，用于后续操作
+  const [examData, setExamData] = useState(null);
 
   const handleNext = async () => {
     if (currentStep === 0) {
@@ -279,16 +292,47 @@ function ExamSetEntry() {
             status: 0
           };
           
-          // 调用更新套题接口
-          await updateExamSet(examData);
+          // 调用checkExamExists接口检查套题是否存在
+          const examExists = await checkExamExists(examData);
+          if (examExists) {
+            message.warning('套题已存在，请检查套题名称、年份、类型、区域、难度或描述是否重复');
+            return;
+          }
+          // 暂存套题信息
+          setExamData(examData);
           
           // 保存套题ID
           setExamId(examId);
-          
+
+          // 编辑模式下
+          // 调用getSectionListByExamId接口查询section列表信息
+          if (isEditMode && examId) {
+            console.log('调用getSectionListByExamId接口，examId:', examId); // 添加调试日志
+            try {
+              const sectionListData = await getSectionListByExamId(examId);
+              if (sectionListData && sectionListData.length > 0) {
+                // 转换数据格式以匹配前端需求
+                const formattedSections = sectionListData.map(section => ({
+                  id: section.sectionId,
+                  name: section.sectionName,
+                  subject: section.sectionCategory,
+                  difficulty: section.sectionDifficulty,
+                  duration: section.sectionTiming,
+                  status: section.status
+                }));
+                setSections(formattedSections);
+                message.success('Section列表信息已更新');
+              }
+            } catch (error) {
+              console.error('获取Section列表失败:', error);
+              message.error('获取Section列表信息失败');
+            }
+          }
+
           message.success('套题基础信息更新成功');
         } else {
-          // 新增模式：调用新增套题接口
-          // 准备新增套题接口所需数据
+          // 新增模式：调用检查套题是否存在接口
+          // 准备检查套题是否存在接口所需数据
           const examData = {
             examName: baseInfo.title,
             examType: baseInfo.type,
@@ -297,15 +341,21 @@ function ExamSetEntry() {
             difficulty: baseInfo.difficulty.toUpperCase(), // 转换为大写
             examDescription: baseInfo.description,
             source: '官方样题', // 默认值，后续可从表单获取
-            creatorId: 1, // 假设当前用户ID为1，后续可从登录信息获取
-            status: 0
+            creatorId: 1 // 假设当前用户ID为1，后续可从登录信息获取
           };
           
-          // 调用新增套题接口
-          const result = await createExamSet(examData);
+          // 调用检查套题是否存在接口
+          const result = await checkExamExists(examData);
           
-          // 保存返回的套题ID
-          setExamId(result.examId);
+          // 如果套题不存在，则新增套题
+          if (!result) {
+            // 暂存套题信息 进行下一步
+            setExamData(examData);
+          } else {
+            // 如果套题已存在，提示用户
+            message.warning('套题已存在，请检查套题名称、年份、类型、区域、难度或描述是否重复');
+            return;
+          }
           
           message.success('套题基础信息保存成功');
         }
@@ -319,6 +369,90 @@ function ExamSetEntry() {
         message.warning('请至少添加一个 Section');
         return;
       }
+      // 调用getQuestionListByExamId接口查询question列表信息
+      if (isEditMode && examId) {
+        console.log('调用getQuestionListByExamId接口，examId:', examId); // 添加调试日志
+        try {
+          const questionListData = await getQuestionListByExamId(examId);
+          if (questionListData && questionListData.length > 0) {
+            // 转换数据格式以匹配前端需求
+            // 根据接口文档，返回数据结构为: [{question: {...}, sectionName: "..."}]
+            const formattedQuestions = questionListData.map(item => {
+            const { question, sectionName } = item;
+            // 健壮的options数据解析方案，处理多种可能的格式
+            let optionsArray = ['', '', '', ''];
+            
+            try {
+              if (question.options) {
+                // 情况1：如果options已经是数组，直接使用
+                if (Array.isArray(question.options)) {
+                  optionsArray = [...question.options];
+                  // 确保数组至少有4个元素
+                  while (optionsArray.length < 4) {
+                    optionsArray.push('');
+                  }
+                }
+                // 情况2：如果options是JSON字符串，解析为对象
+                else if (typeof question.options === 'string') {
+                  const optionsObj = JSON.parse(question.options);
+                  if (typeof optionsObj === 'object' && optionsObj !== null) {
+                    // 尝试多种可能的字段命名
+                    optionsArray = [
+                      optionsObj.optionA || optionsObj.A || optionsObj.a || optionsObj[0] || '',
+                      optionsObj.optionB || optionsObj.B || optionsObj.b || optionsObj[1] || '',
+                      optionsObj.optionC || optionsObj.C || optionsObj.c || optionsObj[2] || '',
+                      optionsObj.optionD || optionsObj.D || optionsObj.d || optionsObj[3] || ''
+                    ];
+                  }
+                }
+                // 情况3：如果options是对象，直接处理
+                else if (typeof question.options === 'object') {
+                  const optionsObj = question.options;
+                  optionsArray = [
+                    optionsObj.optionA || optionsObj.A || optionsObj.a || optionsObj[0] || '',
+                    optionsObj.optionB || optionsObj.B || optionsObj.b || optionsObj[1] || '',
+                    optionsObj.optionC || optionsObj.C || optionsObj.c || optionsObj[2] || '',
+                    optionsObj.optionD || optionsObj.D || optionsObj.d || optionsObj[3] || ''
+                  ];
+                }
+              }
+            } catch (e) {
+              console.error('解析options失败:', e);
+              // 解析失败时使用默认空数组
+              optionsArray = ['', '', '', ''];
+            }
+
+            return {
+              id: question.questionId,
+              sectionId: question.sectionId,
+              sectionName: sectionName,
+              questionCategory: question.questionCategory,
+              questionSubCategory: question.questionSubCategory,
+              difficulty: question.difficulty,
+              type: question.questionType,
+              interactionType: question.questionType, // 添加 interactionType 字段，与 type 保持一致
+              content: question.questionContent,
+              description: question.questionDescription,
+              options: optionsArray,
+              answer: question.answer,
+              correctAnswer: question.answer || '', // 映射answer到correctAnswer
+              explanation: question.analysis || '', // 映射analysis到explanation
+              score: question.score,
+              status: question.status,
+              delFlag: question.delFlag,
+              creatorId: question.creatorId,
+              createTime: question.createTime,
+              updateTime: question.updateTime
+            };
+          });
+            setQuestions(formattedQuestions);
+            message.success('Question列表信息已更新');
+          }
+        } catch (error) {
+          console.error('获取Question列表失败:', error);
+          message.error('获取Question列表信息失败');
+        }
+      }
       setCurrentStep(2);
     }
   };
@@ -326,6 +460,8 @@ function ExamSetEntry() {
   const handleAddSection = () => {
     setEditingSection(null);
     sectionForm.resetFields();
+    // 设置默认难度为Medium
+    sectionForm.setFieldsValue({ difficulty: 'Medium' });
     setIsSectionModalVisible(true);
   };
 
@@ -340,44 +476,44 @@ function ExamSetEntry() {
       const values = await sectionForm.validateFields();
       
       if (editingSection) {
-        // 编辑模式：调用更新Section接口
-        const sectionData = {
-          sectionId: editingSection.sectionId, // 使用现有Section ID
-          examId: examId, // 使用之前保存的套题ID
-          sectionName: values.name,
-          sectionCategory: values.subject,
-          sectionTiming: values.duration,
-          status: 0
-        };
-        
-        // 调用更新Section接口
-        await updateExamSection(sectionData);
-        
+        // 编辑模式：只记录最新的section信息，不调用更新接口
         setSections(prev => prev.map(s => 
           s.id === editingSection.id ? { ...s, ...values } : s
         ));
         message.success('Section 已更新');
       } else {
-        // 新增模式：调用新增Section接口
+        // 新增模式：调用Section是否存在校验接口
         const sectionData = {
           examId: examId, // 使用之前保存的套题ID
           sectionName: values.name,
           sectionCategory: values.subject,
+          sectionDifficulty: values.difficulty,
           sectionTiming: values.duration,
           creatorId: 1, // 假设当前用户ID为1，后续可从登录信息获取
           status: 0
         };
         
-        // 调用新增Section接口
-        const result = await createExamSection(sectionData);
+        // 调用检查Section是否存在接口
+        const result = await checkSectionExists(sectionData);
         
-        const newSection = { 
-          ...values, 
-          id: result.sectionId, // 使用接口返回的Section ID
-          sectionId: result.sectionId,
-          selectedQuestions: [] 
-        };
-        setSections(prev => [...prev, newSection]);
+        // 如果Section不存在，则暂存Section信息
+        if (!result) {
+          // 暂存Section信息存放在Section列表中
+          const newSection = {
+            id: Date.now(), // 使用当前时间戳作为临时ID
+            examId: examId, // 使用之前保存的套题ID
+            name: values.name,
+            subject: values.subject,
+            difficulty: values.difficulty,
+            duration: values.duration,
+            status: 0
+          };
+          setSections(prev => [...prev, newSection]);
+        } else {
+          // 如果Section已存在，提示用户
+          message.warning('Section 已存在，请检查Section名称、分类、难度或限时是否重复');
+          return;
+        }
         message.success('Section 已添加');
       }
       
@@ -404,6 +540,7 @@ function ExamSetEntry() {
     const newQuestion = {
       id: newId,
       sectionId: defaultSection.id,
+      sectionName: defaultSection.name,
       subject: defaultSection.subject,
       interactionType: 'CHOICE',
       type: questionTypes.length > 0 ? questionTypes[0] : '未分类',
@@ -428,6 +565,7 @@ function ExamSetEntry() {
           const targetSection = sections.find(s => s.id === value);
           if (targetSection) {
             updated.subject = targetSection.subject;
+            updated.sectionName = targetSection.name;
             const questionTypes = questionTypesMap[targetSection.subject] || [];
             updated.type = questionTypes.length > 0 ? questionTypes[0] : '未分类';
           }
@@ -451,6 +589,7 @@ function ExamSetEntry() {
   };
 
   const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [summaryFormValues, setSummaryFormValues] = useState({});
 
   const handleSubmit = async () => {
     if (questions.length === 0) {
@@ -464,35 +603,81 @@ function ExamSetEntry() {
       return;
     }
 
+    // Store form values for the summary modal
+    setSummaryFormValues(form.getFieldsValue());
     setShowSummaryModal(true);
   };
 
   const handleConfirmSubmit = async () => {
+    let examPool, examSections, questionsData;
     try {
-      // 准备批量新增题目接口所需数据
-      const questionsData = questions.map(question => {
-        // 查找对应的section以获取sectionId
-        const section = sections.find(s => s.id === question.sectionId);
-        
+      // 获取表单数据
+      const baseInfo = form.getFieldsValue();
+      
+      // 准备examPool数据
+      examPool = {
+        ...(isEditMode && { examId: parseInt(editId) }), // 新增套题时 不包含examId字段
+        examName: baseInfo.title,
+        examType: baseInfo.type,
+        examYear: baseInfo.year?.toString(),
+        examRegion: baseInfo.region,
+        difficulty: (baseInfo.difficulty || '').toUpperCase(), // 转换为大写，处理undefined
+        examDescription: baseInfo.description,
+        source: baseInfo.source || '官方样题', // 从表单获取，默认值为官方样题
+        creatorId: 1, // TODO 假设当前用户ID为1，后续可从登录信息获取
+        status: 0
+      };
+
+      // 准备examSections数据
+      examSections = sections.map(section => ({
+
+        ...(isEditMode && { examId: parseInt(editId) }), // 编辑模式下包含 examId
+        ...(isEditMode && { sectionId: section.id }), // 编辑模式下包含 examId
+        sectionName: section.name,
+        sectionCategory: section.subject,
+        sectionDifficulty: (section.difficulty || '').toUpperCase(), // 转换为大写，处理undefined
+        sectionTiming: section.duration,
+        status: 0
+      }));
+      
+      // 准备questions数据
+      questionsData = questions.map(question => {
+
         return {
-          examId: examId, // 使用之前保存的套题ID
-          sectionId: section ? section.sectionId : question.sectionId, // 使用接口返回的Section ID
-          questionType: question.interactionType, // 转换为后端需要的字段名
-          questionCategory: question.subject.toUpperCase(), // 转换为大写
-          questionSubCategory: question.type, // 题目类型
-          difficulty: question.difficulty.toUpperCase(), // 转换为大写
+          ...(isEditMode && { questionId: question.id }), // 编辑模式下包含 questionId
+          sectionId: question.sectionId,
+          sectionName: question.sectionName,
+          questionType: question.interactionType,
+          questionCategory: (question.subject || '').toUpperCase(), // 转换为大写，处理undefined
+          questionSubCategory: question.type,
+          difficulty: (question.difficulty || '').toUpperCase(), // 转换为大写，处理undefined
           questionContent: question.content,
           questionDescription: question.description || '',
           optionA: question.options[0] || '',
           optionB: question.options[1] || '',
           optionC: question.options[2] || '',
           optionD: question.options[3] || '',
-          answer: question.correctAnswer
+          answer: question.correctAnswer,
+          analysis: question.explanation || ''
         };
       });
-      
-      // 调用批量新增题目接口
-      await batchCreateQuestions(questionsData);
+
+      if (isEditMode) {
+        // 编辑模式：调用updateExamSectionAndQuestion接口
+        // TODO Redundant 'await' for a non-promise type
+        await updateExamSectionAndQuestion({
+          examPool,
+          examSections,
+          questions: questionsData
+        });
+      } else {
+        // 新增模式：调用submitExamSet接口
+        await submitExamSet({
+          examPool,
+          examSections,
+          questions: questionsData
+        });
+      }
       
       clearDraft();
       setShowSummaryModal(false);
@@ -500,7 +685,12 @@ function ExamSetEntry() {
       message.success(isEditMode ? '套题更新成功！' : '套题录入成功！');
       navigate('/exam-set-management');
     } catch (error) {
-      console.error('提交套题失败:', error);
+      console.error('提交套题失败:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        requestData: { examPool, examSections, questionsData } // 注意：敏感数据需脱敏
+      });
       message.error('提交套题失败，请稍后重试');
     }
   };
@@ -577,6 +767,11 @@ function ExamSetEntry() {
     }
 
     if (!fieldName) return;
+
+    // 安全检查：确保currentValue不是undefined
+    if (currentValue === undefined || currentValue === null) {
+      currentValue = '';
+    }
 
     let newValue = currentValue;
     const selectedText = currentValue.substring(start, end);
@@ -778,6 +973,21 @@ function ExamSetEntry() {
                 </Form.Item>
 
                 <Form.Item
+                  name="source"
+                  label={<span className="font-bold text-gray-700">套题来源</span>}
+                  initialValue="历年真题"
+                  rules={[{ required: true, message: '请选择套题来源' }]}
+                >
+                  <Select placeholder="选择套题来源" className="h-11 rounded-xl">
+                    {sources.map(s => (
+                      <Option key={s} value={s} disabled={s !== '历年真题'}>
+                        {s}{s !== '历年真题' ? ' (暂不支持)' : ''}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+
+                <Form.Item
                   name="description"
                   label={<span className="font-bold text-gray-700">套题描述</span>}
                   rules={[{ required: true, message: '请输入套题描述' }]}
@@ -838,17 +1048,19 @@ function ExamSetEntry() {
                     className="rounded-2xl border-gray-100 shadow-sm hover:shadow-md transition-shadow"
                     title={
                       <div className="flex items-center justify-between">
-                        <Space>
-                          <span className="w-6 h-6 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-xs font-bold">
-                            {index + 1}
-                          </span>
-                          <span className="font-bold text-gray-700">{section.name}</span>
-                        </Space>
-                        <Space>
-                          <Tag color="purple" className="m-0 rounded-md border-0 font-bold text-[10px]">{section.subject}</Tag>
-                          <Button type="text" size="small" icon={<EditOutlined className="text-blue-500" />} onClick={() => handleEditSection(section)} />
-                          <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={() => removeSection(section.id)} />
-                        </Space>
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center min-w-0 flex-1">
+                            <span className="w-6 h-6 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0">
+                              {index + 1}
+                            </span>
+                            <span className="font-bold text-gray-700 ml-2 truncate" title={section.name}>{section.name}</span>
+                          </div>
+                          <div className="flex items-center flex-shrink-0 ml-2">
+                            <Tag color="purple" className="m-0 rounded-md border-0 font-bold text-[10px] mr-2">{section.subject}</Tag>
+                            <Button type="text" size="small" icon={<EditOutlined className="text-blue-500" />} onClick={() => handleEditSection(section)} />
+                            <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={() => removeSection(section.id)} />
+                          </div>
+                        </div>
                       </div>
                     }
                   >
@@ -1153,7 +1365,9 @@ function ExamSetEntry() {
                                 id={`option-${opt}-${q.id}`}
                                 value={q.options[idx]}
                                 onChange={(value) => {
-                                  const newOpts = [...q.options];
+                                  // 安全检查：确保q.options是数组
+                                  const currentOptions = Array.isArray(q.options) ? q.options : ['', '', '', ''];
+                                  const newOpts = [...currentOptions];
                                   newOpts[idx] = value;
                                   updateQuestion(q.id, 'options', newOpts);
                                 }}
@@ -1285,11 +1499,11 @@ function ExamSetEntry() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-white rounded-xl p-4 shadow-sm">
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">套题名称</div>
-                  <div className="text-base font-bold text-gray-900 truncate">{form.getFieldValue('title')}</div>
+                  <div className="text-base font-bold text-gray-900 truncate">{summaryFormValues.title}</div>
                 </div>
                 <div className="bg-white rounded-xl p-4 shadow-sm">
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">考试类型</div>
-                  <div className="text-base font-bold text-gray-900">{form.getFieldValue('type')}</div>
+                  <div className="text-base font-bold text-gray-900">{summaryFormValues.type}</div>
                 </div>
                 <div className="bg-white rounded-xl p-4 shadow-sm">
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">总题目数</div>
@@ -1403,44 +1617,55 @@ function ExamSetEntry() {
           className: 'h-11 px-8 rounded-xl font-bold'
         }}
       >
+        {sectionForm && (
         <Form form={sectionForm} layout="vertical" className="pt-6">
-          <Form.Item 
-            name="name" 
-            label={<span className="text-sm font-bold text-gray-700">Section 名称</span>}
-            rules={[{ required: true, message: '请选择 Section' }]}
-          >
-            <Select 
-              placeholder="选择 Section" 
-              className="h-12 rounded-xl"
-              suffixIcon={<i className="fas fa-chevron-down text-gray-400"></i>}
-            >
-              <Option value="Section 1, Module 1:Reading and Writing">
-                <div className="flex items-center space-x-2 py-1">
-                  <i className="fas fa-book text-purple-500"></i>
-                  <span>Section 1, Module 1: Reading and Writing</span>
-                </div>
-              </Option>
-              <Option value="Section 1, Module 2:Reading and Writing">
-                <div className="flex items-center space-x-2 py-1">
-                  <i className="fas fa-book text-purple-500"></i>
-                  <span>Section 1, Module 2: Reading and Writing</span>
-                </div>
-              </Option>
-              <Option value="Section 2, Module 1:Math">
-                <div className="flex items-center space-x-2 py-1">
-                  <i className="fas fa-calculator text-blue-500"></i>
-                  <span>Section 2, Module 1: Math</span>
-                </div>
-              </Option>
-              <Option value="Section 2, Module 2:Math">
-                <div className="flex items-center space-x-2 py-1">
-                  <i className="fas fa-calculator text-blue-500"></i>
-                  <span>Section 2, Module 2: Math</span>
-                </div>
-              </Option>
-            </Select>
-          </Form.Item>
           <div className="grid grid-cols-2 gap-4">
+            <Form.Item 
+              name="name" 
+              label={<span className="text-sm font-bold text-gray-700">Section 名称</span>}
+              rules={[{ required: true, message: '请选择 Section' }]}
+            >
+              <Select 
+                placeholder="选择 Section" 
+                className="h-12 rounded-xl"
+                suffixIcon={<i className="fas fa-chevron-down text-gray-400"></i>}
+                optionLabelProp="children"
+                classNames={{ popup: 'section-dropdown' }}
+                onChange={(value) => {
+                  // 根据选择的Section自动设置科目
+                  if (value.includes('Reading and Writing')) {
+                    sectionForm.setFieldsValue({ subject: '阅读语法' });
+                  } else if (value.includes('Math')) {
+                    sectionForm.setFieldsValue({ subject: '数学' });
+                  }
+                }}
+              >
+                <Option value="Section 1, Module 1:Reading and Writing">
+                  <div className="flex items-center space-x-2 py-1 w-full" title="Section 1, Module 1: Reading and Writing">
+                    <i className="fas fa-book text-purple-500 flex-shrink-0"></i>
+                    <span className="truncate">Section 1, Module 1: Reading and Writing</span>
+                  </div>
+                </Option>
+                <Option value="Section 1, Module 2:Reading and Writing">
+                  <div className="flex items-center space-x-2 py-1 w-full" title="Section 1, Module 2: Reading and Writing">
+                    <i className="fas fa-book text-purple-500 flex-shrink-0"></i>
+                    <span className="truncate">Section 1, Module 2: Reading and Writing</span>
+                  </div>
+                </Option>
+                <Option value="Section 2, Module 1:Math">
+                  <div className="flex items-center space-x-2 py-1 w-full" title="Section 2, Module 1: Math">
+                    <i className="fas fa-calculator text-blue-500 flex-shrink-0"></i>
+                    <span className="truncate">Section 2, Module 1: Math</span>
+                  </div>
+                </Option>
+                <Option value="Section 2, Module 2:Math">
+                  <div className="flex items-center space-x-2 py-1 w-full" title="Section 2, Module 2: Math">
+                    <i className="fas fa-calculator text-blue-500 flex-shrink-0"></i>
+                    <span className="truncate">Section 2, Module 2: Math</span>
+                  </div>
+                </Option>
+              </Select>
+            </Form.Item>
             <Form.Item 
               name="subject" 
               label={<span className="text-sm font-bold text-gray-700">所属科目</span>}
@@ -1465,6 +1690,40 @@ function ExamSetEntry() {
                 </Option>
               </Select>
             </Form.Item>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <Form.Item 
+              name="difficulty" 
+              label={<span className="text-sm font-bold text-gray-700">Section难度</span>}
+              rules={[{ required: true, message: '请选择难度' }]}
+            >
+              <Select 
+                placeholder="选择难度" 
+                className="h-12 rounded-xl"
+                suffixIcon={<i className="fas fa-chevron-down text-gray-400"></i>}
+              >
+                <Option value="Easy">
+                  <div className="flex items-center space-x-2 py-1">
+                    <i className="fas fa-star text-green-500"></i>
+                    <span>简单</span>
+                  </div>
+                </Option>
+                <Option value="Medium">
+                  <div className="flex items-center space-x-2 py-1">
+                    <i className="fas fa-star text-yellow-500"></i>
+                    <span>中等</span>
+                  </div>
+                </Option>
+                <Option value="Hard">
+                  <div className="flex items-center space-x-2 py-1">
+                    <i className="fas fa-star text-red-500"></i>
+                    <span>困难</span>
+                  </div>
+                </Option>
+              </Select>
+            </Form.Item>
+
             <Form.Item 
               name="duration" 
               label={<span className="text-sm font-bold text-gray-700">时长 (分钟)</span>}
@@ -1496,20 +1755,34 @@ function ExamSetEntry() {
             </div>
           </div>
         </Form>
+        )}
       </Modal>
 
-      <style jsx global>{`
-        .ant-collapse-header {
-          padding: 20px 24px !important;
-          align-items: center !important;
-        }
-        .ant-collapse-content-box {
-          padding: 0 24px 24px !important;
-        }
-        .ant-steps-item-title {
-          font-weight: 800 !important;
-        }
-      `}</style>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .ant-collapse-header {
+            padding: 20px 24px !important;
+            align-items: center !important;
+          }
+          .ant-collapse-content-box {
+            padding: 0 24px 24px !important;
+          }
+          .ant-steps-item-title {
+            font-weight: 800 !important;
+          }
+          .section-dropdown .ant-select-item {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .section-dropdown .ant-select-item-option-content {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 100%;
+          }
+        `
+      }} />
     </div>
   );
 }
