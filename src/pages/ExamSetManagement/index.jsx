@@ -35,9 +35,9 @@ function ExamSetManagement() {
     setLoading(true);
     try {
       const params = {
-        examType: 'SAT', // 固定为SAT，后续可扩展为可选项
         pageNum,
         pageSize,
+        examType: 'SAT', // 固定为SAT，后续可扩展为可选项
       };
       
       // 只有当关键词有值时才添加到参数中
@@ -62,14 +62,15 @@ function ExamSetManagement() {
           title: item.examName,
           source: item.source || '暂无',
           totalQuestions: item.questionCount || 0,
-          status: item.status === 1 ? 'published' : 'draft', // 根据后端返回的状态字段判断
+          status: item.status === 1 ? 'published' : 'draft', // 根据后端返回的状态字段判断（0-正常，1-禁用）
           statusDesc: item.status === 1 ? '已发布' : '草稿', // 使用状态字段生成描述
           examType: item.examType,
           examYear: item.examYear,
           examRegion: item.examRegion,
+          difficulty: item.difficulty || '未知', // 添加难度字段
           // 使用接口返回的字段
           totalDuration: item.examDuration, // 从接口获取总时长
-          sections: null, // 暂无
+          sections: item.sectionCount || 0, // 使用服务端返回的sectionCount字段
           description: item.examDescription || '', // 使用正确的字段名examDescription
         }));
         
@@ -159,13 +160,13 @@ function ExamSetManagement() {
       )
     },
     {
-      title: '题目组数量',
+      title: 'Section数量',
       key: 'sections',
       width: 120,
       render: (_, record) => (
         <span className="font-medium text-gray-400">
-          {record.sections !== null && record.sections !== undefined 
-            ? `${record.sections.length} 个` 
+          {record.sections !== null && record.sections !== undefined && record.sections > 0
+            ? `${record.sections} 个`
             : '暂无'}
         </span>
       )

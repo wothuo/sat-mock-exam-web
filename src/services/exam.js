@@ -15,7 +15,7 @@ import { get, post } from '../utils/request.ts';
  * @returns {Promise} 套题列表数据（包含分页信息）
  */
 export const getExamSetList = async (params) => {
-  const response = await get('/exam/list', params);
+  const response = await post('/exam/list', params);
   return response.data;
 };
 

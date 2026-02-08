@@ -64,6 +64,7 @@ function ExamSetEntry() {
   const [lastSaveTime, setLastSaveTime] = useState(null);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
   const autoSaveTimerRef = useRef(null);
+  const questionListRef = useRef(null);
   const [draftChecked, setDraftChecked] = useState(false);
 
   const fetchExamSetData = async (id) => {
@@ -276,7 +277,7 @@ function ExamSetEntry() {
         const baseInfo = form.getFieldsValue();
         
         if (isEditMode) {
-          // 编辑模式：调用更新套题接口
+          // 编辑模式：编辑后需要校验套题是否存在
           const examId = parseInt(editId);
           
           // 准备更新套题接口所需数据
@@ -288,12 +289,13 @@ function ExamSetEntry() {
             examRegion: baseInfo.region,
             difficulty: baseInfo.difficulty.toUpperCase(), // 转换为大写
             examDescription: baseInfo.description,
-            source: '官方样题', // 默认值，后续可从表单获取
+            source: baseInfo.source || '官方样题', // 默认值，后续可从表单获取
             status: 0
           };
           
           // 调用checkExamExists接口检查套题是否存在
           const examExists = await checkExamExists(examData);
+          console.log('checkExamExists接口返回结果:', examExists); // 添加调试日志
           if (examExists) {
             message.warning('套题已存在，请检查套题名称、年份、类型、区域、难度或描述是否重复');
             return;
@@ -340,7 +342,7 @@ function ExamSetEntry() {
             examRegion: baseInfo.region,
             difficulty: baseInfo.difficulty.toUpperCase(), // 转换为大写
             examDescription: baseInfo.description,
-            source: '官方样题', // 默认值，后续可从表单获取
+            source: baseInfo.source || '官方样题', // 默认值，后续可从登录信息获取
             creatorId: 1 // 假设当前用户ID为1，后续可从登录信息获取
           };
           
@@ -561,6 +563,13 @@ function ExamSetEntry() {
     
     setQuestions([...questions, newQuestion]);
     setSelectedQuestionId(newId);
+    
+    // 延迟滚动到最新题目
+    setTimeout(() => {
+      if (questionListRef.current) {
+        questionListRef.current.scrollTop = questionListRef.current.scrollHeight;
+      }
+    }, 0);
   };
 
   const updateQuestion = (id, field, value) => {
@@ -1285,7 +1294,10 @@ function ExamSetEntry() {
                     添加
                   </Button>
                 </div>
-                <div className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+                <div 
+                  ref={questionListRef}
+                  className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar"
+                >
                   {questions.map((q, index) => {
                     const isDeleted = q.delFlag === '1';
                     const section = sections.find(s => s.id === q.sectionId);
@@ -1327,7 +1339,7 @@ function ExamSetEntry() {
                         {isDeleted ? (
                           <span className="text-red-500">已删除</span>
                         ) : (
-                          <span className="text-gray-500">{q.status || '已录入'}</span>
+                          <span className="text-gray-500">{q.status === 1 ? '已录入' : q.status === 0 ? '草稿' : q.status || '已录入'}</span>
                         )}
                       </div>
                     </div>

@@ -95,4 +95,3 @@ function RichTextEditor({
 }
 
 export default RichTextEditor;
-
