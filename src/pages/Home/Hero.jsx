@@ -107,7 +107,7 @@ function Hero() {
         ))}
       </Carousel>
 
-      <style jsx>{`
+      <style>{`
         @keyframes slow-zoom {
           from { transform: scale(1); }
           to { transform: scale(1.1); }
@@ -134,20 +134,20 @@ function Hero() {
         .delay-300 { animation-delay: 0.3s; }
         .delay-400 { animation-delay: 0.4s; }
         
-        :global(.custom-dots) {
+        .custom-dots {
           bottom: 40px !important;
           justify-content: flex-start !important;
           max-width: 1280px;
           margin: 0 auto !important;
           padding: 0 32px !important;
         }
-        :global(.custom-dots li button) {
+        .custom-dots li button {
           width: 30px !important;
           height: 4px !important;
           border-radius: 2px !important;
           background: rgba(255, 255, 255, 0.3) !important;
         }
-        :global(.custom-dots li.ant-carousel-active button) {
+        .custom-dots li.ant-carousel-active button {
           background: #ef4444 !important;
           width: 50px !important;
         }

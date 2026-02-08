@@ -6,7 +6,7 @@ import { Button, Card, Input, message, Modal, Space, Spin, Table, Tag } from 'an
 
 import { DeleteOutlined, EditOutlined, FormOutlined, SearchOutlined } from '@ant-design/icons';
 
-import { getExamSetList } from '@/services/exam';
+import { getExamSetList, deleteExam } from '@/services/exam';
 
 import ExamSetEditor from './ExamSetEditor';
 import SectionManager from './SectionManager';
@@ -35,9 +35,9 @@ function ExamSetManagement() {
     setLoading(true);
     try {
       const params = {
-        examType: 'SAT', // 固定为SAT，后续可扩展为可选项
         pageNum,
         pageSize,
+        examType: 'SAT', // 固定为SAT，后续可扩展为可选项
       };
       
       // 只有当关键词有值时才添加到参数中
@@ -62,14 +62,15 @@ function ExamSetManagement() {
           title: item.examName,
           source: item.source || '暂无',
           totalQuestions: item.questionCount || 0,
-          status: item.status === 1 ? 'published' : 'draft', // 根据后端返回的状态字段判断
+          status: item.status === 1 ? 'published' : 'draft', // 根据后端返回的状态字段判断（0-正常，1-禁用）
           statusDesc: item.status === 1 ? '已发布' : '草稿', // 使用状态字段生成描述
           examType: item.examType,
           examYear: item.examYear,
           examRegion: item.examRegion,
+          difficulty: item.difficulty || '未知', // 添加难度字段
           // 使用接口返回的字段
           totalDuration: item.examDuration, // 从接口获取总时长
-          sections: null, // 暂无
+          sections: item.sectionCount || 0, // 使用服务端返回的sectionCount字段
           description: item.examDescription || '', // 使用正确的字段名examDescription
         }));
         
@@ -159,13 +160,13 @@ function ExamSetManagement() {
       )
     },
     {
-      title: '题目组数量',
+      title: 'Section数量',
       key: 'sections',
       width: 120,
       render: (_, record) => (
         <span className="font-medium text-gray-400">
-          {record.sections !== null && record.sections !== undefined 
-            ? `${record.sections.length} 个` 
+          {record.sections !== null && record.sections !== undefined && record.sections > 0
+            ? `${record.sections} 个`
             : '暂无'}
         </span>
       )
@@ -244,17 +245,53 @@ function ExamSetManagement() {
     navigate(`/exam-set-entry?id=${record.taskId || record.id}`);
   };
 
-  const handleDelete = (record) => {
+  const handleDelete = async (record) => {
     Modal.confirm({
-      title: '确认删除',
-      content: `确定要删除套题"${record.title}"吗？此操作不可恢复。`,
-      okText: '确认',
+      title: (
+        <div className="flex items-center space-x-2">
+          <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+            <DeleteOutlined className="text-red-600 text-sm" />
+          </div>
+          <span className="text-red-700 font-semibold">确认删除</span>
+        </div>
+      ),
+      content: (
+        <div className="py-2">
+          <div className="text-gray-800 mb-2">
+            您即将删除套题：
+            <span className="font-semibold text-blue-600 ml-1">"{record.title}"</span>
+          </div>
+          <div className="text-red-600 text-sm bg-red-50 rounded-lg p-3 border border-red-200">
+            <div className="flex items-start space-x-2">
+              <span className="text-red-500 mt-0.5">⚠</span>
+              <span>此操作不可恢复，请谨慎操作！</span>
+            </div>
+          </div>
+        </div>
+      ),
+      okText: '确认删除',
       cancelText: '取消',
-      okButtonProps: { danger: true },
-      onOk: () => {
-        // TODO: 后续需要调用删除接口
-        setExamSets(prev => prev.filter(item => (item.taskId || item.id) !== (record.taskId || record.id)));
-        message.success('删除成功');
+      okButtonProps: { 
+        danger: true,
+        className: 'h-10 px-6 font-medium'
+      },
+      cancelButtonProps: {
+        className: 'h-10 px-6 font-medium'
+      },
+      className: 'delete-confirm-modal',
+      onOk: async () => {
+        try {
+          // 调用后端删除接口
+          const examId = record.examId || record.id || record.taskId;
+          await deleteExam(examId);
+          
+          // 前端更新列表
+          setExamSets(prev => prev.filter(item => (item.examId || item.id || item.taskId) !== examId));
+          message.success('删除成功');
+        } catch (error) {
+          console.error('删除套题失败:', error);
+          message.error('删除失败，请稍后重试');
+        }
       }
     });
   };
