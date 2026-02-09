@@ -267,17 +267,21 @@ function ExamSetEntry() {
         try {
           const questionListData = await getQuestionListByExamId(examId);
           if (questionListData && questionListData.length > 0) {
+            const categoryToSubject = { READING: '阅读语法', WRITING: '阅读语法', MATH: '数学' };
             const formattedQuestions = questionListData.map(item => {
               const { question, sectionName } = item;
               const optionsArray = parseQuestionOptions(question.options);
+              const section = sections.find(s => s.id === question.sectionId);
+              const subject = section?.subject || categoryToSubject[question.questionCategory] || '阅读语法';
               return {
                 id: question.questionId,
                 sectionId: question.sectionId,
                 sectionName,
+                subject,
                 questionCategory: question.questionCategory,
                 questionSubCategory: question.questionSubCategory,
                 difficulty: question.difficulty,
-                type: question.questionType,
+                type: question.questionSubCategory || '',
                 interactionType: question.questionType,
                 content: question.questionContent,
                 description: question.questionDescription,
