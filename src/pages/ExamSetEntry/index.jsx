@@ -87,6 +87,8 @@ function ExamSetEntry() {
   const [stepNextLoading, setStepNextLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [sectionSaveLoading, setSectionSaveLoading] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [summaryFormValues, setSummaryFormValues] = useState({});
 
   const fetchExamSetData = async (id) => {
     setFetchLoading(true);
@@ -398,9 +400,6 @@ function ExamSetEntry() {
       return newQuestions;
     });
   };
-
-  const [showSummaryModal, setShowSummaryModal] = useState(false);
-  const [summaryFormValues, setSummaryFormValues] = useState({});
 
   const handleSubmit = async () => {
     const activeQuestionsList = questions.filter(q => q.delFlag !== '1');
