@@ -62,7 +62,7 @@ function ExamHeader({
               <Button
                 size="small"
                 onClick={onToggleHideTime}
-                className="h-7 px-3 rounded-lg bg-white border-gray-200 text-gray-600 font-bold text-[10px] uppercase tracking-wider hover:text-red-600 hover:border-red-200 transition-all shadow-none"
+                className="h-7 px-3 rounded-lg bg白 border-gray-200 text-gray-600 font-bold text-[10px] uppercase tracking-wider hover:text-red-600 hover:border-red-200 transition-all shadow-none"
               >
                 {hideTime ? 'Show' : 'Hide'}
               </Button>

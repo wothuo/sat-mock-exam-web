@@ -43,7 +43,7 @@ function DirectionsModal({ open, title, content, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="bg-slate-900 text-white px-10 py-3.5 rounded-2xl font-black text-sm hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 active:scale-95 flex items-center"
+            className="bg-slate-900 text-white px-10 py-3.5 rounded-2xl font黑 text-sm hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 active:scale-95 flex items-center"
           >
             Got it, Close
             <i className="fas fa-check-circle ml-2 opacity-50" />
@@ -55,3 +55,4 @@ function DirectionsModal({ open, title, content, onClose }) {
 }
 
 export default DirectionsModal;
+

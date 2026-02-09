@@ -19,16 +19,26 @@ import { useExamProgress } from './hooks/useExamProgress';
 import { useHighlightAndNotes } from './hooks/useHighlightAndNotes';
 import './ExamContent.css';
 
-import PreparingScreen from './components/PreparingScreen';
-import TimeModeScreen from './components/TimeModeScreen';
-import IntroScreen from './components/IntroScreen';
-import ExamReportView from './components/ExamReportView';
-import ExamFooterBar from './components/ExamFooterBar';
-import DirectionsModal from './components/DirectionsModal';
-import NoteModal from './components/NoteModal';
-import ProgressModal from './components/ProgressModal';
-import EndExamModal from './components/EndExamModal';
-import ReferenceDrawer from './components/ReferenceDrawer';
+import {
+  PreparingScreen,
+  TimeModeScreen,
+  IntroScreen,
+  ExamReportView
+} from './components/screens';
+import {
+  ExamHeader,
+  ExamFooterBar,
+  QuestionStemPanel,
+  QuestionAnswerPanel,
+  QuestionNotesPanel
+} from './components/layout';
+import {
+  DirectionsModal,
+  NoteModal,
+  ProgressModal,
+  EndExamModal
+} from './components/modals';
+import { ReferenceDrawer } from './components/drawers';
 
 const INITIAL_TIME_SEC = 34 * 60 + 55;
 

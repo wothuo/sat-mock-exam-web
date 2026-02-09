@@ -58,3 +58,4 @@ function NoteModal({ open, selectedText, onSave, onCancel }) {
 }
 
 export default NoteModal;
+
