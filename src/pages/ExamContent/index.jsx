@@ -11,6 +11,12 @@ import {
 
 import { examData } from './examData';
 import { renderMathInContainers } from './renderMath';
+import { formatQuestionTime } from './utils/formatTime';
+import { calculateScore } from './utils/examScore';
+import { formatText } from './utils/formatText';
+import { useExamTimer } from './hooks/useExamTimer';
+import { useExamProgress } from './hooks/useExamProgress';
+import { useHighlightAndNotes } from './hooks/useHighlightAndNotes';
 import './ExamContent.css';
 
 import PreparingScreen from './components/PreparingScreen';
@@ -23,26 +29,18 @@ import ProgressModal from './components/ProgressModal';
 import EndExamModal from './components/EndExamModal';
 import ReferenceDrawer from './components/ReferenceDrawer';
 
+const INITIAL_TIME_SEC = 34 * 60 + 55;
+
 function ExamContent() {
   const { examId } = useParams();
   const navigate = useNavigate();
-  
-  const [currentQuestion, setCurrentQuestion] = useState(1);
+
   const [showDirections, setShowDirections] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   const [showTimeMode, setShowTimeMode] = useState(true);
   const [showIntro, setShowIntro] = useState(false);
   const [timeMode, setTimeMode] = useState('timed');
-  const [timeRemaining, setTimeRemaining] = useState(34 * 60 + 55);
-  const [answers, setAnswers] = useState({});
-  const [markedForReview, setMarkedForReview] = useState(new Set());
   const [examStarted, setExamStarted] = useState(false);
-  const [highlights, setHighlights] = useState({});
-  const [notes, setNotes] = useState({});
-  const [selectedText, setSelectedText] = useState('');
-  const [showNoteModal, setShowNoteModal] = useState(false);
-  const [notePosition, setNotePosition] = useState({ x: 0, y: 0 });
-  const [expandedNotes, setExpandedNotes] = useState(new Set());
   const [showNotesPanel, setShowNotesPanel] = useState(false);
   const [showTimeAsIcon, setShowTimeAsIcon] = useState(false);
   const [showEndExamModal, setShowEndExamModal] = useState(false);
@@ -51,374 +49,61 @@ function ExamContent() {
   const [examFinished, setExamFinished] = useState(false);
   const [activeReportTab, setActiveReportTab] = useState('All');
   const [showReference, setShowReference] = useState(false);
-  const [questionStartTime, setQuestionStartTime] = useState(Date.now());
-  const [questionTimes, setQuestionTimes] = useState({});
+
+  const progress = useExamProgress(examData);
+  const {
+    currentQuestion,
+    currentQ,
+    answers,
+    setAnswers,
+    markedForReview,
+    questionTimes,
+    handleAnswerSelect,
+    recordQuestionTime,
+    goToQuestion: progressGoToQuestion,
+    goToPrevious,
+    goToNext,
+    resetOnBeginExam
+  } = progress;
+
+  const { timeRemaining, formatTime } = useExamTimer(examStarted, timeMode, INITIAL_TIME_SEC);
+
+  const highlightNotes = useHighlightAndNotes(currentQuestion);
+  const {
+    notes,
+    selectedText,
+    showNoteModal,
+    setShowNoteModal,
+    setSelectedText,
+    expandedNotes,
+    saveNote,
+    toggleNoteExpansion,
+    deleteNote,
+    handleTextSelection,
+    renderFormattedText
+  } = highlightNotes;
 
   useEffect(() => {
     if (isPreparing) {
       const timer = setTimeout(() => {
         setIsPreparing(false);
-        setQuestionStartTime(Date.now());
+        resetOnBeginExam();
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [isPreparing]);
-
-  useEffect(() => {
-    if (examStarted && !isPreparing && !examFinished) {
-      setQuestionStartTime(Date.now());
-    }
-  }, [currentQuestion, examStarted, isPreparing, examFinished]);
+  }, [isPreparing, resetOnBeginExam]);
 
   useEffect(() => {
     const containers = document.querySelectorAll('.selectable-text, .math-content');
     containers.forEach((c) => { c.style.visibility = 'hidden'; });
-
-    const timer = setTimeout(() => {
-      renderMathInContainers();
-    }, 50);
-
+    const timer = setTimeout(() => renderMathInContainers(), 50);
     return () => clearTimeout(timer);
   }, [currentQuestion, showDirections, examFinished]);
 
-  const formatText = (text) => {
-    if (!text) return text;
-
-    // 1. 保护数学公式 - 使用不含下划线的占位符，避免被 Markdown 斜体逻辑干扰
-    const mathBlocks = [];
-    let processed = text.replace(/\$([\s\S]*?)\$/g, (match) => {
-      const placeholder = `@@@MATHBLOCK${mathBlocks.length}@@@`;
-      mathBlocks.push(match);
-      return placeholder;
-    });
-
-    // 2. 粗体与斜体
-    processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    processed = processed.replace(/__(.*?)__/g, '<strong>$1</strong>');
-    processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    processed = processed.replace(/_(.*?)_/g, '<em>$1</em>');
-    
-    // 处理无序列表 (以 • 开头的行)
-    processed = processed.split('\n').map(line => {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('•')) {
-        return `<div class="flex items-start space-x-3 mb-2 ml-2">
-          <span class="text-red-600 font-bold mt-0.5">•</span>
-          <span class="flex-1">${trimmed.substring(1).trim()}</span>
-        </div>`;
-      }
-      return line;
-    }).join('\n');
-
-    // 换行处理 (排除已经包含 div 的行，避免双重换行)
-    processed = processed.split('\n').map(line => {
-      if (line.includes('<div') || line.includes('<table') || line.includes('<tr') || line.includes('<td') || line.includes('<th')) {
-        return line;
-      }
-      return line + '<br />';
-    }).join('');
-    
-    // 3. 还原数学公式 - 使用 split/join 确保替换所有可能的占位符
-    mathBlocks.forEach((block, index) => {
-      processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
-    });
-
-    return processed;
-  };
-
-  const handleTextSelection = (event) => {
-    event.stopPropagation();
-    
-    const selection = window.getSelection();
-    const selectedText = selection.toString().trim();
-    
-    if (selectedText.length > 0) {
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-      
-      setSelectedText(selectedText);
-      setNotePosition({
-        x: rect.left + rect.width / 2,
-        y: rect.top - 10
-      });
-      
-      setTimeout(() => {
-        const highlightMenu = document.getElementById('highlight-menu');
-        if (highlightMenu) {
-          highlightMenu.style.display = 'block';
-          highlightMenu.style.left = `${Math.max(10, rect.left + rect.width / 2 - 100)}px`;
-          highlightMenu.style.top = `${Math.max(10, rect.top + window.scrollY - 50)}px`;
-          highlightMenu.style.zIndex = '9999';
-        }
-      }, 50);
-    } else {
-      hideHighlightMenu();
-    }
-  };
-
-  const addHighlight = (color) => {
-    if (selectedText) {
-      const highlightId = `highlight-${Date.now()}`;
-      setHighlights(prev => ({
-        ...prev,
-        [highlightId]: {
-          text: selectedText,
-          color: color,
-          questionId: currentQuestion
-        }
-      }));
-      
-      window.getSelection().removeAllRanges();
-      setSelectedText('');
-      hideHighlightMenu();
-    }
-  };
-
-  const removeHighlight = () => {
-    if (selectedText) {
-      const highlightToRemove = Object.entries(highlights).find(([id, highlight]) => 
-        highlight.text === selectedText && highlight.questionId === currentQuestion
-      );
-      
-      if (highlightToRemove) {
-        setHighlights(prev => {
-          const newHighlights = { ...prev };
-          delete newHighlights[highlightToRemove[0]];
-          return newHighlights;
-        });
-      }
-      
-      window.getSelection().removeAllRanges();
-      setSelectedText('');
-      hideHighlightMenu();
-    }
-  };
-
-  const addUnderline = () => {
-    if (selectedText) {
-      const underlineId = `underline-${Date.now()}`;
-      setHighlights(prev => ({
-        ...prev,
-        [underlineId]: {
-          text: selectedText,
-          color: 'underline',
-          questionId: currentQuestion
-        }
-      }));
-      
-      window.getSelection().removeAllRanges();
-      setSelectedText('');
-      hideHighlightMenu();
-    }
-  };
-
-  const addNote = () => {
-    if (selectedText) {
-      setShowNoteModal(true);
-      hideHighlightMenu();
-    }
-  };
-
-  const saveNote = (noteText) => {
-    if (selectedText && noteText && noteText.trim()) {
-      const noteId = `note-${Date.now()}`;
-      setNotes(prev => ({
-        ...prev,
-        [noteId]: {
-          text: selectedText,
-          note: noteText.trim(),
-          questionId: currentQuestion,
-          position: notePosition
-        }
-      }));
-    }
-    setShowNoteModal(false);
-    setSelectedText('');
-    if (window.getSelection()) window.getSelection().removeAllRanges();
-  };
-
-  const toggleNoteExpansion = (noteId) => {
-    setExpandedNotes(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(noteId)) {
-        newSet.delete(noteId);
-        removeNoteHighlight(noteId);
-      } else {
-        newSet.add(noteId);
-        addNoteHighlight(noteId);
-      }
-      return newSet;
-    });
-  };
-
-  const addNoteHighlight = (noteId) => {
-    const note = notes[noteId];
-    if (!note) return;
-    
-    const textElements = document.querySelectorAll('.selectable-text');
-    textElements.forEach(element => {
-      if (element.textContent.includes(note.text)) {
-        const innerHTML = element.innerHTML;
-        const highlightedHTML = innerHTML.replace(
-          new RegExp(note.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
-          `<span class="note-highlight" data-note-id="${noteId}">${note.text}</span>`
-        );
-        element.innerHTML = highlightedHTML;
-      }
-    });
-  };
-
-  const removeNoteHighlight = (noteId) => {
-    const highlightElements = document.querySelectorAll(`[data-note-id="${noteId}"]`);
-    highlightElements.forEach(element => {
-      const parent = element.parentNode;
-      parent.replaceChild(document.createTextNode(element.textContent), element);
-      parent.normalize();
-    });
-  };
-
-  const deleteNote = (noteId) => {
-    removeNoteHighlight(noteId);
-    
-    setNotes(prev => {
-      const newNotes = { ...prev };
-      delete newNotes[noteId];
-      return newNotes;
-    });
-    setExpandedNotes(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(noteId);
-      return newSet;
-    });
-  };
-
-  const hideHighlightMenu = () => {
-    const highlightMenu = document.getElementById('highlight-menu');
-    if (highlightMenu) {
-      highlightMenu.style.display = 'none';
-    }
-  };
-
-  const renderFormattedText = (text, questionId) => {
-    let processedText = formatText(text);
-    
-    Object.entries(highlights).forEach(([id, highlight]) => {
-      if (highlight.questionId === questionId) {
-        const highlightClass = highlight.color === 'underline' ? 'text-underline' : `highlight-${highlight.color}`;
-        processedText = processedText.replace(
-          new RegExp(highlight.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
-          `<span class="${highlightClass}" data-highlight-id="${id}">${highlight.text}</span>`
-        );
-      }
-    });
-    
-    return (
-      <div 
-        dangerouslySetInnerHTML={{ __html: processedText }}
-        onMouseUp={handleTextSelection}
-        className="selectable-text math-content"
-      />
-    );
-  };
-
-  React.useEffect(() => {
-    const handleDocumentClick = (e) => {
-      if (!e.target.closest('#highlight-menu') && !window.getSelection().toString()) {
-        hideHighlightMenu();
-      }
-    };
-    
-    const handleSelectionChange = () => {
-      if (!window.getSelection().toString()) {
-        hideHighlightMenu();
-      }
-    };
-    
-    document.addEventListener('click', handleDocumentClick);
-    document.addEventListener('selectionchange', handleSelectionChange);
-    
-    return () => {
-      document.removeEventListener('click', handleDocumentClick);
-      document.removeEventListener('selectionchange', handleSelectionChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!examStarted || timeMode === 'untimed') return;
-    
-    const timer = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 0) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [examStarted, timeMode]);
-
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const getCurrentQuestion = () => {
-    return examData.questions.find(q => q.id === currentQuestion);
-  };
-
-  const handleAnswerSelect = (answer) => {
-    setAnswers(prev => ({
-      ...prev,
-      [currentQuestion]: answer
-    }));
-  };
-
-  const toggleMarkForReview = () => {
-    setMarkedForReview(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(currentQuestion)) {
-        newSet.delete(currentQuestion);
-      } else {
-        newSet.add(currentQuestion);
-      }
-      return newSet;
-    });
-  };
-
-  const recordQuestionTime = (questionId) => {
-    const endTime = Date.now();
-    const timeSpent = Math.floor((endTime - questionStartTime) / 1000);
-    
-    setQuestionTimes(prev => ({
-      ...prev,
-      [questionId]: (prev[questionId] || 0) + timeSpent
-    }));
-  };
-
-  const goToQuestion = (questionNum) => {
-    recordQuestionTime(currentQuestion);
-    setCurrentQuestion(questionNum);
+  const goToQuestion = (num) => {
+    progressGoToQuestion(num);
     setShowProgress(false);
   };
-
-  const goToPrevious = () => {
-    if (currentQuestion > 1) {
-      recordQuestionTime(currentQuestion);
-      setCurrentQuestion(currentQuestion - 1);
-    }
-  };
-
-  const goToNext = () => {
-    if (currentQuestion < examData.totalQuestions) {
-      recordQuestionTime(currentQuestion);
-      setCurrentQuestion(currentQuestion + 1);
-    }
-  };
-
-  const currentQ = getCurrentQuestion();
 
   const startExam = () => {
     setShowTimeMode(false);
@@ -428,7 +113,7 @@ function ExamContent() {
   const beginExam = () => {
     setExamStarted(true);
     setShowIntro(false);
-    setQuestionStartTime(Date.now());
+    resetOnBeginExam();
   };
 
   const handleFinishExam = () => {
@@ -438,45 +123,12 @@ function ExamContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const formatQuestionTime = (seconds) => {
-    if (!seconds) return '0秒';
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    if (mins === 0) return `${secs}秒`;
-    return `${mins}分${secs}秒`;
-  };
-
-  const calculateScore = () => {
-    const total = examData.totalQuestions;
-    const answered = Object.keys(answers).length;
-    const correct = examData.questions.filter(q => {
-      if (q.type === 'multiple-choice' || q.type === 'reading-passage' || q.type === 'table-question' || q.type === 'complex-table' || q.type === 'multiple-choice-with-image') {
-        return answers[q.id] === q.correctAnswer;
-      }
-      return false; // 简化逻辑，填空题暂不自动判分
-    }).length;
-    
-    // 模拟 SAT 评分逻辑 (400-1600)
-    const baseScore = 400;
-    const rwScore = 200 + Math.round((correct / total) * 600 * 0.6);
-    const mathScore = 200 + Math.round((correct / total) * 600 * 0.4);
-    
-    return {
-      total: rwScore + mathScore,
-      rw: rwScore,
-      math: mathScore,
-      correct,
-      incorrect: answered - correct,
-      omitted: total - answered
-    };
-  };
-
   if (isPreparing) {
     return <PreparingScreen />;
   }
 
   if (examFinished) {
-    const scores = calculateScore();
+    const scores = calculateScore(examData, answers);
     return (
       <ExamReportView
         examData={examData}
