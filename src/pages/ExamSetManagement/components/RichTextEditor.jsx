@@ -9,6 +9,7 @@ function RichTextEditor({
   onChange, 
   placeholder = '输入内容...', 
   showPreview = true,
+  previewPlaceholder,
   id,
   onRenderMath,
   showToolbar = true,
@@ -57,12 +58,13 @@ function RichTextEditor({
     }
   };
 
-  // 自动渲染数学公式
+  // 自动渲染数学公式（延迟确保预览区 DOM 已更新后再执行 KaTeX）
   React.useEffect(() => {
-    if (showPreview && value && onRenderMath) {
-      setTimeout(() => {
+    if (showPreview && onRenderMath) {
+      const t = setTimeout(() => {
         onRenderMath();
-      }, 100);
+      }, 150);
+      return () => clearTimeout(t);
     }
   }, [value, showPreview, onRenderMath]);
 
@@ -82,12 +84,18 @@ function RichTextEditor({
           id={`preview-${id}`}
           className="mt-2 p-3 bg-gray-50 rounded-xl border border-gray-200"
         >
-          <div 
-            className="text-gray-900 leading-relaxed"
-            dangerouslySetInnerHTML={{ 
-              __html: formatText(value || '')
-            }}
-          />
+          {!(value || '').trim() && previewPlaceholder ? (
+            <div className="text-gray-400 leading-relaxed text-sm">
+              {previewPlaceholder}
+            </div>
+          ) : (
+            <div 
+              className="text-gray-900 leading-relaxed"
+              dangerouslySetInnerHTML={{ 
+                __html: formatText(value || '')
+              }}
+            />
+          )}
         </div>
       )}
     </div>

@@ -406,12 +406,12 @@ function ExamSetEntry() {
       interactionType: 'CHOICE',
       type: questionTypes.length > 0 ? questionTypes[0] : '未分类',
       difficulty: 'Medium',
-      content: '已录入',
+      content: '',
       description: '',
       options: ['', '', '', ''],
       correctAnswer: 'A',
       explanation: '',
-      status: '已录入'
+      status: 0
     };
     
     setQuestions([...questions, newQuestion]);
@@ -521,7 +521,7 @@ function ExamSetEntry() {
           questionCategory: (question.subject || '').toUpperCase(),
           questionSubCategory: question.type,
           difficulty: (question.difficulty || '').toUpperCase(),
-          questionContent: question.content,
+          questionContent: question.content === '已录入' ? '' : (question.content || ''),
           questionDescription: question.description || '',
           optionA,
           optionB,
@@ -594,7 +594,7 @@ function ExamSetEntry() {
           throwOnError: false
         });
       }
-    }, 50);
+    }, 120);
   };
 
   const handleToolbarAction = (action, data, targetId) => {

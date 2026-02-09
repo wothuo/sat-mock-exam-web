@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { Button, Empty, Input, Select, Space, Tag } from 'antd';
 import { CheckCircleOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
@@ -6,6 +6,35 @@ import { CheckCircleOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/i
 import RichTextEditor from './RichTextEditor';
 
 const { Option } = Select;
+
+/** 与 RichTextEditor 一致的 Markdown→HTML，保留 $...$ 供 KaTeX 渲染 */
+function formatContentToHtml(text) {
+  if (!text || typeof text !== 'string') return '';
+  const mathBlocks = [];
+  let processed = text.replace(/\$\$[\s\S]*?\$\$|\$[^$\n]+?\$/g, (match) => {
+    const placeholder = `@@@MATHBLOCK${mathBlocks.length}@@@`;
+    mathBlocks.push(match);
+    return placeholder;
+  });
+  processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
+  processed = processed.replace(/(?<!\*)(\*)(?!\*)(.+?)(?<!\*)(\*)(?!\*)/g, '<em>$2</em>');
+  processed = processed.replace(/(?<!_)(_)(?!_)(.+?)(?<!_)(_)(?!_)/g, '<em>$2</em>');
+  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-1 max-h-8 object-contain" />');
+  processed = processed.replace(/\n/g, '<br />');
+  mathBlocks.forEach((block, index) => {
+    processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
+  });
+  return processed;
+}
+
+/** 题目索引无内容时的占位文案 */
+function getIndexPreviewPlaceholder(content) {
+  if (!content || typeof content !== 'string') return '—';
+  const trimmed = content.trim();
+  if (!trimmed || trimmed === '已录入') return '—';
+  return null;
+}
 
 /**
  * 套题录入 - 题目内容（步骤 2）
@@ -30,6 +59,28 @@ function ExamSetQuestionStep({
   onPrev,
   onSubmit
 }) {
+  // 题目索引列表中的公式在 DOM 更新后统一渲染
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (typeof window !== 'undefined' && window.renderMathInElement) {
+        questions.forEach((q) => {
+          if (q.delFlag === '1') return;
+          const el = document.getElementById(`index-preview-${q.id}`);
+          if (el) {
+            window.renderMathInElement(el, {
+              delimiters: [
+                { left: '$', right: '$', display: false },
+                { left: '$$', right: '$$', display: true },
+              ],
+              throwOnError: false,
+            });
+          }
+        });
+      }
+    }, 200);
+    return () => clearTimeout(t);
+  }, [questions]);
+
   return (
     <>
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6 sticky top-20 z-10">
@@ -181,12 +232,23 @@ function ExamSetQuestionStep({
                       {isSectionDeleted && ' (已删除)'}
                     </Tag>
                   </div>
-                  <div className="text-[10px] font-medium leading-tight">
+                  <div className="text-[10px] font-medium leading-tight text-gray-700 min-h-[1.25rem]" title={q.content}>
                     {isDeleted ? (
                       <span className="text-red-500">已删除</span>
+                    ) : getIndexPreviewPlaceholder(q.content) !== null ? (
+                      <span>{getIndexPreviewPlaceholder(q.content)}</span>
                     ) : (
-                      <span className="text-gray-500">{q.status === 1 ? '已录入' : q.status === 0 ? '草稿' : q.status || '已录入'}</span>
+                      <div
+                        id={`index-preview-${q.id}`}
+                        className="index-preview-content line-clamp-2 break-words [&_.katex]:text-[10px]"
+                        dangerouslySetInnerHTML={{
+                          __html: formatContentToHtml(q.content),
+                        }}
+                      />
                     )}
+                  </div>
+                  <div className="text-[10px] text-gray-500 leading-tight mt-0.5">
+                    {q.status === 1 ? '已录入' : q.status === 0 ? '草稿' : q.status || '已录入'}
                   </div>
                 </div>
               );
@@ -280,10 +342,12 @@ function ExamSetQuestionStep({
                       <label className="block text-sm font-bold text-gray-600 uppercase mb-2">题目内容</label>
                       <RichTextEditor
                         id={`question-content-${q.id}`}
-                        value={q.content}
+                        value={q.content === '已录入' ? '' : (q.content || '')}
                         onChange={value => onUpdateQuestion(q.id, 'content', value)}
-                        placeholder={q.interactionType === 'BLANK' ? '输入题目正文，填空处可用 _____ 表示...\n支持：**粗体**、*斜体*、$公式$' : '输入题目正文，支持 KaTeX 公式...\n支持：**粗体**、*斜体*、$公式$、图片上传'}
+                        placeholder="请输入题目内容..."
+                        previewPlaceholder="请输入题目内容..."
                         onRenderMath={() => onRenderMathInPreview(`preview-question-content-${q.id}`)}
+                        showPreview={true}
                         showToolbar={false}
                         onToolbarAction={onToolbarAction}
                       />
