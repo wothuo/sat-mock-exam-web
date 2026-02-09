@@ -228,9 +228,10 @@ export const getSectionListByExamId = async (examId) => {
  * @returns {string} return.data[].question.updateTime - 更新时间
  *
  * @returns {string} return.data[].sectionName - 套题Section名称
- */
+ * @returns {string} return.data[].sectionTiming - 套题Section限时（分钟）
+ * */
 export const getQuestionListByExamId = async (examId) => {
-  const response = await post('/question/list', examId);
+  const response = await post('/question/exam/list', examId);
   return response.data;
 };
 
@@ -343,5 +344,43 @@ export const deleteExam = async (examId) => {
  */
 export const queryExamSectionList = async (params) => {
   const response = await post('/exam/list/section', params);
+  return response.data;
+};
+
+/**
+ * 根据套题ID查询题目列表
+ * @param {number} sectionId - 套题ID
+ * @returns {Promise} 题目列表数据
+ *
+ * @returns {Object} return - 响应结果
+ * @returns {number} return.code - 状态码（0-成功，非0-失败）
+ * @returns {string} return.message - 响应消息
+ * @returns {Array} return.data - 题目列表数据
+ *
+ * @returns {Object} return.data[].question - 题目信息实体
+ * @returns {number} return.data[].question.questionId - 题目ID
+ * @returns {number} return.data[].question.sectionId - 章节ID
+ * @returns {string} return.data[].question.questionCategory - 题目分类（READING/WRITING/MATH）
+ * @returns {string} return.data[].question.questionSubCategory - 题目子分类
+ * @returns {string} return.data[].question.difficulty - 难度等级
+ * @returns {string} return.data[].question.questionType - 题目类型（CHOICE/BLANK）
+ * @returns {string} return.data[].question.questionContent - 题目内容
+ * @returns {string} return.data[].question.questionDescription - 问题描述
+ * @returns {string} return.data[].question.options - 选项内容（JSON格式）
+ * @returns {string} return.data[].question.answer - 正确答案
+ * @returns {string} return.data[].question.analysis - 解析
+ * @returns {number} return.data[].question.score - 题目分数
+ * @returns {number} return.data[].question.status - 状态（0-正常，1-禁用）
+ * @returns {number} return.data[].question.delFlag - 删除标志（0-正常，1-已删除）
+ * @returns {number} return.data[].question.creatorId - 创建人ID
+ * @returns {string} return.data[].question.createTime - 创建时间
+ * @returns {string} return.data[].question.updateTime - 更新时间
+ *
+ * @returns {string} return.data[].sectionName - 套题Section名称
+ * @returns {string} return.data[].sectionTiming - 套题Section限时（分钟）
+  */
+export const getQuestionListBySectionId = async (sectionId) => {
+  // 根据接口文档，直接传递Long类型的sectionId值，不需要JSON对象包装
+  const response = await post('/question/section/list', sectionId);
   return response.data;
 };

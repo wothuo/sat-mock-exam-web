@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState, useMemo } from 'react';
+
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+
 import { Button, Space } from 'antd';
+
 import {
   BarChartOutlined,
   LeftOutlined,
@@ -8,22 +11,9 @@ import {
   StopOutlined
 } from '@ant-design/icons';
 
-import { examData } from './examData';
-import { renderMathInContainers } from './renderMath';
-import { formatQuestionTime } from './utils/formatTime';
-import { calculateScore } from './utils/examScore';
-import { formatText } from './utils/formatText';
-import { useExamTimer } from './hooks/useExamTimer';
-import { useExamProgress } from './hooks/useExamProgress';
-import { useHighlightAndNotes } from './hooks/useHighlightAndNotes';
-import './ExamContent.css';
+import { getQuestionListBySectionId } from '../../services/exam';
 
-import {
-  PreparingScreen,
-  TimeModeScreen,
-  IntroScreen,
-  ExamReportView
-} from './components/screens';
+import { ReferenceDrawer } from './components/drawers';
 import {
   ExamHeader,
   ExamFooterBar,
@@ -37,13 +27,201 @@ import {
   ProgressModal,
   EndExamModal
 } from './components/modals';
-import { ReferenceDrawer } from './components/drawers';
+import {
+  PreparingScreen,
+  TimeModeScreen,
+  IntroScreen,
+  ExamReportView
+} from './components/screens';
+import { examData } from './examData';
+import { useExamProgress } from './hooks/useExamProgress';
+import { useExamTimer } from './hooks/useExamTimer';
+import { useHighlightAndNotes } from './hooks/useHighlightAndNotes';
+import { renderMathInContainers } from './renderMath';
+import { calculateScore } from './utils/examScore';
+import { formatText } from './utils/formatText';
+import { formatQuestionTime } from './utils/formatTime';
+import './ExamContent.css';
+
 
 const INITIAL_TIME_SEC = 34 * 60 + 55;
 
 function ExamContent() {
   const { examId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // 使用useMemo缓存路由状态，避免无限重渲染
+  const { sectionId, examTitle, examDuration, totalQuestions } = useMemo(() => {
+    const state = location.state || {};
+    return {
+      sectionId: state.sectionId || examId,
+      examTitle: state.examTitle || 'Section 1, Module 1: Reading and Writing',
+      examDuration: state.examDuration || '35分钟',
+      totalQuestions: state.totalQuestions || 27
+    };
+  }, [location.state, examId]); // 只有当location.state或examId变化时才重新计算
+  
+  // 真实题目数据状态
+  const [realExamData, setRealExamData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // 获取真实题目数据
+  useEffect(() => {
+    // 如果已经有数据，避免重复请求
+    if (realExamData) {
+      console.log('已有真实数据，跳过请求');
+      return;
+    }
+    
+    const fetchRealExamData = async () => {
+      try {
+        setLoading(true);
+        console.log('开始请求题目数据，sectionId:', sectionId);
+        const result = await getQuestionListBySectionId(sectionId);
+        
+        // 调试日志：打印服务端返回的完整数据结构
+        console.log('服务端返回数据:', result);
+        console.log('result 类型:', typeof result);
+        console.log('result 是数组:', Array.isArray(result));
+        console.log('result 长度:', Array.isArray(result) ? result.length : 'N/A');
+        
+        // 验证数据格式 - 适配直接返回数组的情况
+        let questionsData = null;
+        
+        if (Array.isArray(result)) {
+          // 情况1：服务端直接返回题目数组
+          questionsData = result;
+          console.log('使用直接返回的数组作为数据源');
+        } else if (result && result.code === 0 && Array.isArray(result.data)) {
+          // 情况2：标准响应格式 {code: 0, data: [...]}
+          questionsData = result.data;
+          console.log('使用标准响应格式的数据源');
+        } else {
+          setError(`数据格式错误：无法识别返回的数据结构`);
+          console.error('数据格式错误:', result);
+          return;
+        }
+        
+        // 转换后端数据格式为前端需要的格式
+        const transformedData = {
+          title: examTitle,
+          totalQuestions: totalQuestions,
+          directions: {
+            title: 'Directions',
+            content: `The questions in this section address a number of important reading and writing skills.
+Use of a calculator is not permitted for this section. These directions can be accessed throughout the test.
+
+**For multiple-choice questions**, solve each problem and choose the correct answer from the choices provided.
+Each multiple-choice question has a single correct answer.
+
+**For student-produced response questions:**
+• If you find more than one correct answer, enter only one answer.
+• You can enter up to 5 characters for a positive answer and up to 6 characters (including the negative sign) for a negative answer.
+• If your answer is a fraction that doesn't fit in the provided space, enter the decimal equivalent.
+• If your answer is a decimal that doesn't fit in the provided space, enter it by truncating or rounding at the fourth digit.`
+          },
+          questions: questionsData.map((item, index) => {
+            // 验证 item 结构
+            if (!item || typeof item !== 'object') {
+              console.warn('无效的题目数据项:', item);
+              return null;
+            }
+            
+            // 根据实际数据结构，item 包含嵌套的 question 对象
+            const questionObj = item.question; // 题目数据在 question 字段中
+            
+            // 详细调试每个题目的完整数据结构
+            console.log(`题目 ${index + 1} 完整数据结构:`, item);
+            console.log(`题目 ${index + 1} 嵌套question对象:`, questionObj);
+            console.log(`题目 ${index + 1} 关键字段:`, {
+              questionId: questionObj?.questionId,
+              questionContent: questionObj?.questionContent,
+              questionType: questionObj?.questionType,
+              options: questionObj?.options,
+              hasQuestionContent: !!questionObj?.questionContent,
+              keys: questionObj ? Object.keys(questionObj) : []
+            });
+            
+            // 检查题目内容是否存在
+            if (!questionObj || !questionObj.questionContent) {
+              console.warn(`题目 ${index + 1} 缺少 questionContent 字段，可用字段:`, questionObj ? Object.keys(questionObj) : []);
+            }
+            
+            // 解析选项JSON字符串 - 适配实际的数据格式
+            let options = [];
+            if (questionObj?.options) {
+              try {
+                const parsedOptions = JSON.parse(questionObj.options);
+                // 适配两种可能的选项格式
+                if (Array.isArray(parsedOptions)) {
+                  // 格式: [{"option": "A", "content": "Rare"}, ...]
+                  options = parsedOptions.map(opt => {
+                    return `${opt.option}) ${opt.content}`;
+                  });
+                } else if (typeof parsedOptions === 'object') {
+                  // 格式: {"A": "Rare", "B": "Common", ...}
+                  options = Object.entries(parsedOptions).map(([key, value]) => `${key}) ${value}`);
+                }
+              } catch (e) {
+                console.warn('Failed to parse options JSON:', questionObj.options);
+                // 尝试直接使用字符串格式的选项
+                if (typeof questionObj.options === 'string') {
+                  options = questionObj.options.split(',').map(opt => opt.trim());
+                }
+              }
+            }
+            
+            // 根据题目类型确定题型 - 适配实际的类型值
+            let questionType = 'multiple-choice';
+            if (questionObj?.questionType === 'BLANK' || questionObj?.questionType === 'blank') {
+              questionType = 'student-produced';
+            } else if (questionObj?.questionType === 'choice') {
+              questionType = 'multiple-choice';
+            }
+            
+            // 改进题目内容处理逻辑 - 正确访问嵌套的question对象
+            const questionContent = questionObj?.questionContent || 
+                                  questionObj?.question || 
+                                  questionObj?.content || 
+                                  `题目 ${index + 1} 内容加载中...`;
+            
+            return {
+              id: questionObj?.questionId || index + 1,
+              type: questionType,
+              question: questionContent,
+              description: questionObj?.questionDescription || '',
+              options: options,
+              correctAnswer: questionObj?.answer || '',
+              analysis: questionObj?.analysis || '',
+              difficulty: questionObj?.difficulty || 'Medium',
+              category: questionObj?.questionCategory || 'MATH',
+              subCategory: questionObj?.questionSubCategory || ''
+            };
+          }).filter(Boolean) // 过滤掉 null 项
+        };
+        
+        // 验证转换后的数据
+        console.log('转换后的数据:', transformedData);
+        console.log('题目数量:', transformedData.questions.length);
+        
+        if (transformedData.questions.length === 0) {
+          setError('没有找到有效的题目数据');
+          return;
+        }
+        
+        setRealExamData(transformedData);
+      } catch (err) {
+        setError('网络错误，请检查网络连接');
+        console.error('获取题目数据失败:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchRealExamData();
+  }, [sectionId, realExamData]); // 依赖sectionId和realExamData，避免重复请求
 
   const [showDirections, setShowDirections] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
@@ -60,7 +238,26 @@ function ExamContent() {
   const [activeReportTab, setActiveReportTab] = useState('All');
   const [showReference, setShowReference] = useState(false);
 
-  const progress = useExamProgress(examData);
+  const examDataToUse = realExamData || examData;
+  
+  // 只在开发环境或特定条件下输出调试信息
+  if (process.env.NODE_ENV === 'development') {
+    // 使用useRef记录上次渲染状态，避免重复输出
+    const prevRenderRef = React.useRef({});
+    const currentState = {
+      sectionId,
+      hasRealExamData: !!realExamData,
+      questionCount: examDataToUse.questions?.length
+    };
+    
+    // 只有当状态真正变化时才输出
+    if (JSON.stringify(prevRenderRef.current) !== JSON.stringify(currentState)) {
+      console.log('组件状态变化:', currentState);
+      prevRenderRef.current = currentState;
+    }
+  }
+  
+  const progress = useExamProgress(examDataToUse);
   const {
     currentQuestion,
     currentQ,
@@ -138,7 +335,7 @@ function ExamContent() {
   }
 
   if (examFinished) {
-    const scores = calculateScore(examData, answers);
+    const scores = calculateScore(examDataToUse, answers);
     return (
       <ExamReportView
         examData={examData}
@@ -171,7 +368,7 @@ function ExamContent() {
   return (
     <div className="min-h-screen bg-gray-100">
       <ExamHeader
-        title={examData.title}
+        title={examDataToUse.title}
         timeMode={timeMode}
         timeRemaining={timeRemaining}
         hideTime={hideTime}
@@ -189,7 +386,7 @@ function ExamContent() {
           <div className={`grid gap-4 sm:gap-6 min-h-[calc(100vh-220px)] ${showNotesPanel ? 'grid-cols-1 lg:grid-cols-12' : 'grid-cols-1 lg:grid-cols-8'}`}>
             <QuestionStemPanel
               currentQuestion={currentQuestion}
-              totalQuestions={examData.totalQuestions}
+              totalQuestions={examDataToUse.totalQuestions}
               question={currentQ ? { ...currentQ, id: currentQuestion } : null}
               renderFormattedText={renderFormattedText}
               onTextSelect={handleTextSelection}
@@ -281,4 +478,3 @@ function ExamContent() {
 }
 
 export default ExamContent;
-

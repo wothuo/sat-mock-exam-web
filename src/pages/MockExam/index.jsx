@@ -6,7 +6,7 @@ import { Button, Card, Col, Pagination, Row, Space, Tag, message } from 'antd';
 
 import { ClockCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
-import { queryExamSectionList } from '../../services/exam';
+import { queryExamSectionList, getQuestionListBySectionId } from '../../services/exam';
 
 function MockExam() {
   const [activeTab, setActiveTab] = useState('历年考题');
@@ -310,7 +310,15 @@ function MockExam() {
                     </Col>
                   </Row>
 
-                  <Link to={`/exam/${exam.id}`}>
+                  <Link 
+                    to={`/exam/${exam.id}`} 
+                    state={{
+                      sectionId: exam.id,
+                      examTitle: exam.title,
+                      examDuration: exam.duration,
+                      totalQuestions: exam.questions
+                    }}
+                  >
                     <Button type="primary" block size="large" className="bg-gradient-to-r from-indigo-500 to-purple-500">
                       <i className="fas fa-rocket mr-2"></i>
                       开始模考
