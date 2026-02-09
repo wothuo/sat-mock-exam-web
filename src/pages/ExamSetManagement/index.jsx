@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
-import { Button, Card, Input, message, Modal, Space, Spin, Table, Tag } from 'antd';
+import { Button, Card, message, Modal, Space, Spin, Table, Tag } from 'antd';
 
-import { DeleteOutlined, EditOutlined, FormOutlined, SearchOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, FormOutlined } from '@ant-design/icons';
 
 import { getExamSetList, deleteExam } from '@/services/exam';
 
 import ExamSetEditor from './ExamSetEditor';
+import ExamSetListToolbar from './components/ExamSetListToolbar';
 import SectionManager from './SectionManager';
 
 function ExamSetManagement() {
@@ -340,50 +341,14 @@ function ExamSetManagement() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mt-6 mb-8">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          {/* 搜索框 */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
-            <div className="relative w-full sm:w-64">
-              <Input
-                placeholder="请输入套题名称"
-                value={searchKeyword}
-                onChange={(e) => setSearchKeyword(e.target.value)}
-                onPressEnter={handleSearch}
-                prefix={<SearchOutlined className="text-gray-400" />}
-                className="w-full rounded-xl border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200"
-                allowClear
-                onClear={handleReset}
-              />
-            </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Button 
-                type="primary" 
-                onClick={handleSearch}
-                className="flex-1 sm:flex-none h-11 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 border-0 font-medium transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                <SearchOutlined className="mr-1" />搜索
-              </Button>
-              <Button 
-                onClick={handleReset}
-                className="flex-1 sm:flex-none h-11 px-6 rounded-xl border-gray-200 hover:border-gray-300 hover:bg-gray-50 font-medium transition-all duration-200"
-              >
-                重置
-              </Button>
-            </div>
-          </div>
-          
-          {/* 新增按钮 */}
-          <Button
-            size="large"
-            icon={<FormOutlined />}
-            onClick={() => navigate('/exam-set-entry')}
-            className="rounded-xl border-2 border-red-500 text-red-600 hover:text-white hover:bg-red-600 hover:border-red-600 font-bold transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-red-100"
-          >
-            新增题库
-          </Button>
-        </div>
-      </div>
+      <ExamSetListToolbar
+        searchValue={searchKeyword}
+        onSearchChange={setSearchKeyword}
+        onSearch={handleSearch}
+        onReset={handleReset}
+        searchPlaceholder="请输入套题名称"
+        primaryAction={{ label: '新增题库', icon: <FormOutlined />, to: '/exam-set-entry' }}
+      />
 
       <Card>
         <Spin spinning={loading}>
