@@ -359,7 +359,7 @@ function ExamSetQuestionStep({
                         id={`question-description-${q.id}`}
                         value={q.description || ''}
                         onChange={value => onUpdateQuestion(q.id, 'description', value)}
-                        placeholder="输入问题描述...\n支持：**粗体**、*斜体*、$公式$、图片上传"
+                        placeholder="输入问题描述..."
                         showPreview={true}
                         onRenderMath={() => onRenderMathInPreview(`preview-question-description-${q.id}`)}
                         showToolbar={false}
