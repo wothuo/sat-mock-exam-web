@@ -8,7 +8,8 @@ function QuestionAnswerPanel({
   handleAnswerSelect,
   handleTextSelection,
   renderFormattedText,
-  formatText
+  formatText,
+  columnClassName = ''
 }) {
   if (!question) return null;
 
@@ -128,7 +129,7 @@ function QuestionAnswerPanel({
   );
 
   return (
-    <div className="col-span-1 bg-white rounded-lg p-4 sm:p-6 shadow-sm flex flex-col">
+    <div className={`col-span-1${columnClassName ? ` ${columnClassName}` : ''} bg-white rounded-lg p-4 sm:p-6 shadow-sm flex flex-col`}>
       <div className="space-y-6">
         {question.description && (
           <div className="mb-6">

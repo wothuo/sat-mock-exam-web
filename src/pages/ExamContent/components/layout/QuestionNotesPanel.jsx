@@ -12,7 +12,7 @@ function QuestionNotesPanel({
   );
 
   return (
-    <div className="col-span-1 lg:col-span-3 bg白 rounded-lg p-4 sm:p-6 shadow-sm flex flex-col">
+    <div className="col-span-1 lg:col-span-3 bg-white rounded-lg p-4 sm:p-6 shadow-sm flex flex-col">
       <div className="space-y-4 flex-1">
         {entries.map(([noteId, note]) => (
           <div
