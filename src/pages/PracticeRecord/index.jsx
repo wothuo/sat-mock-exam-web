@@ -9,9 +9,22 @@ import QuestionDetailModal from './components/QuestionDetailModal';
 import WrongTab from './components/WrongTab';
 import { fetchWrongRecordList } from '../../services/record';
 
-/** 接口列表项 → WrongTab 展示结构 */
+/** 解析接口 options 字符串为数组 [{ option, content }, ...] */
+function parseOptionsOptions(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== 'string' || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+/** 接口列表项 → WrongTab 展示结构（含弹窗所需字段） */
 function mapWrongItem(item) {
   if (!item) return null;
+  const options = parseOptionsOptions(item.options);
   return {
     id: item.answerId,
     subject: item.questionCategory,
@@ -22,10 +35,15 @@ function mapWrongItem(item) {
     userAnswer: item.userAnswer,
     correctAnswer: item.answer,
     timeSpent: item.timeConsuming,
-    // 详情弹窗可能用到的原始字段
     questionContent: item.questionContent,
     taskName: item.taskName,
     startTime: item.startTime,
+    // 弹窗：选项、解析、题目描述、题型、分值
+    options,
+    explanation: item.analysis,
+    questionDescription: item.questionDescription,
+    questionType: item.questionType,
+    score: item.score,
   };
 }
 

@@ -46,6 +46,7 @@ function WrongTab({
     const colors = { 数学: 'blue', 阅读: 'purple', 语法: 'orange' };
     return colors[s] || 'default';
   };
+  console.log(records);
 
   return (
     <div className="space-y-4">
