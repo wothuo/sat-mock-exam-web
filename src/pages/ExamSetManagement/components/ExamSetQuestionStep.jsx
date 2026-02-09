@@ -285,7 +285,7 @@ function ExamSetQuestionStep({
               <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
                 {questions.filter(q => q.id === selectedQuestionId).map(q => (
                   <div key={q.id} className="space-y-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-2">题目类型</label>
                         <Select
@@ -303,15 +303,22 @@ function ExamSetQuestionStep({
                       <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-2">所属 Section</label>
                         <Select
-                          value={q.sectionId}
+                          value={q.sectionId ?? undefined}
                           onChange={v => onUpdateQuestion(q.id, 'sectionId', v)}
                           className="w-full h-10 rounded-lg text-sm"
+                          dropdownMatchSelectWidth={false}
+                          dropdownStyle={{ minWidth: 320, maxWidth: 'min(90vw, 520px)' }}
+                          placeholder="请选择 Section"
                         >
                           {sections.map(s => (
-                            <Option key={s.id} value={s.id}>{s.name}</Option>
+                            <Option key={s.id} value={s.id}>
+                              <span style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{s.name}</span>
+                            </Option>
                           ))}
                         </Select>
                       </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-2">知识点</label>
                         <Select
