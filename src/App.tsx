@@ -9,7 +9,7 @@ import Courses from './pages/Courses';
 import Encyclopedia from './pages/Encyclopedia';
 import ExamContent from './pages/ExamContent';
 import ExamSetManagement from './pages/ExamSetManagement';
-import ExamSetEntry from './pages/ExamSetManagement/ExamSetEntry';
+import ExamSetEntry from './pages/ExamSetEntry';
 import Home from './pages/Home';
 import MockExam from './pages/MockExam';
 import PracticeRecord from './pages/PracticeRecord';
