@@ -23,6 +23,7 @@ import PreparingScreen from './components/PreparingScreen';
 import TimeModeScreen from './components/TimeModeScreen';
 import IntroScreen from './components/IntroScreen';
 import ExamReportView from './components/ExamReportView';
+import ExamFooterBar from './components/ExamFooterBar';
 import DirectionsModal from './components/DirectionsModal';
 import NoteModal from './components/NoteModal';
 import ProgressModal from './components/ProgressModal';
@@ -545,51 +546,15 @@ function ExamContent() {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 sm:px-8 py-3 sm:py-5 z-40">
-        <div className="max-w-full mx-auto flex items-center justify-between">
-          <div className="hidden sm:flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-              <i className="fas fa-user text-gray-600 text-sm"></i>
-            </div>
-            <div className="text-sm">
-              <div className="font-medium text-gray-900">张同学</div>
-            </div>
-          </div>
-          
-          <Space size="small" className="w-full sm:w-auto justify-between sm:justify-end">
-            <Button
-              icon={<BarChartOutlined />}
-              onClick={() => setShowProgress(true)}
-              className="flex-1 sm:flex-none"
-            >
-              <span className="hidden xs:inline">Progress</span>
-            </Button>
-            <Button
-              icon={<LeftOutlined />}
-              onClick={goToPrevious}
-              disabled={currentQuestion === 1}
-              type="primary"
-            >
-              Back
-            </Button>
-            <Button
-              icon={<RightOutlined />}
-              onClick={goToNext}
-              disabled={currentQuestion === examData.totalQuestions}
-              type="primary"
-            >
-              Next
-            </Button>
-            <Button
-              danger
-              icon={<StopOutlined />}
-              onClick={() => setShowEndExamModal(true)}
-            >
-              结束考试
-            </Button>
-          </Space>
-        </div>
-      </div>
+
+      <ExamFooterBar
+        isFirstQuestion={currentQuestion === 1}
+        isLastQuestion={currentQuestion === examData.totalQuestions}
+        onOpenProgress={() => setShowProgress(true)}
+        onPrev={goToPrevious}
+        onNext={goToNext}
+        onEndExam={() => setShowEndExamModal(true)}
+      />
 
       <div className="h-24"></div>
 
