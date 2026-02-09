@@ -1,6 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { Modal } from 'antd';
+
+/** 与题目索引一致的 Markdown→HTML，保留 $...$ 供 KaTeX 渲染 */
+function formatContentToHtml(text) {
+  if (!text || typeof text !== 'string') return '';
+  const mathBlocks = [];
+  let processed = text.replace(/\$\$[\s\S]*?\$\$|\$[^$\n]+?\$/g, (match) => {
+    const placeholder = `@@@MATHBLOCK${mathBlocks.length}@@@`;
+    mathBlocks.push(match);
+    return placeholder;
+  });
+  processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
+  processed = processed.replace(/(?<!\*)(\*)(?!\*)(.+?)(?<!\*)(\*)(?!\*)/g, '<em>$2</em>');
+  processed = processed.replace(/(?<!_)(_)(?!_)(.+?)(?<!_)(_)(?!_)/g, '<em>$2</em>');
+  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-1 max-h-8 object-contain" />');
+  processed = processed.replace(/\n/g, '<br />');
+  mathBlocks.forEach((block, index) => {
+    processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
+  });
+  return processed;
+}
+
+function getQuestionPreviewPlaceholder(content) {
+  if (!content || typeof content !== 'string') return true;
+  const t = content.trim();
+  return !t || t === '已录入';
+}
 
 /**
  * Section 题目汇总弹窗，提交前展示套题基本信息和各 Section 题目分布
@@ -10,6 +37,25 @@ function ExamSetSummaryModal({ open, onCancel, onOk, loading, summaryFormValues 
   const activeSections = sections.filter(s => s.delFlag !== '1');
   const activeQuestionsList = questions.filter(q => q.delFlag !== '1');
   const totalCount = activeQuestionsList.length;
+
+  useEffect(() => {
+    if (!open || typeof window === 'undefined' || !window.renderMathInElement) return;
+    const t = setTimeout(() => {
+      activeQuestionsList.forEach((q) => {
+        const el = document.getElementById(`summary-preview-${q.id}`);
+        if (el) {
+          window.renderMathInElement(el, {
+            delimiters: [
+              { left: '$', right: '$', display: false },
+              { left: '$$', right: '$$', display: true },
+            ],
+            throwOnError: false,
+          });
+        }
+      });
+    }, 200);
+    return () => clearTimeout(t);
+  }, [open, questions]);
 
   return (
     <Modal
@@ -112,7 +158,7 @@ function ExamSetSummaryModal({ open, onCancel, onOk, loading, summaryFormValues 
                   </div>
                 ) : (
                   <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-bold text-blue-900">
                         <i className="fas fa-check-circle mr-2"></i>
                         已录入 {sectionQuestions.length} 道题目
@@ -121,6 +167,24 @@ function ExamSetSummaryModal({ open, onCancel, onOk, loading, summaryFormValues 
                         占比 {percent}%
                       </span>
                     </div>
+                    <ul className="space-y-2 list-none pl-0 m-0">
+                      {sectionQuestions.map((q, i) => (
+                        <li key={q.id} className="flex items-start gap-2 text-sm text-gray-700 bg-white/60 rounded-lg px-3 py-2 border border-blue-100/50">
+                          <span className="text-blue-600 font-bold shrink-0">{i + 1}.</span>
+                          {getQuestionPreviewPlaceholder(q.content) ? (
+                            <span className="text-gray-400">—</span>
+                          ) : (
+                            <div
+                              id={`summary-preview-${q.id}`}
+                              className="summary-question-preview line-clamp-2 break-words [&_.katex]:text-sm"
+                              dangerouslySetInnerHTML={{
+                                __html: formatContentToHtml(q.content),
+                              }}
+                            />
+                          )}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
