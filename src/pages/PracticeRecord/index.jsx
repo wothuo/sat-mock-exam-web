@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import dayjs from 'dayjs';
 
@@ -79,11 +79,14 @@ function PracticeRecord() {
     }
   }, [wrongPageNum, wrongPageSize, wrongSubject, wrongDifficulty, wrongPeriod]);
 
+  const lastWrongRequestKeyRef = useRef(null);
   useEffect(() => {
-    if (activeTab === 'wrong') {
-      loadWrongList();
-    }
-  }, [activeTab, loadWrongList]);
+    if (activeTab !== 'wrong') return;
+    const requestKey = `${wrongPageNum}-${wrongPageSize}-${wrongSubject}-${wrongDifficulty}-${wrongPeriod}`;
+    if (lastWrongRequestKeyRef.current === requestKey) return;
+    lastWrongRequestKeyRef.current = requestKey;
+    loadWrongList();
+  }, [activeTab, wrongPageNum, wrongPageSize, wrongSubject, wrongDifficulty, wrongPeriod, loadWrongList]);
 
   useEffect(() => {
     if (window.renderMathInElement) {
