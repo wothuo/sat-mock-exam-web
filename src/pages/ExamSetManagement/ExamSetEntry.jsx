@@ -40,13 +40,29 @@ import ExamSetSectionStep from './components/ExamSetSectionStep';
 import ExamSetQuestionStep from './components/ExamSetQuestionStep';
 import SectionFormModal from './components/SectionFormModal';
 import ExamSetSummaryModal from './components/ExamSetSummaryModal';
-import { parseQuestionOptions, getQuestionOptionsForSubmit } from './examSetEntryUtils';
+import {
+  clearDraft,
+  transformExamSetFromList,
+  formatSectionListFromApi,
+  formatQuestionListFromApi,
+  buildExamPoolPayload,
+  buildExamSectionsPayload,
+  buildQuestionsPayload,
+  renderMathInPreview,
+  renderMathInContainers
+} from './examSetEntryUtils';
+import {
+  DIFFICULTIES,
+  QUESTION_TYPES_MAP,
+  FORM_INITIAL_VALUES,
+  STEP_ITEMS
+} from './examSetEntryConstants';
+
+import './ExamSetEntry.css';
 
 const { Option } = Select;
 const { TextArea } = Input;
 const { Panel } = Collapse;
-
-const DRAFT_STORAGE_KEY = 'exam_set_draft';
 
 function ExamSetEntry() {
   const navigate = useNavigate();
@@ -75,48 +91,22 @@ function ExamSetEntry() {
   const fetchExamSetData = async (id) => {
     setFetchLoading(true);
     try {
-      // 这里需要根据实际后端接口进行修改，当前假设从getExamSetList中过滤出单个套题
-      // 实际项目中应该有专门的获取单个套题详情的接口
       const params = {
         examType: 'SAT',
         pageNum: 1,
-        pageSize: 100 // 足够大的数量以确保能获取到所有套题
+        pageSize: 100
       };
-
       const result = await getExamSetList(params);
-
       if (result && result.list) {
         const examSet = result.list.find(item => item.examId === parseInt(id, 10));
-
-        if (examSet) {
-          return {
-            id: examSet.examId,
-            title: examSet.examName,
-            year: examSet.examYear,
-            type: examSet.examType,
-            region: examSet.examRegion,
-            difficulty: examSet.difficulty || 'Medium',
-            description: examSet.examDescription || '', // 使用正确的字段名examDescription
-            sections: examSet.sections || [],
-            // 其他需要的字段...
-          };
-        }
+        return transformExamSetFromList(examSet);
       }
-      
       return null;
     } catch (error) {
       message.error('获取套题数据失败');
       return null;
     } finally {
       setFetchLoading(false);
-    }
-  };
-
-  const clearDraft = () => {
-    try {
-      localStorage.removeItem(DRAFT_STORAGE_KEY);
-    } catch {
-      // 静默失败
     }
   };
 
@@ -139,14 +129,14 @@ function ExamSetEntry() {
           setSections(data.sections || []);
           setExamId(data.id);
 
-          const mockQuestions = (data.sections || []).flatMap(section => 
+          const mockQuestions = (data.sections || []).flatMap(section =>
             (section.selectedQuestions || []).map(qId => ({
               id: qId,
               sectionId: section.id,
               sectionName: section.name,
               subject: section.subject,
               interactionType: 'CHOICE',
-              type: questionTypesMap[section.subject] ? questionTypesMap[section.subject][0] : '未分类',
+              type: QUESTION_TYPES_MAP[section.subject] ? QUESTION_TYPES_MAP[section.subject][0] : '未分类',
               difficulty: 'Medium',
               content: `题目 ${qId} 的内容`,
               options: ['选项A', '选项B', '选项C', '选项D'],
@@ -161,14 +151,6 @@ function ExamSetEntry() {
 
     loadExamData();
   }, [editId]);
-
-  const subjects = ['数学', '阅读', '语法'];
-  const difficulties = ['Easy', 'Medium', 'Hard'];
-
-  const questionTypesMap = {
-    '阅读语法': ['词汇题', '结构目的题', '主旨细节题', '推断题', '标点符号', '句子连接', '逻辑词'],
-    '数学': ['一次函数', '二次函数', '几何', '统计']
-  };
 
   const handleNext = async () => {
     if (currentStep === 0) {
@@ -203,19 +185,10 @@ function ExamSetEntry() {
 
           try {
             const sectionListData = await getSectionListByExamId(editExamId);
-              if (sectionListData && sectionListData.length > 0) {
-                // 转换数据格式以匹配前端需求
-                const formattedSections = sectionListData.map(section => ({
-                  id: section.sectionId,
-                  name: section.sectionName,
-                  subject: section.sectionCategory,
-                  difficulty: section.sectionDifficulty,
-                  duration: section.sectionTiming,
-                  status: section.status
-                }));
-                setSections(formattedSections);
-                message.success('Section列表信息已更新');
-              }
+            if (sectionListData && sectionListData.length > 0) {
+              setSections(formatSectionListFromApi(sectionListData));
+              message.success('Section列表信息已更新');
+            }
           } catch (error) {
             message.error('获取Section列表信息失败');
           }
@@ -267,37 +240,7 @@ function ExamSetEntry() {
         try {
           const questionListData = await getQuestionListByExamId(examId);
           if (questionListData && questionListData.length > 0) {
-            const categoryToSubject = { READING: '阅读语法', WRITING: '阅读语法', MATH: '数学' };
-            const formattedQuestions = questionListData.map(item => {
-              const { question, sectionName } = item;
-              const optionsArray = parseQuestionOptions(question.options);
-              const section = sections.find(s => s.id === question.sectionId);
-              const subject = section?.subject || categoryToSubject[question.questionCategory] || '阅读语法';
-              return {
-                id: question.questionId,
-                sectionId: question.sectionId,
-                sectionName,
-                subject,
-                questionCategory: question.questionCategory,
-                questionSubCategory: question.questionSubCategory,
-                difficulty: question.difficulty,
-                type: question.questionSubCategory || '',
-                interactionType: question.questionType,
-                content: question.questionContent,
-                description: question.questionDescription,
-                options: optionsArray,
-                answer: question.answer,
-                correctAnswer: question.answer || '',
-                explanation: question.analysis || '',
-                score: question.score,
-                status: question.status,
-                delFlag: question.delFlag,
-                creatorId: question.creatorId,
-                createTime: question.createTime,
-                updateTime: question.updateTime
-              };
-            });
-            setQuestions(formattedQuestions);
+            setQuestions(formatQuestionListFromApi(questionListData, sections));
             message.success('Question列表信息已更新');
           }
         } catch (error) {
@@ -397,7 +340,7 @@ function ExamSetEntry() {
     }
     const newId = Date.now() * -1;
     const defaultSection = sections[0];
-    const questionTypes = questionTypesMap[defaultSection.subject] || [];
+    const questionTypes = QUESTION_TYPES_MAP[defaultSection.subject] || [];
     const newQuestion = {
       id: newId,
       sectionId: defaultSection.id,
@@ -434,7 +377,7 @@ function ExamSetEntry() {
           if (targetSection) {
             updated.subject = targetSection.subject;
             updated.sectionName = targetSection.name;
-            const questionTypes = questionTypesMap[targetSection.subject] || [];
+            const questionTypes = QUESTION_TYPES_MAP[targetSection.subject] || [];
             updated.type = questionTypes.length > 0 ? questionTypes[0] : '未分类';
           }
         }
@@ -478,60 +421,12 @@ function ExamSetEntry() {
   };
 
   const handleConfirmSubmit = async () => {
-    let examPool, examSections, questionsData;
     setSubmitLoading(true);
     try {
       const baseInfo = form.getFieldsValue();
-
-      examPool = {
-        ...(isEditMode && { examId: parseInt(editId, 10) }),
-        examName: baseInfo.title,
-        examType: baseInfo.type,
-        examYear: baseInfo.year?.toString(),
-        examRegion: baseInfo.region,
-        difficulty: (baseInfo.difficulty || '').toUpperCase(),
-        examDescription: baseInfo.description,
-        source: baseInfo.source || '官方样题',
-        creatorId: 1,
-        status: 0
-      };
-
-      // 编辑模式提交全部 section/question（含 delFlag）供后端软删；新增模式仅提交未删除项
-      const sectionsToSubmit = isEditMode ? sections : sections.filter(s => s.delFlag !== '1');
-      const questionsToSubmit = isEditMode ? questions : questions.filter(q => q.delFlag !== '1');
-
-      examSections = sectionsToSubmit.map(section => ({
-        ...(isEditMode && { examId: parseInt(editId, 10) }),
-        ...(isEditMode && { sectionId: section.id }),
-        sectionName: section.name,
-        sectionCategory: section.subject,
-        sectionDifficulty: (section.difficulty || '').toUpperCase(),
-        sectionTiming: section.duration,
-        status: 0,
-        delFlag: section.delFlag || '0'
-      }));
-
-      questionsData = questionsToSubmit.map(question => {
-        const [optionA, optionB, optionC, optionD] = getQuestionOptionsForSubmit(question);
-        return {
-          ...(isEditMode && { questionId: question.id }),
-          sectionId: question.sectionId,
-          sectionName: question.sectionName,
-          questionType: question.interactionType,
-          questionCategory: (question.subject || '').toUpperCase(),
-          questionSubCategory: question.type,
-          difficulty: (question.difficulty || '').toUpperCase(),
-          questionContent: question.content === '已录入' ? '' : (question.content || ''),
-          questionDescription: question.description || '',
-          optionA,
-          optionB,
-          optionC,
-          optionD,
-          answer: question.correctAnswer,
-          analysis: question.explanation || '',
-          delFlag: question.delFlag || '0'
-        };
-      });
+      const examPool = buildExamPoolPayload(baseInfo, isEditMode, editId);
+      const examSections = buildExamSectionsPayload(sections, isEditMode, editId);
+      const questionsData = buildQuestionsPayload(questions, isEditMode);
 
       if (isEditMode) {
         await updateExamSectionAndQuestion({
@@ -556,45 +451,6 @@ function ExamSetEntry() {
     } finally {
       setSubmitLoading(false);
     }
-  };
-
-  const formatText = (text) => {
-    if (!text) return text;
-    
-    const mathBlocks = [];
-    let processed = text.replace(/\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$/g, (match) => {
-      const placeholder = `@@@MATHBLOCK${mathBlocks.length}@@@`;
-      mathBlocks.push(match);
-      return placeholder;
-    });
-
-    processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
-    processed = processed.replace(/(?<!\*)(\*)(?!\*)(.+?)(?<!\*)(\*)(?!\*)/g, '<em>$2</em>');
-    processed = processed.replace(/(?<!_)(_)(?!_)(.+?)(?<!_)(_)(?!_)/g, '<em>$2</em>');
-    processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-2" />');
-    processed = processed.replace(/\n/g, '<br />');
-
-    mathBlocks.forEach((block, index) => {
-      processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
-    });
-
-    return processed;
-  };
-
-  const renderMathInPreview = (previewId) => {
-    setTimeout(() => {
-      const previewElement = document.getElementById(previewId);
-      if (previewElement && window.renderMathInElement) {
-        window.renderMathInElement(previewElement, {
-          delimiters: [
-            {left: '$', right: '$', display: false},
-            {left: '$$', right: '$$', display: true}
-          ],
-          throwOnError: false
-        });
-      }
-    }, 120);
   };
 
   const handleToolbarAction = (action, data, targetId) => {
@@ -698,7 +554,7 @@ function ExamSetEntry() {
 
     setTimeout(() => {
       if (targetId.includes('content') || targetId.includes('description') || targetId.includes('option') || targetId.includes('explanation')) {
-        renderMathInPreview(`preview-${targetId}`);
+        renderMathInPreview(`preview-${targetId}`, 100);
       }
     }, 100);
   };
@@ -721,33 +577,8 @@ function ExamSetEntry() {
   };
 
   useEffect(() => {
-    if (window.renderMathInElement) {
-      const containers = document.querySelectorAll('.selectable-text, .math-content');
-      containers.forEach(container => {
-        container.style.visibility = 'hidden';
-      });
-
-      const timer = setTimeout(() => {
-        containers.forEach(container => {
-          try {
-            window.renderMathInElement(container, {
-              delimiters: [
-                {left: '$', right: '$', display: false},
-                {left: '$$', right: '$$', display: true}
-              ],
-              throwOnError: false,
-              strict: false
-            });
-            container.style.visibility = 'visible';
-          } catch (error) {
-            console.error('KaTeX rendering error:', error);
-            container.style.visibility = 'visible';
-          }
-        });
-      }, 50);
-      
-      return () => clearTimeout(timer);
-    }
+    const cleanup = renderMathInContainers();
+    return cleanup;
   }, [currentStep, selectedQuestionId, questions]);
 
   if (fetchLoading && editId) {
@@ -765,14 +596,10 @@ function ExamSetEntry() {
             {isEditMode ? '编辑套题' : '录入新套题'}
           </h1>
           <div className="flex items-center space-x-4">
-            <Steps 
-              current={currentStep} 
+            <Steps
+              current={currentStep}
               className="max-w-2xl"
-              items={[
-                { title: '基础信息' },
-                { title: 'Section信息' },
-                { title: '题目内容' }
-              ]}
+              items={STEP_ITEMS}
             />
           </div>
         </div>
@@ -781,12 +608,7 @@ function ExamSetEntry() {
           form={form} 
           layout="vertical" 
           className="space-y-6"
-          initialValues={{
-            type: 'SAT',
-            region: '北美',
-            difficulty: 'Hard',
-            year: 2025
-          }}
+          initialValues={FORM_INITIAL_VALUES}
         >
           <div className={currentStep === 0 ? 'block' : 'hidden'}>
             <ExamSetBaseInfoForm
@@ -816,8 +638,8 @@ function ExamSetEntry() {
               sections={sections}
               selectedQuestionId={selectedQuestionId}
               activeEditorId={activeEditorId}
-              questionTypesMap={questionTypesMap}
-              difficulties={difficulties}
+              questionTypesMap={QUESTION_TYPES_MAP}
+              difficulties={DIFFICULTIES}
               isEditMode={isEditMode}
               questionListRef={questionListRef}
               onAddQuestion={addQuestion}
@@ -851,32 +673,6 @@ function ExamSetEntry() {
         form={sectionForm}
         editingSection={editingSection}
       />
-
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          .ant-collapse-header {
-            padding: 20px 24px !important;
-            align-items: center !important;
-          }
-          .ant-collapse-content-box {
-            padding: 0 24px 24px !important;
-          }
-          .ant-steps-item-title {
-            font-weight: 800 !important;
-          }
-          .section-dropdown .ant-select-item {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-          .section-dropdown .ant-select-item-option-content {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            width: 100%;
-          }
-        `
-      }} />
     </div>
   );
 }

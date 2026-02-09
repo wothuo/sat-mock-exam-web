@@ -1,0 +1,27 @@
+/* 套题录入页覆盖样式 */
+
+.ant-collapse-header {
+  padding: 20px 24px !important;
+  align-items: center !important;
+}
+
+.ant-collapse-content-box {
+  padding: 0 24px 24px !important;
+}
+
+.ant-steps-item-title {
+  font-weight: 800 !important;
+}
+
+.section-dropdown .ant-select-item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.section-dropdown .ant-select-item-option-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
