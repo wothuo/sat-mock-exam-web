@@ -36,10 +36,10 @@ import {
 } from '@/services/exam';
 
 import ExamSetBaseInfoForm from './components/ExamSetBaseInfoForm';
-import ExamSetSectionStep from './components/ExamSetSectionStep';
 import ExamSetQuestionStep from './components/ExamSetQuestionStep';
-import SectionFormModal from './components/SectionFormModal';
+import ExamSetSectionStep from './components/ExamSetSectionStep';
 import ExamSetSummaryModal from './components/ExamSetSummaryModal';
+import SectionFormModal from './components/SectionFormModal';
 import {
   clearDraft,
   transformExamSetFromList,
