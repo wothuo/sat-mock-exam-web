@@ -199,7 +199,7 @@ export const submitExamSet = async (data) => {
  * @returns {Promise} 套题Section列表数据
  */
 export const getSectionListByExamId = async (examId) => {
-  const response = await post('/exam/list/section', examId);
+  const response = await post('/exam/sections', examId);
   return response.data;
 };
 
@@ -295,5 +295,53 @@ export const updateExamSectionAndQuestion = async (data) => {
  */
 export const deleteExam = async (examId) => {
   const response = await post('/exam/delete', examId);
+  return response.data;
+};
+
+/**
+ * 查询套题模考Section列表信息（分页查询）
+ * @param {Object} params - 查询参数
+ *
+ * @param {number} [params.pageNum] - 当前页码，默认第1页
+ * @param {number} [params.pageSize] - 每页显示数量，默认10条
+ * @param {string} [params.examType] - 套题类型（SAT/TOEFL等）
+ * @param {string} [params.difficulty] - 套题难度
+ * @param {string} [params.examRegion] - 套题地区
+ * @param {string} [params.examYear] - 套题年份
+ * @param {string} [params.source] - 套题来源
+ * @param {string} [params.examName] - 套题名称（支持模糊查询）
+ *
+ * @returns {Promise} 套题Section列表分页数据
+ *
+ * @returns {Object} return.data - 分页数据
+ * @returns {number} return.data.pageNum - 当前页码
+ * @returns {number} return.data.pageSize - 每页显示数量
+ * @returns {number} return.data.total - 总记录数
+ * @returns {number} return.data.pages - 总页数
+ * @returns {Array} return.data.list - 数据列表
+ *
+ * @returns {Object} return.data.list[].examSummary - 套题基本信息
+ * @returns {number} return.data.list[].examSummary.examId - 套题ID
+ * @returns {string} return.data.list[].examSummary.examName - 套题名称
+ * @returns {string} return.data.list[].examSummary.examYear - 套题年份
+ * @returns {string} return.data.list[].examSummary.examType - 套题类型
+ * @returns {string} return.data.list[].examSummary.examRegion - 套题区域
+ * @returns {string} return.data.list[].examSummary.source - 套题来源
+ * @returns {string} return.data.list[].examSummary.difficulty - 套题难度
+ * @returns {string} return.data.list[].examSummary.examDescription - 套题描述
+ * @returns {number} return.data.list[].examSummary.status - 状态（0-正常，1-禁用）
+ * @returns {number} return.data.list[].examSummary.delFlag - 删除标志（0-正常，1-已删除）
+ * @returns {number} return.data.list[].examSummary.sectionCount - Section数量
+ * @returns {number} return.data.list[].examSummary.questionCount - 题目总数量
+ * @returns {number} return.data.list[].examSummary.examDuration - 套题时长
+ *
+ * @returns {number} return.data.list[].sectionId - Section ID
+ * @returns {string} return.data.list[].sectionName - Section名称
+ * @returns {string} return.data.list[].sectionCategory - Section类型
+ * @returns {number} return.data.list[].sectionTiming - Section限时（分钟）
+ * @returns {number} return.data.list[].questionCount - Section题目数量
+ */
+export const queryExamSectionList = async (params) => {
+  const response = await post('/exam/list/section', params);
   return response.data;
 };
