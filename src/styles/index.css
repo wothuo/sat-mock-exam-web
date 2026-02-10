@@ -77,11 +77,11 @@
   
   /* 优化的单选框选项样式 */
   .radio-option {
-    @apply flex items-start space-x-3 cursor-pointer p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-red-300 hover:bg-red-50 transition-all duration-200;
+    @apply flex items-start space-x-3 cursor-pointer p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 transition-all duration-200;
   }
   
   .radio-option.selected {
-    @apply border-red-500 bg-red-50 shadow-md;
+    @apply border-gray-500 bg-gray-50 shadow-md;
   }
   
   .radio-option:hover {
@@ -97,7 +97,7 @@
   }
   
   .radio-option.selected .radio-text {
-    @apply text-red-900;
+    @apply text-gray-900;
   }
   
   /* 现代化的单选框样式 */
@@ -114,7 +114,7 @@
   }
   
   .modern-radio input[type="radio"]:checked + .modern-radio-circle {
-    @apply border-red-500 bg-gradient-to-br from-red-500 to-red-600 shadow-lg;
+    @apply border-gray-500 bg-gradient-to-br from-gray-500 to-gray-600 shadow-lg;
   }
   
   .modern-radio input[type="radio"]:checked + .modern-radio-circle::after {
@@ -123,11 +123,11 @@
   }
   
   .modern-radio input[type="radio"]:focus + .modern-radio-circle {
-    @apply ring-2 ring-red-200 ring-offset-2;
+    @apply ring-2 ring-gray-200 ring-offset-2;
   }
   
   .modern-radio:hover .modern-radio-circle {
-    @apply border-red-400 shadow-md transform scale-105;
+    @apply border-gray-400 shadow-md transform scale-105;
   }
   
   /* 文字样式优化 */

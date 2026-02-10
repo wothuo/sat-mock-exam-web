@@ -11,7 +11,7 @@ import {
   StopOutlined
 } from '@ant-design/icons';
 
-import { getQuestionListBySectionId } from '../../services/exam';
+import { answerOfSection } from '../../services/exam';
 
 import { ReferenceDrawer } from './components/drawers';
 import {
@@ -79,7 +79,7 @@ function ExamContent() {
       try {
         setLoading(true);
         console.log('开始请求题目数据，sectionId:', sectionId);
-        const result = await getQuestionListBySectionId(sectionId);
+        const result = await answerOfSection(sectionId);
         
         // 调试日志：打印服务端返回的完整数据结构
         console.log('服务端返回数据:', result);
@@ -430,8 +430,8 @@ Each multiple-choice question has a single correct answer.
 
       <ProgressModal
         open={showProgress}
-        examTitle={examData.title}
-        totalQuestions={examData.totalQuestions}
+        examTitle={examDataToUse.title}
+        totalQuestions={examDataToUse.totalQuestions}
         currentQuestion={currentQuestion}
         answers={answers}
         markedForReview={markedForReview}

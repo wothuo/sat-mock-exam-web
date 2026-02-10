@@ -24,17 +24,17 @@ function QuestionStemPanel({
             {renderFormattedText(question.question, question.id)}
           </div>
 
-          {question.description && (
-            <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-              <div className="text-sm font-semibold text-blue-900 mb-2">
-                <i className="fas fa-info-circle mr-2" />
-                问题描述
-              </div>
-              <div className="text-sm text-blue-800 leading-relaxed">
-                {renderFormattedText(question.description, question.id)}
-              </div>
-            </div>
-          )}
+          {/*{question.description && (*/}
+          {/*  <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">*/}
+          {/*    <div className="text-sm font-semibold text-blue-900 mb-2">*/}
+          {/*      <i className="fas fa-info-circle mr-2" />*/}
+          {/*      问题描述*/}
+          {/*    </div>*/}
+          {/*    <div className="text-sm text-blue-800 leading-relaxed">*/}
+          {/*      {renderFormattedText(question.description, question.id)}*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*)}*/}
 
           {question.type === 'reading-passage' && question.passage && (
             <div className="p-4 bg-gray-50 rounded-lg border-l-4 border-red-500">

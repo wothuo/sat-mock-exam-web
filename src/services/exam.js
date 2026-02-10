@@ -379,8 +379,8 @@ export const queryExamSectionList = async (params) => {
  * @returns {string} return.data[].sectionName - 套题Section名称
  * @returns {string} return.data[].sectionTiming - 套题Section限时（分钟）
   */
-export const getQuestionListBySectionId = async (sectionId) => {
+export const answerOfSection = async (sectionId) => {
   // 根据接口文档，直接传递Long类型的sectionId值，不需要JSON对象包装
-  const response = await post('/question/section/list', sectionId);
+  const response = await post('/answer/exam/start', sectionId);
   return response.data;
 };

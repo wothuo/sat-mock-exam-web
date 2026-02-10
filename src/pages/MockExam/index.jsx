@@ -6,7 +6,7 @@ import { Button, Card, Col, Pagination, Row, Space, Tag, message } from 'antd';
 
 import { ClockCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
-import { queryExamSectionList, getQuestionListBySectionId } from '../../services/exam';
+import { queryExamSectionList, answerOfSection } from '../../services/exam';
 
 function MockExam() {
   const [activeTab, setActiveTab] = useState('历年考题');
