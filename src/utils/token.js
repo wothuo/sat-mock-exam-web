@@ -83,23 +83,9 @@ export const setTokenExpire = (expireTime) => {
  * @returns {boolean} 是否过期
  */
 export const isTokenExpired = () => {
-  try {
-    const expireTime = localStorage.getItem(TOKEN_EXPIRE_KEY);
-    if (!expireTime) return true;
-
-    const expireTimestamp = parseInt(expireTime, 10);
-    // 验证parseInt结果是否有效
-    if (isNaN(expireTimestamp)) {
-      console.warn('Invalid token expire time, treating as expired');
-      return true;
-    }
-
-    return Date.now() > expireTimestamp;
-  } catch (error) {
-    console.error('Failed to check token expiration:', error);
-    // 出错时保守处理，认为已过期
-    return true;
-  }
+  // 移除前端本地过期判断，完全依赖后端返回的 401 状态码
+  // 只要 token 存在，就认为格式上有效，具体有效性由后端验证
+  return !getToken();
 };
 
 /**
@@ -327,12 +313,7 @@ export const isSessionValid = () => {
  * @returns {Function} 清理函数
  */
 export const startSessionHeartbeat = (interval = 30000) => {
-  const intervalId = setInterval(() => {
-    // 检查会话有效性
-    if (!isSessionValid()) {
-      clearToken(true);
-    }
-  }, interval);
-
-  return () => clearInterval(intervalId);
+  // 移除本地过期检查的心跳，避免误杀有效会话
+  // 会话过期完全由后端 API 响应触发
+  return () => {};
 };

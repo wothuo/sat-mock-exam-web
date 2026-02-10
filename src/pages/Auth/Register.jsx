@@ -1,24 +1,73 @@
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
-import { Button, Checkbox, Form, Input, message } from 'antd';
-
-import { ArrowLeftOutlined, GithubOutlined, GoogleOutlined, LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Checkbox, Form, Input, message, Row, Col } from 'antd';
+import { ArrowLeftOutlined, GithubOutlined, GoogleOutlined, LockOutlined, MobileOutlined, UserOutlined, NumberOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import { register, sendCode } from '../../services/auth';
 
 function Register() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const [form] = Form.useForm();
+
+  // 倒计时逻辑
+  useEffect(() => {
+    let timer;
+    if (countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [countdown]);
+
+  const handleSendCode = async () => {
+    try {
+      // 1. 校验前置必填字段
+      await form.validateFields(['username', 'name', 'password', 'confirmPassword', 'phone']);
+
+      // 2. 验证是否同意协议
+      const agree = form.getFieldValue('agree');
+      if (!agree) {
+        message.warning('请先同意服务条款和隐私政策');
+        return;
+      }
+
+      // 3. 获取手机号发送验证码
+      const phone = form.getFieldValue('phone');
+      await sendCode(phone);
+      message.success('验证码发送成功（模拟码: 123456）');
+      setCountdown(60);
+    } catch (error) {
+      console.error('发送验证码失败:', error);
+      // 如果是表单校验失败，不需要额外处理，Form 会自动显示错误提示
+      if (!error.errorFields) {
+        // 非表单校验错误，可能是网络请求错误等
+      }
+    }
+  };
 
   const handleSubmit = async (values) => {
     setIsLoading(true);
-    
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const registerData = {
+        username: values.username,
+        password: values.password,
+        phone: values.phone,
+        code: values.code,
+        name: values.name,
+        role: 0, // 默认普通用户/学生
+      };
+      
+      await register(registerData);
       message.success('注册成功！');
       navigate('/login');
-    }, 1500);
+    } catch (error) {
+      console.error('注册失败:', error);
+      // 错误信息已由拦截器处理
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -44,6 +93,21 @@ function Register() {
             className="space-y-2"
           >
             <Form.Item
+              name="username"
+              label={<span className="text-sm font-medium text-gray-700">账号</span>}
+              rules={[
+                { required: true, message: '请输入账号' },
+                { min: 4, message: '账号至少4个字符' }
+              ]}
+            >
+              <Input
+                prefix={<UserOutlined className="text-gray-400" />}
+                placeholder="设置您的登录账号"
+                className="rounded-xl"
+              />
+            </Form.Item>
+
+            <Form.Item
               name="name"
               label={<span className="text-sm font-medium text-gray-700">姓名</span>}
               rules={[
@@ -52,23 +116,8 @@ function Register() {
               ]}
             >
               <Input
-                prefix={<UserOutlined className="text-gray-400" />}
-                placeholder="张三"
-                className="rounded-xl"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="email"
-              label={<span className="text-sm font-medium text-gray-700">邮箱地址</span>}
-              rules={[
-                { required: true, message: '请输入邮箱地址' },
-                { type: 'email', message: '请输入有效的邮箱地址' }
-              ]}
-            >
-              <Input
-                prefix={<MailOutlined className="text-gray-400" />}
-                placeholder="your@email.com"
+                prefix={<NumberOutlined className="text-gray-400" />}
+                placeholder="真实姓名"
                 className="rounded-xl"
               />
             </Form.Item>
@@ -80,15 +129,14 @@ function Register() {
                 { required: true, message: '请输入密码' },
                 { min: 6, message: '密码长度至少6位' },
                 {
-                  pattern: /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                  message: '密码必须包含大小写字母和数字'
+                  pattern: /(?=.*[A-Za-z])(?=.*\d)/,
+                  message: '密码必须包含字母和数字'
                 }
               ]}
-              extra={<span className="text-xs text-gray-500">密码必须包含大小写字母和数字，至少6位</span>}
             >
               <Input.Password
                 prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="••••••••"
+                placeholder="设置密码"
                 className="rounded-xl"
               />
             </Form.Item>
@@ -111,9 +159,54 @@ function Register() {
             >
               <Input.Password
                 prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="••••••••"
+                placeholder="确认密码"
                 className="rounded-xl"
               />
+            </Form.Item>
+
+            <Form.Item
+              name="phone"
+              label={<span className="text-sm font-medium text-gray-700">手机号</span>}
+              rules={[
+                { required: true, message: '请输入手机号' },
+                { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号' }
+              ]}
+            >
+              <Input
+                prefix={<MobileOutlined className="text-gray-400" />}
+                placeholder="请输入手机号"
+                className="rounded-xl"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label={<span className="text-sm font-medium text-gray-700">验证码</span>}
+              required
+            >
+              <Row gutter={8}>
+                <Col span={16}>
+                  <Form.Item
+                    name="code"
+                    noStyle
+                    rules={[{ required: true, message: '请输入验证码' }]}
+                  >
+                    <Input
+                      prefix={<SafetyCertificateOutlined className="text-gray-400" />}
+                      placeholder="验证码"
+                      className="rounded-xl"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={8}>
+                  <Button
+                    className="w-full rounded-xl h-full"
+                    onClick={handleSendCode}
+                    disabled={countdown > 0}
+                  >
+                    {countdown > 0 ? `${countdown}s` : '获取验证码'}
+                  </Button>
+                </Col>
+              </Row>
             </Form.Item>
 
             <Form.Item
@@ -146,7 +239,7 @@ function Register() {
                 className="w-full h-12 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 border-0 shadow-lg font-medium text-base"
                 icon={!isLoading && <i className="fas fa-user-plus mr-2"></i>}
               >
-                {isLoading ? '注册中...' : '注册'}
+                {isLoading ? '注册中...' : '立即注册'}
               </Button>
             </Form.Item>
 
