@@ -33,31 +33,31 @@ function ExamReportView({
 
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="p-8 md:p-12">
-            <h2 className="text-2xl font-bold text-gray-800 mb-8">Your Current SAT Score</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center space-y-2">
-                <div className="text-6xl font-black text-gray-900">{scores.total}</div>
-                <div className="text-sm font-bold text-gray-500 tracking-widest uppercase">Total Score</div>
-                <div className="text-xs text-gray-400">400–1600</div>
-              </div>
-              <div className="text-center space-y-2 border-x border-gray-100">
-                <div className="text-5xl font-bold text-gray-800">{scores.rw}</div>
-                <div className="text-sm font-bold text-gray-500 tracking-widest uppercase">Reading and Writing</div>
-                <div className="text-xs text-gray-400">200–800</div>
-              </div>
-              <div className="text-center space-y-2">
-                <div className="text-5xl font-bold text-gray-800">{scores.math}</div>
-                <div className="text-sm font-bold text-gray-500 tracking-widest uppercase">Math</div>
-                <div className="text-xs text-gray-400">200–800</div>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[#0071ce] p-6 text-white text-center">
-            <p className="text-sm font-medium">
-              This score is based on your performance on this practice test. Use this report to identify areas for improvement.
-            </p>
-          </div>
+          {/*<div className="p-8 md:p-12">*/}
+          {/*  <h2 className="text-2xl font-bold text-gray-800 mb-8">Your Current SAT Score</h2>*/}
+          {/*  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">*/}
+          {/*    <div className="text-center space-y-2">*/}
+          {/*      <div className="text-6xl font-black text-gray-900">{scores.total}</div>*/}
+          {/*      <div className="text-sm font-bold text-gray-500 tracking-widest uppercase">Total Score</div>*/}
+          {/*      <div className="text-xs text-gray-400">400–1600</div>*/}
+          {/*    </div>*/}
+          {/*    <div className="text-center space-y-2 border-x border-gray-100">*/}
+          {/*      <div className="text-5xl font-bold text-gray-800">{scores.rw}</div>*/}
+          {/*      <div className="text-sm font-bold text-gray-500 tracking-widest uppercase">Reading and Writing</div>*/}
+          {/*      <div className="text-xs text-gray-400">200–800</div>*/}
+          {/*    </div>*/}
+          {/*    <div className="text-center space-y-2">*/}
+          {/*      <div className="text-5xl font-bold text-gray-800">{scores.math}</div>*/}
+          {/*      <div className="text-sm font-bold text-gray-500 tracking-widest uppercase">Math</div>*/}
+          {/*      <div className="text-xs text-gray-400">200–800</div>*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*</div>*/}
+          {/*<div className="bg-[#0071ce] p-6 text-white text-center">*/}
+          {/*  <p className="text-sm font-medium">*/}
+          {/*    This score is based on your performance on this practice test. Use this report to identify areas for improvement.*/}
+          {/*  </p>*/}
+          {/*</div>*/}
         </div>
 
         <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">

@@ -355,8 +355,10 @@ export const queryExamSectionList = async (params) => {
  * @returns {Object} return - 响应结果
  * @returns {number} return.code - 状态码（0-成功，非0-失败）
  * @returns {string} return.message - 响应消息
- * @returns {Array} return.data - 题目列表数据
  *
+ * @returns {string} return.data[].answerId - 题目作答ID
+ *
+ * @returns {Array} return.data - 题目列表数据
  * @returns {Object} return.data[].question - 题目信息实体
  * @returns {number} return.data[].question.questionId - 题目ID
  * @returns {number} return.data[].question.sectionId - 章节ID
@@ -382,5 +384,25 @@ export const queryExamSectionList = async (params) => {
 export const answerOfSection = async (sectionId) => {
   // 根据接口文档，直接传递Long类型的sectionId值，不需要JSON对象包装
   const response = await post('/answer/exam/start', sectionId);
+  return response.data;
+};
+
+/**
+ * 结束作答并提交用户答案
+ * @param {Object} finishData - 结束作答数据
+ * @param {Array} finishData.answers - 用户作答的题目答案列表
+ * @param {number} finishData.answers[].answerId - 作答明细ID
+ * @param {number} finishData.answers[].questionId - 题目ID
+ * @param {string} finishData.answers[].userAnswer - 用户作答答案
+ * @param {number} finishData.answers[].timeConsuming - 作答耗时（秒）
+ * @returns {Promise} 提交结果
+ *
+ * @returns {Object} return - 响应结果
+ * @returns {number} return.code - 状态码（0-成功，非0-失败）
+ * @returns {string} return.message - 响应消息
+ * @returns {boolean} return.data - 响应数据（true-成功，false-失败）
+ */
+export const finishAnswer = async (finishData) => {
+  const response = await post('/answer/finish', finishData);
   return response.data;
 };

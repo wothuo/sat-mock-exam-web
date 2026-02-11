@@ -11,7 +11,7 @@ import {
   StopOutlined
 } from '@ant-design/icons';
 
-import { answerOfSection } from '../../services/exam';
+import { answerOfSection, finishAnswer } from '../../services/exam';
 
 import { ReferenceDrawer } from './components/drawers';
 import {
@@ -64,6 +64,7 @@ function ExamContent() {
   
   // 真实题目数据状态
   const [realExamData, setRealExamData] = useState(null);
+  const [originalServerData, setOriginalServerData] = useState(null); // 保存原始服务端数据
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -188,7 +189,8 @@ Each multiple-choice question has a single correct answer.
                                   `题目 ${index + 1} 内容加载中...`;
             
             return {
-              id: questionObj?.questionId || index + 1,
+              id: index + 1, // 使用索引作为ID，确保与currentQuestion匹配
+              originalId: questionObj?.questionId, // 保存原始ID用于后续处理
               type: questionType,
               question: questionContent,
               description: questionObj?.questionDescription || '',
@@ -212,6 +214,7 @@ Each multiple-choice question has a single correct answer.
         }
         
         setRealExamData(transformedData);
+        setOriginalServerData(questionsData); // 保存原始服务端数据
       } catch (err) {
         setError('网络错误，请检查网络连接');
         console.error('获取题目数据失败:', err);
@@ -323,12 +326,116 @@ Each multiple-choice question has a single correct answer.
     resetOnBeginExam();
   };
 
-  const handleFinishExam = () => {
-    recordQuestionTime(currentQuestion);
-    setExamFinished(true);
-    setShowEndExamModal(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // 使用Ref来追踪最新的questionTimes状态
+  const questionTimesRef = React.useRef(questionTimes);
+  useEffect(() => {
+    // 当questionTimes更新时，同步更新Ref
+    questionTimesRef.current = questionTimes;
+  }, [questionTimes]);
+
+  const handleFinishExam = async () => {
+    try {
+      // 先记录最后一道题的耗时
+      recordQuestionTime(currentQuestion);
+      
+      // 等待React状态更新完成
+      await new Promise(resolve => {
+        const checkInterval = setInterval(() => {
+          // 使用Ref获取最新的questionTimes状态
+          const latestQuestionTimes = questionTimesRef.current;
+          // 检查最后一道题的耗时是否已记录（只要存在即可，0也是有效记录）
+          if (latestQuestionTimes.hasOwnProperty(currentQuestion)) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 50);
+      });
+
+      // 使用Ref获取最新的questionTimes状态
+      console.log('提交前题目耗时数据:', questionTimesRef.current);
+
+      // 准备提交数据
+      const submitData = {
+        answers: []
+      };
+
+      // 遍历所有题目，构建提交数据
+      if (originalServerData && originalServerData.length > 0) {
+        // 使用Ref获取最新的状态
+        const latestQuestionTimes = questionTimesRef.current;
+
+        console.log('开始构建提交数据，题目数量:', originalServerData.length);
+        console.log('用户答案数据:', answers);
+        console.log('最新题目耗时数据:', latestQuestionTimes);
+        console.log('原始服务端数据结构:', originalServerData);
+
+        for (let i = 0; i < originalServerData.length; i++) {
+          // 获取原始服务端数据
+          const originalQuestionData = originalServerData[i];
+          console.log(`题目 ${i + 1} 原始服务端数据结构:`, originalQuestionData);
+
+          // 从原始服务端数据获取ID
+          // 数据结构: {answerId: 102, question: {questionId: 3, ...}, sectionName: '阅读部分', sectionTiming: 65}
+          const answerId = originalQuestionData.answerId; // 直接获取answerId
+          const questionId = originalQuestionData.question?.questionId; // 从嵌套的question对象获取questionId
+
+          // 获取本地对应的题目数据
+          const localQuestion = examDataToUse.questions[i];
+          // 用户答案（使用本地题目ID）
+          const userAnswer = answers[localQuestion?.id || i + 1] || '';
+
+          // 获取耗时（使用本地题目ID，与报告页面保持一致）
+          let timeConsuming = 0;
+          
+          if (localQuestion) {
+            // 直接使用本地题目ID，与ExamReportView保持一致
+            timeConsuming = latestQuestionTimes[localQuestion.id] || 0;
+            console.log(`题目 ${i + 1} 耗时查找结果:`, {
+              questionId, // 服务端ID
+              localQuestionId: localQuestion.id, // 本地ID
+              timeConsuming,
+              localQuestionIdInQuestionTimes: latestQuestionTimes.hasOwnProperty(localQuestion.id)
+            });
+          } else {
+            timeConsuming = latestQuestionTimes[i + 1] || 0;
+            console.warn(`题目 ${i + 1} 未找到对应的本地题目数据，使用索引作为fallback`);
+          }
+
+          // 只要有有效的ID就提交，即使没有用户答案（记录未作答状态）
+          if (answerId && questionId) {
+            submitData.answers.push({
+              answerId: answerId,
+              questionId: questionId,
+              userAnswer: userAnswer,
+              timeConsuming: timeConsuming
+            });
+            console.log(`题目 ${i + 1} 已添加到提交列表`);
+          } else {
+            console.warn(`题目 ${i + 1} 缺少必要的ID字段，跳过提交`);
+            console.warn('answerId:', answerId, 'questionId:', questionId);
+          }
+        }
+      }
+
+      console.log('提交的作答数据:', submitData);
+
+      // 调用结束作答接口
+      if (submitData.answers.length > 0) {
+        const result = await finishAnswer(submitData);
+        console.log('作答提交结果:', result);
+      } else {
+        console.warn('没有有效的作答数据需要提交');
+      }
+
+    } catch (error) {
+      console.error('提交作答数据时发生错误:', error);
+    } finally {
+      setExamFinished(true);
+      setShowEndExamModal(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
+
 
   if (isPreparing) {
     return <PreparingScreen />;
@@ -338,7 +445,7 @@ Each multiple-choice question has a single correct answer.
     const scores = calculateScore(examDataToUse, answers);
     return (
       <ExamReportView
-        examData={examData}
+        examData={examDataToUse}  // 修复：使用真实作答数据而不是模拟数据
         scores={scores}
         answers={answers}
         questionTimes={questionTimes}
