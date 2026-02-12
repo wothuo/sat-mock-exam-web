@@ -189,10 +189,10 @@ function ExamSetEntry() {
             const sectionListData = await getSectionListByExamId(editExamId);
             if (sectionListData && sectionListData.length > 0) {
               setSections(formatSectionListFromApi(sectionListData));
-              message.success('Section列表信息已更新');
             }
           } catch (error) {
             message.error('获取Section列表信息失败');
+            return;
           }
 
           message.success('套题基础信息更新成功');
