@@ -102,6 +102,14 @@ function ExamSetQuestionStep({
             >
               <i className="fas fa-italic"></i>
             </button>
+            <button
+              type="button"
+              onClick={() => onToolbarAction('underline', null, activeEditorId)}
+              className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
+              title="下划线"
+            >
+              <i className="fas fa-underline"></i>
+            </button>
             <div className="w-px h-3 bg-gray-300"></div>
             <button
               type="button"

@@ -501,6 +501,9 @@ function ExamSetEntry() {
       case 'italic':
         newValue = currentValue.substring(0, start) + `*${selectedText}*` + currentValue.substring(end);
         break;
+      case 'underline':
+        newValue = currentValue.substring(0, start) + `<u>${selectedText}</u>` + currentValue.substring(end);
+        break;
       case 'formula':
         newValue = currentValue.substring(0, start) + data + currentValue.substring(end);
         break;
