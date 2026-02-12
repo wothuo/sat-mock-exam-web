@@ -120,7 +120,7 @@ function SectionManager({ visible, examSet, onSave, onCancel }) {
         'D) x = 1 或 x = 6',
       ],
       correctAnswer: 'A',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-01-15',
     },
   ]);
@@ -842,7 +842,7 @@ function SectionManager({ visible, examSet, onSave, onCancel }) {
                   placeholder='来源'
                 >
                   <Option value='全部'>全部来源</Option>
-                  <Option value='历年考题'>历年考题</Option>
+                  <Option value='历年真题'>历年真题</Option>
                   <Option value='官方样题'>官方样题</Option>
                   <Option value='Question Bank考题'>Question Bank考题</Option>
                 </Select>

@@ -9,7 +9,7 @@ import { ClockCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { queryExamSectionList, getQuestionListBySectionId } from '../../services/exam';
 
 function MockExam() {
-  const [activeTab, setActiveTab] = useState('历年考题');
+  const [activeTab, setActiveTab] = useState('历年真题');
   const [selectedSubject, setSelectedSubject] = useState('全部');
   const [selectedDifficulty, setSelectedDifficulty] = useState('全部');
   const [selectedYear, setSelectedYear] = useState('全部');
@@ -34,7 +34,7 @@ function MockExam() {
         difficulty: selectedDifficulty === '全部' ? 'ALL' : selectedDifficulty,
         examRegion: 'ALL',
         examYear: selectedYear === '全部' ? 'ALL' : selectedYear,
-        source: activeTab === '历年考题' ? '历年考题' : '官方样题',
+        source: activeTab === '历年真题' ? '历年真题' : '官方样题',
         examName: 'ALL'
       };
 
@@ -101,15 +101,15 @@ function MockExam() {
         <div className="mb-8">
           <div className="flex space-x-1 bg-white/80 backdrop-blur-xl p-1 rounded-2xl w-fit shadow-lg border border-white/20">
             <button
-              onClick={() => setActiveTab('历年考题')}
+              onClick={() => setActiveTab('历年真题')}
               className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
-                activeTab === '历年考题'
+                activeTab === '历年真题'
                   ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               <i className="fas fa-history mr-2"></i>
-              历年考题
+              历年真题
             </button>
             <button
               onClick={() => setActiveTab('官方样题')}
