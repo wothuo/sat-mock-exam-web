@@ -20,7 +20,7 @@ import {
   UserOutlined
 } from '@ant-design/icons';
 
-function Profile() {
+function ProfileContent() {
   const [userRole, setUserRole] = useState('student'); // 'student' | 'teacher'
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -272,203 +272,201 @@ function Profile() {
     </div>
   );
 
-  const renderGoals = () => (
+  const renderStudyRecords = () => (
     <div className="space-y-6">
-      <Card title={<span className="font-bold">学习目标</span>}>
-        <div className="space-y-6">
-          {studyGoals.map((goal) => (
-            <div key={goal.id}>
-              <div className="flex justify-between mb-2">
-                <span className="font-medium text-gray-900">{goal.title}</span>
-                <span className="text-sm text-gray-600">{goal.current} / {goal.target}</span>
+      <Card title={<span className="font-bold">{userRole === 'student' ? '最近学习记录' : '最近活动'}</span>}>
+        <div className="space-y-4">
+          {(userRole === 'student' ? recentStudyRecords : teacherRecentActivities).map((record) => (
+            <div key={record.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-1">
+                  <Tag color="blue">{record.type}</Tag>
+                  <span className="font-medium text-gray-900">{record.title}</span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  <ClockCircleOutlined className="mr-1" />
+                  {record.date}
+                  {record.duration && ` · ${record.duration}`}
+                </div>
               </div>
-              <Progress 
-                percent={Math.round((goal.current / goal.target) * 100)} 
-                strokeColor={goal.color === 'blue' ? '#3b82f6' : goal.color === 'green' ? '#10b981' : '#f59e0b'}
-              />
+              {record.score && (
+                <div className="text-right ml-4">
+                  <div className="text-2xl font-bold text-red-600">{record.score}</div>
+                  <div className="text-xs text-gray-500">分数</div>
+                </div>
+              )}
             </div>
           ))}
         </div>
-        <div className="mt-6 text-center">
-          <Button type="primary" className="bg-red-600">设置新目标</Button>
+        <div className="mt-4 text-center">
+          <Link to="/practice-record">
+            <Button type="link">查看全部记录 →</Button>
+          </Link>
         </div>
       </Card>
+
+      {userRole === 'student' && renderGoals()}
     </div>
+  );
+
+  const renderGoals = () => (
+    <Card title={<span className="font-bold">学习目标</span>}>
+      <div className="space-y-6">
+        {studyGoals.map((goal) => (
+          <div key={goal.id}>
+            <div className="flex justify-between mb-2">
+              <span className="font-medium text-gray-900">{goal.title}</span>
+              <span className="text-sm text-gray-600">{goal.current} / {goal.target}</span>
+            </div>
+            <Progress 
+              percent={Math.round((goal.current / goal.target) * 100)} 
+              strokeColor={goal.color === 'blue' ? '#3b82f6' : goal.color === 'green' ? '#10b981' : '#f59e0b'}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="mt-6 text-center">
+        <Button type="primary" className="bg-red-600">设置新目标</Button>
+      </div>
+    </Card>
   );
 
   const renderAchievements = () => (
-    <div className="space-y-6">
-      <Card title={<span className="font-bold">成就徽章</span>}>
-        <Row gutter={[16, 16]}>
-          {(userRole === 'student' ? achievements : teacherAchievements).map((achievement) => (
-            <Col xs={12} sm={8} md={6} key={achievement.id}>
-              <div className={`text-center p-4 rounded-lg border-2 transition-all ${
-                achievement.unlocked 
-                  ? 'border-yellow-400 bg-yellow-50' 
-                  : 'border-gray-200 bg-gray-50 opacity-50'
-              }`}>
-                <div className="text-4xl mb-2">{achievement.icon}</div>
-                <div className="font-bold text-gray-900 mb-1">{achievement.name}</div>
-                <div className="text-xs text-gray-600">{achievement.desc}</div>
-                {achievement.unlocked && (
-                  <Tag color="gold" className="mt-2">已解锁</Tag>
-                )}
-              </div>
-            </Col>
-          ))}
-        </Row>
-      </Card>
-    </div>
+    <Card title="成就徽章" className="shadow-sm">
+      <Row gutter={[24, 24]}>
+        {(userRole === 'student' ? achievements : teacherAchievements).map(achievement => (
+          <Col xs={12} sm={8} md={4} key={achievement.id} className="text-center">
+            <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-2 ${achievement.unlocked ? 'bg-yellow-100' : 'bg-gray-100 grayscale'}`}>
+              {achievement.icon}
+            </div>
+            <div className={`font-medium ${achievement.unlocked ? 'text-gray-900' : 'text-gray-500'}`}>{achievement.name}</div>
+            <div className="text-xs text-gray-400 mt-1">{achievement.desc}</div>
+          </Col>
+        ))}
+      </Row>
+    </Card>
   );
-
-  const renderSettings = () => (
-    <div className="space-y-6">
-      <Card title={<span className="font-bold">个人信息</span>}>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between py-3 border-b">
-            <span className="text-gray-600">用户名</span>
-            <span className="font-medium">{userData.name}</span>
-          </div>
-          <div className="flex items-center justify-between py-3 border-b">
-            <span className="text-gray-600">角色</span>
-            <Tag color={userRole === 'student' ? 'blue' : 'green'}>{userData.role}</Tag>
-          </div>
-          <div className="flex items-center justify-between py-3 border-b">
-            <span className="text-gray-600">等级</span>
-            <span className="font-medium">{userData.level}</span>
-          </div>
-          <div className="flex items-center justify-between py-3">
-            <span className="text-gray-600">加入时间</span>
-            <span className="font-medium">{userData.joinDate}</span>
-          </div>
-        </div>
-        <div className="mt-6">
-          <Button type="primary" icon={<EditOutlined />} block className="bg-red-600">
-            编辑个人信息
-          </Button>
-        </div>
-      </Card>
-
-      <Card title={<span className="font-bold">账号设置</span>}>
-        <div className="space-y-3">
-          <Button block className="text-left">修改密码</Button>
-          <Button block className="text-left">通知设置</Button>
-          <Button block className="text-left">隐私设置</Button>
-          <Button block className="text-left">学习偏好</Button>
-        </div>
-      </Card>
-
-      {/* 角色切换（仅用于演示） */}
-      <Card title={<span className="font-bold">角色切换（演示）</span>}>
-        <Space>
-          <Button 
-            type={userRole === 'student' ? 'primary' : 'default'}
-            onClick={() => setUserRole('student')}
-          >
-            学生视角
-          </Button>
-          <Button 
-            type={userRole === 'teacher' ? 'primary' : 'default'}
-            onClick={() => setUserRole('teacher')}
-          >
-            教师视角
-          </Button>
-        </Space>
-      </Card>
-    </div>
-  );
-
-  const tabItems = [
-    {
-      key: 'overview',
-      label: (
-        <span>
-          <LineChartOutlined />
-          概览
-        </span>
-      ),
-      children: renderOverview()
-    },
-    ...(userRole === 'student' ? [{
-      key: 'goals',
-      label: (
-        <span>
-          <BulbOutlined />
-          学习目标
-        </span>
-      ),
-      children: renderGoals()
-    }] : []),
-    {
-      key: 'achievements',
-      label: (
-        <span>
-          <TrophyOutlined />
-          成就
-        </span>
-      ),
-      children: renderAchievements()
-    },
-    {
-      key: 'settings',
-      label: (
-        <span>
-          <SettingOutlined />
-          设置
-        </span>
-      ),
-      children: renderSettings()
-    }
-  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 用户信息卡片 */}
-        <Card className="mb-6">
-          <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
-            <Avatar size={120} src={userData.avatar} icon={<UserOutlined />} />
-            <div className="flex-1 text-center md:text-left">
-              <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-2">
-                <h1 className="text-3xl font-bold text-gray-900">{userData.name}</h1>
-                <Tag color={userRole === 'student' ? 'blue' : 'green'} className="text-sm">
-                  {userData.role}
-                </Tag>
-                <Tag color="gold" className="text-sm">
-                  {userData.level}
-                </Tag>
-              </div>
-              <p className="text-gray-600 mb-4">
-                {userRole === 'student' 
-                  ? `已学习 ${userData.totalStudyDays} 天 · 完成 ${userData.completedExams} 套模考 · 正确率 ${userData.correctRate}%`
-                  : `教学 ${teacherData.teachingYears} 年 · ${teacherData.totalStudents} 名学生 · ${teacherData.totalClasses} 个班级`
-                }
-              </p>
-              <Space>
-                <Link to="/mock-exam">
-                  <Button type="primary" icon={<TrophyOutlined />} className="bg-red-600">
-                    {userRole === 'student' ? '开始模考' : '创建套题'}
-                  </Button>
-                </Link>
-                <Link to={userRole === 'student' ? '/special-training' : '/question-bank'}>
-                  <Button icon={<BookOutlined />}>
-                    {userRole === 'student' ? '专项训练' : '题库管理'}
-                  </Button>
-                </Link>
-              </Space>
+    <>
+      {/* 顶部个人信息卡片 */}
+      <Card className="shadow-sm">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+          <div className="relative">
+            <Avatar size={100} src={userData.avatar} icon={<UserOutlined />} />
+            <Tag color="gold" className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full border-none shadow-sm">
+              {userData.level}
+            </Tag>
+          </div>
+          
+          <div className="flex-1 text-center md:text-left">
+            <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2 justify-center md:justify-start">
+              <h1 className="text-2xl font-bold m-0">{userData.name}</h1>
+              <Tag color={userRole === 'student' ? 'blue' : 'green'}>{userData.role}</Tag>
+            </div>
+            <p className="text-gray-500 mb-4">加入时间：{userData.joinDate}</p>
+            
+            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+              <Button type="primary" icon={<EditOutlined />}>编辑资料</Button>
+              <Button icon={<SettingOutlined />}>账号设置</Button>
+              <Button 
+                type="dashed" 
+                icon={userRole === 'student' ? <TeamOutlined /> : <UserOutlined />}
+                onClick={() => setUserRole(userRole === 'student' ? 'teacher' : 'student')}
+              >
+                切换角色 (演示)
+              </Button>
             </div>
           </div>
-        </Card>
 
-        {/* 标签页内容 */}
-        <Card>
-          <Tabs 
-            activeKey={activeTab} 
-            onChange={setActiveTab}
-            items={tabItems}
-            size="large"
-          />
-        </Card>
+          <div className="flex gap-8 text-center px-6 py-2 border-l border-gray-100">
+            <div>
+              <div className="text-2xl font-bold text-blue-600">{userRole === 'student' ? userData.totalStudyDays : teacherData.teachingYears}</div>
+              <div className="text-gray-500 text-sm">{userRole === 'student' ? '学习天数' : '教龄(年)'}</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-green-600">{userRole === 'student' ? userData.totalScore : teacherData.totalStudents}</div>
+              <div className="text-gray-500 text-sm">{userRole === 'student' ? '最高分' : '学生数'}</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-purple-600">{userRole === 'student' ? userData.completedExams : teacherData.totalClasses}</div>
+              <div className="text-gray-500 text-sm">{userRole === 'student' ? '模考次数' : '班级数'}</div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* 主要内容区 */}
+      <Tabs 
+        activeKey={activeTab} 
+        onChange={setActiveTab} 
+        type="card"
+        className="bg-white p-4 rounded-lg shadow-sm"
+        items={[
+          {
+            key: 'overview',
+            label: (
+              <span>
+                <LineChartOutlined />
+                总览
+              </span>
+            ),
+            children: renderOverview(),
+          },
+          {
+            key: 'study-records',
+            label: (
+              <span>
+                <ClockCircleOutlined />
+                {userRole === 'student' ? '学习记录' : '教学动态'}
+              </span>
+            ),
+            children: renderStudyRecords(),
+          },
+          {
+            key: 'achievements',
+            label: (
+              <span>
+                <TrophyOutlined />
+                {userRole === 'student' ? '成就' : '荣誉'}
+              </span>
+            ),
+            children: renderAchievements(),
+          },
+          {
+            key: 'collection',
+            label: (
+              <span>
+                <BookOutlined />
+                {userRole === 'student' ? '错题本' : '题库'}
+              </span>
+            ),
+            children: <div className="p-8 text-center text-gray-500">功能开发中...</div>,
+          },
+        ]}
+      />
+    </>
+  );
+}
+
+// 封装后的 Profile 页面，包含遮罩层
+function Profile() {
+  return (
+    <div className="relative">
+      {/* 模糊遮罩层 */}
+      <div className="absolute inset-0 z-50 backdrop-blur-md bg-white/30 flex flex-col items-center justify-center rounded-lg">
+        <div className="bg-white/80 p-8 rounded-full shadow-lg mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16 text-gray-600">
+            <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">功能暂未开放</h2>
+        <p className="text-gray-600">该功能正在开发中，敬请期待下一期更新</p>
+      </div>
+
+      {/* 原有内容，将被遮罩覆盖 */}
+      <div className="space-y-6 pointer-events-none select-none opacity-50" aria-hidden="true">
+        <ProfileContent />
       </div>
     </div>
   );

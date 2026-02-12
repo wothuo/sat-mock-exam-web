@@ -63,7 +63,7 @@ function QuestionList({ onEdit }) {
       question: 'As used in line 15, "plastic" most nearly means',
       options: ['A) synthetic', 'B) malleable', 'C) artificial', 'D) rigid'],
       correctAnswer: 'B',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-01-17'
     },
     {
@@ -96,7 +96,7 @@ function QuestionList({ onEdit }) {
       question: '一组数据的平均数为 15，标准差为 2。如果每个数据都增加 5，新的平均数和标准差分别是多少？',
       options: ['A) 20, 7', 'B) 20, 2', 'C) 15, 7', 'D) 15, 2'],
       correctAnswer: 'B',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-01-20'
     },
     {
@@ -107,7 +107,7 @@ function QuestionList({ onEdit }) {
       question: '已知二次函数 $f(x) = ax^2 + bx + c$ 的图像经过点 $(1, 0)$ 和 $(3, 0)$，且最小值为 $-4$，求 $a+b+c$ 的值。',
       options: ['A) -4', 'B) 0', 'C) 4', 'D) 8'],
       correctAnswer: 'B',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-01-20'
     },
     {
@@ -140,7 +140,7 @@ function QuestionList({ onEdit }) {
       question: 'If $3^{2x-1} = 27$, what is the value of $x$?',
       options: ['A) 1', 'B) 2', 'C) 3', 'D) 4'],
       correctAnswer: 'B',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-01-23'
     },
     {
@@ -173,7 +173,7 @@ function QuestionList({ onEdit }) {
       question: 'A set of data consists of {10, 12, 15, 15, 18}. What is the median of this data set?',
       options: ['A) 12', 'B) 14', 'C) 15', 'D) 18'],
       correctAnswer: 'C',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-01-26'
     },
     {
@@ -206,7 +206,7 @@ function QuestionList({ onEdit }) {
       question: 'A car travels 300 miles on 12 gallons of gas. How many gallons are needed for a 500-mile trip?',
       options: ['A) 15', 'B) 18', 'C) 20', 'D) 25'],
       correctAnswer: 'C',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-01-29'
     },
     {
@@ -239,7 +239,7 @@ function QuestionList({ onEdit }) {
       question: 'In a right triangle, if $\\sin(\\theta) = 0.6$, what is the value of $\\cos(\\theta)$?',
       options: ['A) 0.4', 'B) 0.7', 'C) 0.8', 'D) 1.0'],
       correctAnswer: 'C',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-02-01'
     },
     {
@@ -272,7 +272,7 @@ function QuestionList({ onEdit }) {
       question: 'What is the center of the circle with equation $(x+5)^2 + (y-2)^2 = 16$?',
       options: ['A) (5, -2)', 'B) (-5, 2)', 'C) (5, 2)', 'D) (-5, -2)'],
       correctAnswer: 'B',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-02-04'
     },
     {
@@ -305,7 +305,7 @@ function QuestionList({ onEdit }) {
       question: 'Simplify the expression: $2(x + 3) - 4(x - 1)$.',
       options: ['A) $-2x + 10$', 'B) $-2x + 2$', 'C) $2x + 10$', 'D) $2x + 2$'],
       correctAnswer: 'A',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-02-07'
     },
     {
@@ -327,7 +327,7 @@ function QuestionList({ onEdit }) {
       question: 'If $2x + 5 = 13$, what is the value of $x$?',
       options: ['A) 3', 'B) 4', 'C) 6', 'D) 9'],
       correctAnswer: 'B',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-02-09'
     },
     {
@@ -360,7 +360,7 @@ function QuestionList({ onEdit }) {
       question: 'A cylinder has a radius of 3 and a height of 5. What is its volume?',
       options: ['A) $15\\pi$', 'B) $30\\pi$', 'C) $45\\pi$', 'D) $90\\pi$'],
       correctAnswer: 'C',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-02-12'
     },
     {
@@ -393,7 +393,7 @@ function QuestionList({ onEdit }) {
       question: 'A bag contains 4 red marbles and 6 blue marbles. If one marble is drawn at random, what is the probability it is red?',
       options: ['A) 0.4', 'B) 0.6', 'C) 0.25', 'D) 0.66'],
       correctAnswer: 'A',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-02-15'
     },
     {
@@ -426,7 +426,7 @@ function QuestionList({ onEdit }) {
       question: 'What are the solutions to the equation $x^2 - 9 = 0$?',
       options: ['A) x = 3', 'B) x = -3', 'C) x = 3 or x = -3', 'D) x = 9'],
       correctAnswer: 'C',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-02-18'
     },
     {
@@ -459,7 +459,7 @@ function QuestionList({ onEdit }) {
       question: 'A jacket is on sale for 20% off its original price of $80. What is the sale price?',
       options: ['A) $16', 'B) $60', 'C) $64', 'D) $72'],
       correctAnswer: 'C',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-02-21'
     },
     {
@@ -492,7 +492,7 @@ function QuestionList({ onEdit }) {
       question: 'Solve the system of equations: $x + y = 10$ and $x - y = 2$.',
       options: ['A) (6, 4)', 'B) (4, 6)', 'C) (5, 5)', 'D) (7, 3)'],
       correctAnswer: 'A',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-02-24'
     },
     {
@@ -525,7 +525,7 @@ function QuestionList({ onEdit }) {
       question: 'Simplify the expression: $(2^3)^2$.',
       options: ['A) 32', 'B) 64', 'C) 128', 'D) 256'],
       correctAnswer: 'B',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-02-27'
     },
     {

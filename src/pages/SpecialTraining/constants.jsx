@@ -46,7 +46,7 @@ export const TRAINING_SUBJECTS = [
   // 题目来源
   export const QUESTION_SOURCES = [
     { id: '全部', name: '全部' },
-    { id: '历年考题', name: '历年真题' },
+    { id: '历年真题', name: '历年真题' },
     { id: '官方样题', name: '官方样题' },
     { id: 'Question Bank考题', name: 'Question Bank考题' }
   ];

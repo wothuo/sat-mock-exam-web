@@ -189,10 +189,10 @@ function ExamSetEntry() {
             const sectionListData = await getSectionListByExamId(editExamId);
             if (sectionListData && sectionListData.length > 0) {
               setSections(formatSectionListFromApi(sectionListData));
-              message.success('Section列表信息已更新');
             }
           } catch (error) {
             message.error('获取Section列表信息失败');
+            return;
           }
 
           message.success('套题基础信息更新成功');
@@ -500,6 +500,34 @@ function ExamSetEntry() {
         break;
       case 'italic':
         newValue = currentValue.substring(0, start) + `*${selectedText}*` + currentValue.substring(end);
+        break;
+      case 'underline':
+        newValue = currentValue.substring(0, start) + `<u>${selectedText}</u>` + currentValue.substring(end);
+        break;
+      case 'strikethrough':
+        newValue = currentValue.substring(0, start) + `~~${selectedText}~~` + currentValue.substring(end);
+        break;
+      case 'superscript':
+        newValue = currentValue.substring(0, start) + `<sup>${selectedText}</sup>` + currentValue.substring(end);
+        break;
+      case 'subscript':
+        newValue = currentValue.substring(0, start) + `<sub>${selectedText}</sub>` + currentValue.substring(end);
+        break;
+      case 'highlight':
+        newValue = currentValue.substring(0, start) + `<mark>${selectedText}</mark>` + currentValue.substring(end);
+        break;
+      case 'unorderedList': {
+        const ulItems = selectedText.split('\n').filter(Boolean).map(line => `<li>${line}</li>`).join('');
+        newValue = currentValue.substring(0, start) + `<ul>${ulItems}</ul>` + currentValue.substring(end);
+        break;
+      }
+      case 'orderedList': {
+        const olItems = selectedText.split('\n').filter(Boolean).map(line => `<li>${line}</li>`).join('');
+        newValue = currentValue.substring(0, start) + `<ol>${olItems}</ol>` + currentValue.substring(end);
+        break;
+      }
+      case 'blockIndent':
+        newValue = currentValue.substring(0, start) + `<div style="margin-left: 2em;">${selectedText}</div>` + currentValue.substring(end);
         break;
       case 'formula':
         newValue = currentValue.substring(0, start) + data + currentValue.substring(end);

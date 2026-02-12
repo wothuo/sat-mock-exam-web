@@ -1,14 +1,110 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+
+import dayjs from 'dayjs';
 
 import MockTab from './components/MockTab';
 import NotesTab from './components/NotesTab';
 import PracticeTab from './components/PracticeTab';
 import QuestionDetailModal from './components/QuestionDetailModal';
 import WrongTab from './components/WrongTab';
+import { fetchWrongRecordList } from '../../services/record';
+
+/** 解析接口 options 字符串为数组 [{ option, content }, ...] */
+function parseOptionsOptions(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== 'string' || !value.trim()) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+/** 接口列表项 → WrongTab 展示结构（含弹窗所需字段） */
+function mapWrongItem(item) {
+  if (!item) return null;
+  const options = parseOptionsOptions(item.options);
+  return {
+    id: item.answerId,
+    subject: item.questionCategory,
+    difficulty: item.difficulty,
+    date: item.startTime ? dayjs(item.startTime).format('YYYY-MM-DD') : '',
+    question: item.questionContent,
+    title: item.taskName,
+    userAnswer: item.userAnswer,
+    correctAnswer: item.answer,
+    timeSpent: item.timeConsuming,
+    questionContent: item.questionContent,
+    taskName: item.taskName,
+    startTime: item.startTime,
+    // 弹窗：选项、解析、题目描述、题型、分值
+    options,
+    explanation: item.analysis,
+    questionDescription: item.questionDescription,
+    questionType: item.questionType,
+    score: item.score,
+  };
+}
+
+/** 前端筛选值 → 接口参数 */
+function toApiQuestionCategory(value) {
+  if (!value || value === 'all') return undefined;
+  const map = { math: '数学', reading: '阅读', grammar: '语法' };
+  return map[value];
+}
+function toApiDifficulty(value) {
+  if (!value || value === 'all') return undefined;
+  const v = String(value).toLowerCase();
+  return v === 'easy' ? 'Easy' : v === 'medium' ? 'Medium' : v === 'hard' ? 'Hard' : undefined;
+}
+function toApiTimeRange(value) {
+  if (!value || value === 'all') return undefined;
+  const map = { month: '最近一个月', quarter: '最近三个月', half: '最近半年' };
+  return map[value];
+}
 
 function PracticeRecord() {
   const [activeTab, setActiveTab] = useState('wrong');
   const [selectedWrongQuestion, setSelectedWrongQuestion] = useState(null);
+
+  // 错题列表（方案甲：后端分页+筛选）
+  const [wrongList, setWrongList] = useState([]);
+  const [wrongTotal, setWrongTotal] = useState(0);
+  const [wrongPageNum, setWrongPageNum] = useState(1);
+  const [wrongPageSize, setWrongPageSize] = useState(10);
+  const [wrongLoading, setWrongLoading] = useState(false);
+  const [wrongSubject, setWrongSubject] = useState('all');
+  const [wrongDifficulty, setWrongDifficulty] = useState('all');
+  const [wrongPeriod, setWrongPeriod] = useState('all');
+
+  const loadWrongList = useCallback(async () => {
+    setWrongLoading(true);
+    try {
+      const res = await fetchWrongRecordList({
+        pageNum: wrongPageNum,
+        pageSize: wrongPageSize,
+        questionCategory: toApiQuestionCategory(wrongSubject),
+        difficulty: toApiDifficulty(wrongDifficulty),
+        timeRange: toApiTimeRange(wrongPeriod),
+      });
+      setWrongList((res.list || []).map(mapWrongItem).filter(Boolean));
+      setWrongTotal(res.total ?? 0);
+      setWrongPageNum(res.pageNum ?? wrongPageNum);
+      setWrongPageSize(res.pageSize ?? wrongPageSize);
+    } finally {
+      setWrongLoading(false);
+    }
+  }, [wrongPageNum, wrongPageSize, wrongSubject, wrongDifficulty, wrongPeriod]);
+
+  const lastWrongRequestKeyRef = useRef(null);
+  useEffect(() => {
+    if (activeTab !== 'wrong') return;
+    const requestKey = `${wrongPageNum}-${wrongPageSize}-${wrongSubject}-${wrongDifficulty}-${wrongPeriod}`;
+    if (lastWrongRequestKeyRef.current === requestKey) return;
+    lastWrongRequestKeyRef.current = requestKey;
+    loadWrongList();
+  }, [activeTab, wrongPageNum, wrongPageSize, wrongSubject, wrongDifficulty, wrongPeriod, loadWrongList]);
 
   useEffect(() => {
     if (window.renderMathInElement) {
@@ -251,50 +347,6 @@ function PracticeRecord() {
     },
   ];
 
-  const wrongQuestions = [
-    {
-      id: 1,
-      title: '2025年12月北美第4套数学 - 第5题',
-      subject: '数学',
-      difficulty: 'Medium',
-      date: '2024-01-15',
-      question: '求解方程 $x^2 + 5x + 6 = 0$ 的解',
-      options: [
-        'A) x = -2 或 x = -3',
-        'B) x = 2 或 x = 3',
-        'C) x = -1 或 x = -6',
-        'D) x = 1 或 x = 6',
-      ],
-      userAnswer: 'B',
-      correctAnswer: 'A',
-      explanation:
-        '通过因式分解可得 $(x+2)(x+3)=0$，因此解为 $x=-2$ 或 $x=-3$。选项B中的符号错误。',
-      timeSpent: 95,
-    },
-    {
-      id: 2,
-      title: '阅读理解专项训练 - 第3题',
-      subject: '阅读',
-      difficulty: 'Hard',
-      date: '2024-01-15',
-      passage:
-        'Climate change represents one of the most significant challenges facing humanity in the 21st century. Rising global temperatures, caused primarily by greenhouse gas emissions from human activities, are leading to widespread environmental changes.',
-      question:
-        'Which of the following best describes the main purpose of the passage?',
-      options: [
-        'A) To explain the causes',
-        'B) To describe the effects',
-        'C) To warn about urgency',
-        'D) To compare challenges',
-      ],
-      userAnswer: 'A',
-      correctAnswer: 'C',
-      explanation:
-        '文章虽然提到了原因，但核心落脚点在于呼吁采取紧急行动（immediate action），因此C是最准确的主旨描述。',
-      timeSpent: 142,
-    },
-  ];
-
   const renderTabContent = () => {
     switch (activeTab) {
       case 'mock':
@@ -306,8 +358,25 @@ function PracticeRecord() {
       case 'wrong':
         return (
           <WrongTab
-            records={wrongQuestions}
+            records={wrongList}
+            total={wrongTotal}
+            pageNum={wrongPageNum}
+            pageSize={wrongPageSize}
+            subject={wrongSubject}
+            difficulty={wrongDifficulty}
+            period={wrongPeriod}
+            onFilterChange={({ subject, difficulty, period }) => {
+              if (subject !== undefined) setWrongSubject(subject);
+              if (difficulty !== undefined) setWrongDifficulty(difficulty);
+              if (period !== undefined) setWrongPeriod(period);
+              setWrongPageNum(1);
+            }}
+            onPageChange={(pageNum, pageSize) => {
+              setWrongPageNum(pageNum);
+              if (pageSize != null) setWrongPageSize(pageSize);
+            }}
             onShowDetail={setSelectedWrongQuestion}
+            loading={wrongLoading}
           />
         );
       default:

@@ -25,3 +25,12 @@
   white-space: nowrap;
   width: 100%;
 }
+
+/* 题目内容编辑区：英文使用 Georgia 字体 */
+.exam-question-editor-font {
+  font-family: Georgia, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.exam-question-editor-font .ant-input {
+  font-family: Georgia, "PingFang SC", "Microsoft YaHei", sans-serif;
+}

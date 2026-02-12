@@ -18,13 +18,26 @@ export const login = async (credentials) => {
 /**
  * 用户注册
  * @param {Object} userData - 用户注册信息
- * @param {string} userData.email - 邮箱
- * @param {string} userData.password - 密码
- * @param {string} userData.name - 姓名
  * @returns {Promise} 注册结果
  */
 export const register = async (userData) => {
-  const response = await post('/user-account/register', userData);
+  const response = await post('/user/register', userData);
+  return response.data;
+};
+
+/**
+ * 发送手机验证码
+ * @param {string} phone - 手机号
+ * @returns {Promise} 发送结果
+ */
+export const sendCode = async (phone) => {
+  // sendCode 接口使用 RequestParam 接收 phone，所以这里作为 query param 传递，
+  // 或者修改 request.ts 的 post 方法支持 query params。
+  // 也可以简单地拼接 url: `/user/sendCode?phone=${phone}`
+  // 查看 request.ts，post 签名是 (url, data, config)
+  // 假设后端接受 param，通常 post body 也可以，但 UserController 定义的是 @RequestParam。
+  // 为了保险，使用 query param 方式调用。
+  const response = await post(`/user/sendCode?phone=${phone}`, {});
   return response.data;
 };
 
