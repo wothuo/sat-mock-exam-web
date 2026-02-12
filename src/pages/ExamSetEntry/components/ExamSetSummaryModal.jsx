@@ -176,7 +176,7 @@ function ExamSetSummaryModal({ open, onCancel, onOk, loading, summaryFormValues 
                           ) : (
                             <div
                               id={`summary-preview-${q.id}`}
-                              className="summary-question-preview line-clamp-2 break-words [&_.katex]:text-sm"
+                              className="summary-question-preview exam-question-editor-font line-clamp-2 break-words [&_.katex]:text-sm"
                               dangerouslySetInnerHTML={{
                                 __html: formatContentToHtml(q.content),
                               }}

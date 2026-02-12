@@ -70,20 +70,20 @@ function RichTextEditor({
   }, [value, showPreview, onRenderMath]);
 
   return (
-    <div>
+    <div className="exam-question-editor-font">
       <TextArea 
         id={id}
         rows={6} 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="rounded-xl font-mono text-xs leading-relaxed"
+        className="rounded-xl text-xs leading-relaxed exam-question-editor-font"
         onFocus={() => handleToolbarAction('focus', null)}
       />
       {showPreview && previewVisible && (
         <div 
           id={`preview-${id}`}
-          className="mt-2 p-3 bg-gray-50 rounded-xl border border-gray-200"
+          className="mt-2 p-3 bg-gray-50 rounded-xl border border-gray-200 exam-question-editor-font"
         >
           {!(value || '').trim() && previewPlaceholder ? (
             <div className="text-gray-400 leading-relaxed text-sm">
