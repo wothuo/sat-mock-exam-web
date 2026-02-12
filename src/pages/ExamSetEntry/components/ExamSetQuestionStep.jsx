@@ -18,6 +18,7 @@ function formatContentToHtml(text) {
   });
   processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
+  processed = processed.replace(/~~(.+?)~~/g, '<s>$1</s>');
   processed = processed.replace(/(?<!\*)(\*)(?!\*)(.+?)(?<!\*)(\*)(?!\*)/g, '<em>$2</em>');
   processed = processed.replace(/(?<!_)(_)(?!_)(.+?)(?<!_)(_)(?!_)/g, '<em>$2</em>');
   processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-1 max-h-8 object-contain" />');
@@ -109,6 +110,38 @@ function ExamSetQuestionStep({
               title="下划线"
             >
               <i className="fas fa-underline"></i>
+            </button>
+            <button
+              type="button"
+              onClick={() => onToolbarAction('strikethrough', null, activeEditorId)}
+              className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
+              title="删除线"
+            >
+              <i className="fas fa-strikethrough"></i>
+            </button>
+            <button
+              type="button"
+              onClick={() => onToolbarAction('superscript', null, activeEditorId)}
+              className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
+              title="上标"
+            >
+              <i className="fas fa-superscript"></i>
+            </button>
+            <button
+              type="button"
+              onClick={() => onToolbarAction('subscript', null, activeEditorId)}
+              className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
+              title="下标"
+            >
+              <i className="fas fa-subscript"></i>
+            </button>
+            <button
+              type="button"
+              onClick={() => onToolbarAction('highlight', null, activeEditorId)}
+              className="px-1.5 py-0.5 bg-yellow-50 hover:bg-yellow-100 text-yellow-800 rounded text-[10px] transition-colors"
+              title="高亮"
+            >
+              <i className="fas fa-highlighter"></i>
             </button>
             <div className="w-px h-3 bg-gray-300"></div>
             <button

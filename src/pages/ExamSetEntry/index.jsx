@@ -504,6 +504,18 @@ function ExamSetEntry() {
       case 'underline':
         newValue = currentValue.substring(0, start) + `<u>${selectedText}</u>` + currentValue.substring(end);
         break;
+      case 'strikethrough':
+        newValue = currentValue.substring(0, start) + `~~${selectedText}~~` + currentValue.substring(end);
+        break;
+      case 'superscript':
+        newValue = currentValue.substring(0, start) + `<sup>${selectedText}</sup>` + currentValue.substring(end);
+        break;
+      case 'subscript':
+        newValue = currentValue.substring(0, start) + `<sub>${selectedText}</sub>` + currentValue.substring(end);
+        break;
+      case 'highlight':
+        newValue = currentValue.substring(0, start) + `<mark>${selectedText}</mark>` + currentValue.substring(end);
+        break;
       case 'formula':
         newValue = currentValue.substring(0, start) + data + currentValue.substring(end);
         break;
