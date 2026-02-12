@@ -20,7 +20,7 @@ function QuestionList({ onEdit }) {
       question: '求解方程 $x^2 + 5x + 6 = 0$ 的解',
       options: ['A) x = -2 或 x = -3', 'B) x = 2 或 x = 3', 'C) x = -1 或 x = -6', 'D) x = 1 或 x = 6'],
       correctAnswer: 'A',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-01-15'
     },
     {
@@ -41,7 +41,7 @@ function QuestionList({ onEdit }) {
       difficulty: 'Easy',
       question: '计算 $\\frac{3}{4} + \\frac{1}{2}$ 的值',
       correctAnswer: '1.25',
-      source: '历年考题',
+      source: '历年真题',
       createdAt: '2024-01-13'
     },
     {

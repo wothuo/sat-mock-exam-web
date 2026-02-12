@@ -40,7 +40,7 @@ function ExamSetEditor({ visible, examSet, onSave, onCancel }) {
         layout="vertical"
         initialValues={{
           subject: '数学',
-          source: '历年考题',
+          source: '历年真题',
           difficulty: 'Medium',
           sections: []
         }}
@@ -71,7 +71,7 @@ function ExamSetEditor({ visible, examSet, onSave, onCancel }) {
           rules={[{ required: true, message: '请选择来源' }]}
         >
           <Select>
-            <Option value="历年考题">历年考题</Option>
+            <Option value="历年真题">历年真题</Option>
             <Option value="官方样题">官方样题</Option>
             <Option value="Question Bank考题">Question Bank考题</Option>
           </Select>

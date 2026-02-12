@@ -18,7 +18,7 @@
 | 参数名        | 类型   | 必填 | 说明           |  枚举/约束  |
 |---------------|--------|------|----------------|--------|
 | examType      | string | 是   | 考试类型       | SAT/IELTS/TOEFL|
-| examCategory  | string | 否   | 套题类别       | 官方样题/历年考题 |
+| examCategory  | string | 否   | 套题类别       | 官方样题/历年真题 |
 | examYear      | string | 否   | 套题年份       | 2025/2024/... |
 | examRegion    | string | 否   | 套题地区       | 北美/亚太 |
 | pageNum       | int    | 否   | 页码（分页用） | 默认1 |
@@ -58,7 +58,7 @@
 | `taskName`       | string | 任务名称（如“2025北美SAT官方样题”） |
 | `taskType`       | string | 任务类型（固定值 `"exam_set"` 表示套题） |
 | `examType`       | string | 考试类型（如 `"SAT"`） |
-| `examCategory`   | string | 套题类别（如“官方样题”、“历年考题”） |
+| `examCategory`   | string | 套题类别（如“官方样题”、“历年真题”） |
 | `examYear`       | string | 考试年份（如 `"2025"`） |
 | `examRegion`     | string | 考试地区（如“北美”、“亚太”） |
 | `questionCount`  | number | 题目总数 |

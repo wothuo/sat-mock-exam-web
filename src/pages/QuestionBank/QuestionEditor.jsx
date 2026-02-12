@@ -54,7 +54,7 @@ function QuestionEditor({ question, onSave, onCancel }) {
 
   const subjects = ['数学', '阅读', '语法'];
   const difficulties = ['Easy', 'Medium', 'Hard'];
-  const sources = ['历年考题', '官方样题', 'Question Bank考题'];
+  const sources = ['历年真题', '官方样题', 'Question Bank考题'];
 
   const questionTypesMap = {
     '数学': ['基础运算', '圆方程', '一次函数', '三角函数', '二次函数', '统计', '指数函数', '数据分析', '应用题', '基础函数', '几何'],
@@ -410,7 +410,7 @@ function QuestionEditor({ question, onSave, onCancel }) {
             subject: '数学',
             type: '基础运算',
             difficulty: 'Medium',
-            source: '历年考题',
+            source: '历年真题',
             questionType: 'multiple-choice'
           }}
         >

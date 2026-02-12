@@ -22,7 +22,7 @@ src/pages/SpecialTraining/
 
 ### 2. 多维度筛选
 - **题目类型**：根据不同科目显示对应的题型
-- **题目来源**：历年考题、官方样题、Question Bank考题
+- **题目来源**：历年真题、官方样题、Question Bank考题
 - **题目维度**：未练习、做错次数、最近错题
 - **题目难度**：随机、Hard、Medium、Easy
 - **练习题数**：5题、10题、20题
@@ -159,7 +159,7 @@ Request:
 {
   "subject": "阅读",
   "questionType": "词汇题",
-  "source": "历年考题",
+  "source": "历年真题",
   "dimension": "未练习",
   "difficulty": "Medium题目",
   "count": "10题",
