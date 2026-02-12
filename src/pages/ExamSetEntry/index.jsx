@@ -516,6 +516,19 @@ function ExamSetEntry() {
       case 'highlight':
         newValue = currentValue.substring(0, start) + `<mark>${selectedText}</mark>` + currentValue.substring(end);
         break;
+      case 'unorderedList': {
+        const ulItems = selectedText.split('\n').filter(Boolean).map(line => `<li>${line}</li>`).join('');
+        newValue = currentValue.substring(0, start) + `<ul>${ulItems}</ul>` + currentValue.substring(end);
+        break;
+      }
+      case 'orderedList': {
+        const olItems = selectedText.split('\n').filter(Boolean).map(line => `<li>${line}</li>`).join('');
+        newValue = currentValue.substring(0, start) + `<ol>${olItems}</ol>` + currentValue.substring(end);
+        break;
+      }
+      case 'blockIndent':
+        newValue = currentValue.substring(0, start) + `<div style="margin-left: 2em;">${selectedText}</div>` + currentValue.substring(end);
+        break;
       case 'formula':
         newValue = currentValue.substring(0, start) + data + currentValue.substring(end);
         break;

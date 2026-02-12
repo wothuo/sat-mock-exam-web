@@ -143,6 +143,30 @@ function ExamSetQuestionStep({
             >
               <i className="fas fa-highlighter"></i>
             </button>
+            <button
+              type="button"
+              onClick={() => onToolbarAction('unorderedList', null, activeEditorId)}
+              className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
+              title="无序列表"
+            >
+              <i className="fas fa-list-ul"></i>
+            </button>
+            <button
+              type="button"
+              onClick={() => onToolbarAction('orderedList', null, activeEditorId)}
+              className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
+              title="有序列表"
+            >
+              <i className="fas fa-list-ol"></i>
+            </button>
+            <button
+              type="button"
+              onClick={() => onToolbarAction('blockIndent', null, activeEditorId)}
+              className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
+              title="段落整体缩进"
+            >
+              <i className="fas fa-indent"></i>
+            </button>
             <div className="w-px h-3 bg-gray-300"></div>
             <button
               type="button"
