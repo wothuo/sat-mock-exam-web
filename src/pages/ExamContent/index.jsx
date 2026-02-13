@@ -176,9 +176,9 @@ Each multiple-choice question has a single correct answer.
             
             // 根据题目类型确定题型 - 适配实际的类型值
             let questionType = 'multiple-choice';
-            if (questionObj?.questionType === 'BLANK' || questionObj?.questionType === 'blank') {
+            if (questionObj?.questionType?.toUpperCase() === 'BLANK') {
               questionType = 'student-produced';
-            } else if (questionObj?.questionType === 'choice') {
+            } else if (questionObj?.questionType?.toUpperCase() === 'CHOICE') {
               questionType = 'multiple-choice';
             }
             
@@ -197,8 +197,8 @@ Each multiple-choice question has a single correct answer.
               options: options,
               correctAnswer: questionObj?.answer || '',
               analysis: questionObj?.analysis || '',
-              difficulty: questionObj?.difficulty || 'Medium',
-              category: questionObj?.questionCategory || 'MATH',
+              difficulty: questionObj?.difficulty || '中等',
+              category: questionObj?.questionCategory || '数学',
               subCategory: questionObj?.questionSubCategory || ''
             };
           }).filter(Boolean) // 过滤掉 null 项

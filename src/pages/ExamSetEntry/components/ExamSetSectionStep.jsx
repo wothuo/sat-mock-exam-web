@@ -104,9 +104,9 @@ function ExamSetSectionStep({
                 <div className="text-right">
                   <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Difficulty</div>
                   <div className="flex items-center justify-end">
-                    <i className={`fas fa-star ${section.difficulty === 'Easy' ? 'text-green-500' : section.difficulty === 'Hard' ? 'text-red-500' : 'text-yellow-500'} text-sm`} />
+                    <i className={`fas fa-star ${section.difficulty === '简单' ? 'text-green-500' : section.difficulty === '困难' ? 'text-red-500' : 'text-yellow-500'} text-sm`} />
                     <span className="text-xs font-medium ml-1 text-gray-600">
-                      {section.difficulty === 'Easy' ? '简单' : section.difficulty === 'Hard' ? '困难' : '中等'}
+                      {section.difficulty}
                     </span>
                   </div>
                 </div>

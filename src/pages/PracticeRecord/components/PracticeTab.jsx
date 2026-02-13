@@ -62,8 +62,8 @@ function PracticeTab({ records }) {
                   <h3 className="text-xl font-black text-gray-900 m-0 truncate">{record.title}</h3>
                   <Tag 
                     color={
-                      record.difficulty === 'Easy' ? 'success' :
-                      record.difficulty === 'Medium' ? 'warning' : 'error'
+                      record.difficulty === '简单' ? 'success' :
+                      record.difficulty === '中等' ? 'warning' : 'error'
                     }
                     className="m-0 border-0 font-bold rounded-lg px-3"
                   >

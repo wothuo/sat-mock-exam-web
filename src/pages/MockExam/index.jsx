@@ -270,8 +270,8 @@ function MockExam() {
                     <Space className="w-full justify-between">
                       <Tag color="blue">{exam.source}</Tag>
                       <Tag color={
-                        exam.difficulty === 'Easy' ? 'success' :
-                        exam.difficulty === 'Medium' ? 'warning' : 'error'
+                        exam.difficulty === '简单' ? 'success' :
+                        exam.difficulty === '中等' ? 'warning' : 'error'
                       }>
                         {exam.difficulty}
                       </Tag>

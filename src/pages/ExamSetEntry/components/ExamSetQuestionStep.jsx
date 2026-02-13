@@ -288,8 +288,8 @@ function ExamSetQuestionStep({
                       >
                         {isDeleted ? '×' : index + 1}
                       </span>
-                      <Tag color={q.interactionType === 'CHOICE' ? 'blue' : 'green'} className="m-0 border-0 text-[9px] font-bold px-1.5 leading-3">
-                        {q.interactionType === 'CHOICE' ? 'CHOICE' : 'BLANK'}
+                      <Tag color={q.interactionType === '选择题' ? 'blue' : 'green'} className="m-0 border-0 text-[9px] font-bold px-1.5 leading-3">
+                        {q.interactionType}
                       </Tag>
                     </div>
                     <Tag color={isSectionDeleted ? 'red' : 'purple'} className="m-0 border-0 text-[9px] font-bold px-1 leading-3">
@@ -357,12 +357,12 @@ function ExamSetQuestionStep({
                           value={q.interactionType}
                           onChange={v => {
                             onUpdateQuestion(q.id, 'interactionType', v);
-                            onUpdateQuestion(q.id, 'correctAnswer', v === 'CHOICE' ? 'A' : '');
+                            onUpdateQuestion(q.id, 'correctAnswer', v === '选择题' ? 'A' : '');
                           }}
                           className="w-full h-10 rounded-lg text-sm"
                         >
-                          <Option value="CHOICE">选择题</Option>
-                          <Option value="BLANK">填空题</Option>
+                          <Option value="选择题">选择题</Option>
+                          <Option value="填空题">填空题</Option>
                         </Select>
                       </div>
                       <div>
@@ -439,7 +439,7 @@ function ExamSetQuestionStep({
                       />
                     </div>
 
-                    {q.interactionType === 'CHOICE' && (
+                    {q.interactionType === '选择题' && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
                         {['A', 'B', 'C', 'D'].map((opt, idx) => (
                           <div key={opt}>
@@ -467,7 +467,7 @@ function ExamSetQuestionStep({
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div className="md:col-span-1">
                         <label className="block text-sm font-bold text-gray-600 uppercase mb-2">正确答案</label>
-                        {q.interactionType === 'CHOICE' ? (
+                        {q.interactionType === '选择题' ? (
                           <Select
                             value={q.correctAnswer}
                             onChange={v => onUpdateQuestion(q.id, 'correctAnswer', v)}
