@@ -44,8 +44,7 @@ function SpecialTraining() {
       // 调用开始练习API
       const questions = await startPractice(practiceParams);
       console.log('获取到题目：', questions);
-      
-      // 导航到训练练习页面
+
       navigate('/training-exercise', { state: { questions } });
     } catch (error) {
       console.error('开始训练失败：', error);

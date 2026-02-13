@@ -147,7 +147,7 @@ Each multiple-choice question has a single correct answer.
           if (questionObj?.options) {
             try {
               const parsedOptions = JSON.parse(questionObj.options);
-              options = Object.entries(parsedOptions).map(([key, value]) => `${key}) ${value}`);
+              options = Object.entries(parsedOptions).map(([key, value]) => `(${key}) ${value}`);
             } catch (e) {
               console.warn('Failed to parse options JSON:', questionObj.options);
               // 尝试直接使用字符串格式的选项
@@ -159,9 +159,9 @@ Each multiple-choice question has a single correct answer.
           
           // 根据题目类型确定题型 - 适配实际的类型值
           let questionType = 'multiple-choice';
-          if (questionObj?.questionType?.toUpperCase() === 'BLANK') {
-            questionType = 'student-produced';
-          } else if (questionObj?.questionType?.toUpperCase() === 'CHOICE') {
+          if (questionObj?.questionType?.toUpperCase() === 'BLANK' || questionObj?.questionType === '填空题') {
+            questionType = 'fill-in-blanks';
+          } else if (questionObj?.questionType?.toUpperCase() === 'CHOICE' || questionObj?.questionType === '选择题') {
             questionType = 'multiple-choice';
           }
           
@@ -171,13 +171,29 @@ Each multiple-choice question has a single correct answer.
                                 questionObj?.content || 
                                 `题目 ${index + 1} 内容加载中...`;
           
+          // 为填空题创建blanks数组
+          let blanks = [];
+          if (questionType === 'fill-in-blanks') {
+            // 计算题目中的空白数量
+            const blankCount = (questionContent.match(/_____/g) || []).length;
+            for (let i = 0; i < blankCount; i++) {
+              blanks.push({
+                id: `blank${i + 1}`,
+                placeholder: `空白 ${i + 1}`
+              });
+            }
+            console.log(`填空题空白数量: ${blankCount}, blanks数组:`, blanks);
+          }
+
           return {
             id: index + 1, // 使用索引作为ID，确保与currentQuestion匹配
             originalId: questionObj?.questionId, // 保存原始ID用于后续处理
             type: questionType,
             question: questionContent,
+            content: questionContent, // 添加content字段用于填空题渲染
             description: questionObj?.questionDescription || '',
             options: options,
+            blanks: blanks,
             correctAnswer: questionObj?.answer || '',
             analysis: questionObj?.analysis || '',
             difficulty: questionObj?.difficulty || '中等',
@@ -282,7 +298,7 @@ Each multiple-choice question has a single correct answer.
             if (questionObj?.options) {
               try {
                 const parsedOptions = JSON.parse(questionObj.options);
-                options = Object.entries(parsedOptions).map(([key, value]) => `${key}) ${value}`);
+                options = Object.entries(parsedOptions).map(([key, value]) => `(${key}) ${value}`);
               } catch (e) {
                 console.warn('Failed to parse options JSON:', questionObj.options);
                 // 尝试直接使用字符串格式的选项
@@ -294,9 +310,9 @@ Each multiple-choice question has a single correct answer.
             
             // 根据题目类型确定题型 - 适配实际的类型值
             let questionType = 'multiple-choice';
-            if (questionObj?.questionType?.toUpperCase() === 'BLANK') {
-              questionType = 'student-produced';
-            } else if (questionObj?.questionType?.toUpperCase() === 'CHOICE') {
+            if (questionObj?.questionType?.toUpperCase() === 'BLANK' || questionObj?.questionType === '填空题') {
+              questionType = 'fill-in-blanks';
+            } else if (questionObj?.questionType?.toUpperCase() === 'CHOICE' || questionObj?.questionType === '选择题') {
               questionType = 'multiple-choice';
             }
             
@@ -305,6 +321,20 @@ Each multiple-choice question has a single correct answer.
                                   questionObj?.question || 
                                   questionObj?.content || 
                                   `题目 ${index + 1} 内容加载中...`;
+            
+            // 为填空题创建blanks数组
+            let blanks = [];
+            if (questionType === 'fill-in-blanks') {
+              // 计算题目中的空白数量
+              const blankCount = (questionContent.match(/_____/g) || []).length;
+              for (let i = 0; i < blankCount; i++) {
+                blanks.push({
+                  id: `blank${i + 1}`,
+                  placeholder: `空白 ${i + 1}`
+                });
+              }
+              console.log(`路径B - 填空题空白数量: ${blankCount}, blanks数组:`, blanks);
+            }
             
             // 提取图片URL - 检查questionContent中是否包含图片URL
             let imageUrls = [];
@@ -356,11 +386,13 @@ Each multiple-choice question has a single correct answer.
               originalId: questionObj?.questionId, // 保存原始ID用于后续处理
               type: finalQuestionType,
               question: processedQuestionContent,
+              content: processedQuestionContent, // 添加content字段用于填空题渲染
               images: imageUrls, // 使用图片数组
               image: imageUrls.length > 0 ? imageUrls[0].url : '', // 向后兼容：保留第一个图片作为image字段
               imageAlt: imageUrls.length > 0 ? imageUrls[0].alt : `题目 ${index + 1} 图片`,
               description: questionObj?.questionDescription || '',
               options: options,
+              blanks: blanks, // 添加blanks数组用于填空题
               correctAnswer: questionObj?.answer || '',
               analysis: questionObj?.analysis || '',
               difficulty: questionObj?.difficulty || '中等',
