@@ -24,17 +24,17 @@ function QuestionStemPanel({
             {renderFormattedText(question.question, question.id)}
           </div>
 
-          {question.description && (
-            <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-              <div className="text-sm font-semibold text-blue-900 mb-2">
-                <i className="fas fa-info-circle mr-2" />
-                问题描述
-              </div>
-              <div className="text-sm text-blue-800 leading-relaxed">
-                {renderFormattedText(question.description, question.id)}
-              </div>
-            </div>
-          )}
+          {/*{question.description && (*/}
+          {/*  <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">*/}
+          {/*    <div className="text-sm font-semibold text-blue-900 mb-2">*/}
+          {/*      <i className="fas fa-info-circle mr-2" />*/}
+          {/*      问题描述*/}
+          {/*    </div>*/}
+          {/*    <div className="text-sm text-blue-800 leading-relaxed">*/}
+          {/*      {renderFormattedText(question.description, question.id)}*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*)}*/}
 
           {question.type === 'reading-passage' && question.passage && (
             <div className="p-4 bg-gray-50 rounded-lg border-l-4 border-red-500">
@@ -47,13 +47,27 @@ function QuestionStemPanel({
           {(question.type === 'multiple-choice-with-image' ||
             question.type === 'student-produced-with-image' ||
             question.type === 'image-with-blanks') &&
-            question.image && (
-              <div>
-                <img
-                  src={question.image}
-                  alt={question.imageAlt || 'Question image'}
-                  className="max-w-full h-auto rounded-lg border border-gray-200 shadow-sm"
-                />
+            question.images && question.images.length > 0 && (
+              <div className="space-y-4">
+                {question.images.map((img, imgIndex) => (
+                  <div key={imgIndex} className="flex justify-center">
+                    <img
+                      src={img.url}
+                      alt={img.alt || `Question image ${imgIndex + 1}`}
+                      className="max-w-full max-h-96 h-auto rounded-lg border border-gray-200 shadow-sm object-contain transition-all duration-300 hover:shadow-md"
+                      style={{
+                        maxWidth: 'min(100%, 600px)',
+                        width: 'auto',
+                        height: 'auto'
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        console.warn(`图片加载失败: ${img.url}`);
+                      }}
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
               </div>
             )}
 
@@ -102,4 +116,3 @@ function QuestionStemPanel({
 }
 
 export default QuestionStemPanel;
-

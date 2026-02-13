@@ -11,6 +11,14 @@ export function formatText(text) {
     return placeholder;
   });
 
+  // 保护填空题的下划线占位符（连续4个或更多下划线）
+  const blankPlaceholders = [];
+  processed = processed.replace(/_{4,}/g, (match) => {
+    const placeholder = `@@@BLANKPLACEHOLDER${blankPlaceholders.length}@@@`;
+    blankPlaceholders.push(match);
+    return placeholder;
+  });
+
   processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   processed = processed.replace(/__(.*?)__/g, '<strong>$1</strong>');
   processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
@@ -33,6 +41,11 @@ export function formatText(text) {
     }
     return line + '<br />';
   }).join('');
+
+  // 还原填空题的下划线占位符
+  blankPlaceholders.forEach((block, index) => {
+    processed = processed.split(`@@@BLANKPLACEHOLDER${index}@@@`).join(block);
+  });
 
   mathBlocks.forEach((block, index) => {
     processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);

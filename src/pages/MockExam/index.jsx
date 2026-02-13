@@ -6,7 +6,7 @@ import { Button, Card, Col, Pagination, Row, Space, Tag, message } from 'antd';
 
 import { ClockCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
-import { queryExamSectionList, getQuestionListBySectionId } from '../../services/exam';
+import { queryExamSectionList, answerOfSection } from '../../services/exam';
 
 function MockExam() {
   const [activeTab, setActiveTab] = useState('历年真题');
@@ -270,8 +270,8 @@ function MockExam() {
                     <Space className="w-full justify-between">
                       <Tag color="blue">{exam.source}</Tag>
                       <Tag color={
-                        exam.difficulty === 'Easy' ? 'success' :
-                        exam.difficulty === 'Medium' ? 'warning' : 'error'
+                        exam.difficulty === '简单' ? 'success' :
+                        exam.difficulty === '中等' ? 'warning' : 'error'
                       }>
                         {exam.difficulty}
                       </Tag>

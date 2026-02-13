@@ -15,7 +15,10 @@ function formatContentToHtml(text) {
   processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
   processed = processed.replace(/(?<!\*)(\*)(?!\*)(.+?)(?<!\*)(\*)(?!\*)/g, '<em>$2</em>');
   processed = processed.replace(/(?<!_)(_)(?!_)(.+?)(?<!_)(_)(?!_)/g, '<em>$2</em>');
-  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-1 max-h-8 object-contain" />');
+  // processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-2 max-h-32 object-contain" loading="lazy" />');
+  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, function(match, alt, src) {
+    return `<img src="${src.trim()}" alt="${alt.trim()}" class="max-w-full h-auto rounded-lg my-2 max-h-32 object-contain" loading="lazy" onerror="this.style.display='none'" />`;
+  });
   processed = processed.replace(/\n/g, '<br />');
   mathBlocks.forEach((block, index) => {
     processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
@@ -151,42 +154,42 @@ function ExamSetSummaryModal({ open, onCancel, onOk, loading, summaryFormValues 
                   </div>
                 </div>
 
-                {sectionQuestions.length === 0 ? (
-                  <div className="text-center py-6 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                    <i className="fas fa-inbox text-3xl text-gray-300 mb-2"></i>
-                    <p className="text-sm text-gray-400 font-medium">该 Section 暂无题目</p>
-                  </div>
-                ) : (
-                  <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-bold text-blue-900">
-                        <i className="fas fa-check-circle mr-2"></i>
-                        已录入 {sectionQuestions.length} 道题目
-                      </span>
-                      <span className="text-xs text-blue-600 font-medium">
-                        占比 {percent}%
-                      </span>
-                    </div>
-                    <ul className="space-y-2 list-none pl-0 m-0">
-                      {sectionQuestions.map((q, i) => (
-                        <li key={q.id} className="flex items-start gap-2 text-sm text-gray-700 bg-white/60 rounded-lg px-3 py-2 border border-blue-100/50">
-                          <span className="text-blue-600 font-bold shrink-0">{i + 1}.</span>
-                          {getQuestionPreviewPlaceholder(q.content) ? (
-                            <span className="text-gray-400">—</span>
-                          ) : (
-                            <div
-                              id={`summary-preview-${q.id}`}
-                              className="summary-question-preview exam-question-editor-font line-clamp-2 break-words [&_.katex]:text-sm"
-                              dangerouslySetInnerHTML={{
-                                __html: formatContentToHtml(q.content),
-                              }}
-                            />
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                {/*{sectionQuestions.length === 0 ? (*/}
+                {/*  <div className="text-center py-6 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">*/}
+                {/*    <i className="fas fa-inbox text-3xl text-gray-300 mb-2"></i>*/}
+                {/*    <p className="text-sm text-gray-400 font-medium">该 Section 暂无题目</p>*/}
+                {/*  </div>*/}
+                {/*) : (*/}
+                {/*  <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">*/}
+                {/*    <div className="flex items-center justify-between mb-3">*/}
+                {/*      <span className="text-sm font-bold text-blue-900">*/}
+                {/*        <i className="fas fa-check-circle mr-2"></i>*/}
+                {/*        已录入 {sectionQuestions.length} 道题目*/}
+                {/*      </span>*/}
+                {/*      <span className="text-xs text-blue-600 font-medium">*/}
+                {/*        占比 {percent}%*/}
+                {/*      </span>*/}
+                {/*    </div>*/}
+                {/*    <ul className="space-y-2 list-none pl-0 m-0">*/}
+                {/*      {sectionQuestions.map((q, i) => (*/}
+                {/*        <li key={q.id} className="flex items-start gap-2 text-sm text-gray-700 bg-white/60 rounded-lg px-3 py-2 border border-blue-100/50">*/}
+                {/*          <span className="text-blue-600 font-bold shrink-0">{i + 1}.</span>*/}
+                {/*          {getQuestionPreviewPlaceholder(q.content) ? (*/}
+                {/*            <span className="text-gray-400">—</span>*/}
+                {/*          ) : (*/}
+                {/*            <div*/}
+                {/*              id={`summary-preview-${q.id}`}*/}
+                {/*              className="summary-question-preview exam-question-editor-font line-clamp-2 break-words [&_.katex]:text-sm"*/}
+                {/*              dangerouslySetInnerHTML={{*/}
+                {/*                __html: formatContentToHtml(q.content),*/}
+                {/*              }}*/}
+                {/*            />*/}
+                {/*          )}*/}
+                {/*        </li>*/}
+                {/*      ))}*/}
+                {/*    </ul>*/}
+                {/*  </div>*/}
+                {/*)}*/}
               </div>
             );
           })}

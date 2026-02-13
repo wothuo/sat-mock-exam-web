@@ -11,7 +11,7 @@ import {
   StopOutlined
 } from '@ant-design/icons';
 
-import { getQuestionListBySectionId } from '../../services/exam';
+import { answerOfSection, finishAnswer } from '../../services/exam';
 
 import { ReferenceDrawer } from './components/drawers';
 import {
@@ -52,18 +52,20 @@ function ExamContent() {
   const location = useLocation();
   
   // 使用useMemo缓存路由状态，避免无限重渲染
-  const { sectionId, examTitle, examDuration, totalQuestions } = useMemo(() => {
+  const { sectionId, examTitle, examDuration, totalQuestions, stateQuestions } = useMemo(() => {
     const state = location.state || {};
     return {
       sectionId: state.sectionId || examId,
       examTitle: state.examTitle || 'Section 1, Module 1: Reading and Writing',
       examDuration: state.examDuration || '35分钟',
-      totalQuestions: state.totalQuestions || 27
+      totalQuestions: state.totalQuestions || 27,
+      stateQuestions: state.questions || null // 新增：获取路由状态中的题目数据
     };
   }, [location.state, examId]); // 只有当location.state或examId变化时才重新计算
   
   // 真实题目数据状态
   const [realExamData, setRealExamData] = useState(null);
+  const [originalServerData, setOriginalServerData] = useState(null); // 保存原始服务端数据
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -75,11 +77,162 @@ function ExamContent() {
       return;
     }
     
+    // 如果路由状态中已有题目数据，直接使用
+    if (stateQuestions) {
+      console.log('使用路由状态中的题目数据:', stateQuestions);
+      
+      // 适配不同格式的题目数据
+      let questionsData = null;
+      if (Array.isArray(stateQuestions)) {
+        // 情况1：直接是题目数组
+        questionsData = stateQuestions;
+        console.log('使用直接返回的数组作为数据源');
+      } else if (stateQuestions.code === 0 && Array.isArray(stateQuestions.data)) {
+        // 情况2：标准响应格式 {code: 0, data: [...]}
+        questionsData = stateQuestions.data;
+        console.log('使用标准响应格式的数据源');
+      } else {
+        setError(`数据格式错误：无法识别返回的数据结构`);
+        console.error('数据格式错误:', stateQuestions);
+        return;
+      }
+      
+      // 转换后端数据格式为前端需要的格式
+      const transformedData = {
+        title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
+        totalQuestions: questionsData.length,
+        directions: {
+          title: 'Directions',
+          content: `The questions in this section address a number of important reading and writing skills.
+Use of a calculator is not permitted for this section. These directions can be accessed throughout the test.
+
+**For multiple-choice questions**, solve each problem and choose the correct answer from the choices provided.
+Each multiple-choice question has a single correct answer.
+
+**For student-produced response questions:**
+• If you find more than one correct answer, enter only one answer.
+• You can enter up to 5 characters for a positive answer and up to 6 characters (including the negative sign) for a negative answer.
+• If your answer is a fraction that doesn't fit in the provided space, enter the decimal equivalent.
+• If your answer is a decimal that doesn't fit in the provided space, enter it by truncating or rounding at the fourth digit.`
+        },
+        questions: questionsData.map((item, index) => {
+          // 验证 item 结构
+          if (!item || typeof item !== 'object') {
+            console.warn('无效的题目数据项:', item);
+            return null;
+          }
+          
+          // 根据实际数据结构，item 包含嵌套的 question 对象
+          const questionObj = item.question; // 题目数据在 question 字段中
+          
+          // 详细调试每个题目的完整数据结构
+          console.log(`题目 ${index + 1} 完整数据结构:`, item);
+          console.log(`题目 ${index + 1} 嵌套question对象:`, questionObj);
+          console.log(`题目 ${index + 1} 关键字段:`, {
+            questionId: questionObj?.questionId,
+            questionContent: questionObj?.questionContent,
+            questionType: questionObj?.questionType,
+            options: questionObj?.options,
+            hasQuestionContent: !!questionObj?.questionContent,
+            keys: questionObj ? Object.keys(questionObj) : []
+          });
+          
+          // 检查题目内容是否存在
+          if (!questionObj || !questionObj.questionContent) {
+            console.warn(`题目 ${index + 1} 缺少 questionContent 字段，可用字段:`, questionObj ? Object.keys(questionObj) : []);
+          }
+          
+          // 解析选项JSON字符串 - 适配实际的数据格式
+          let options = [];
+          if (questionObj?.options) {
+            try {
+              const parsedOptions = JSON.parse(questionObj.options);
+              
+              // 处理数组格式的选项数据
+              if (Array.isArray(parsedOptions)) {
+                options = parsedOptions.map(option => `(${option.option}) ${option.content || option.text || option.value}`);
+              } else if (typeof parsedOptions === 'object') {
+                // 处理对象格式的选项数据
+                options = Object.entries(parsedOptions).map(([key, value]) => `(${key}) ${value}`);
+              }
+              
+              console.log(`题目 ${index + 1} 解析后的选项:`, options);
+            } catch (e) {
+              console.warn('Failed to parse options JSON:', questionObj.options);
+              // 尝试直接使用字符串格式的选项
+              if (typeof questionObj.options === 'string') {
+                options = questionObj.options.split(',').map(opt => opt.trim());
+              }
+            }
+          }
+          
+          // 根据题目类型确定题型 - 适配实际的类型值
+          let questionType = 'multiple-choice';
+          if (questionObj?.questionType?.toUpperCase() === 'BLANK' || questionObj?.questionType === '填空题') {
+            questionType = 'fill-in-blanks';
+          } else if (questionObj?.questionType?.toUpperCase() === 'CHOICE' || questionObj?.questionType === '选择题') {
+            questionType = 'multiple-choice';
+          }
+          
+          // 改进题目内容处理逻辑 - 正确访问嵌套的question对象
+          const questionContent = questionObj?.questionContent || 
+                                questionObj?.question || 
+                                questionObj?.content || 
+                                `题目 ${index + 1} 内容加载中...`;
+          
+          // 为填空题创建blanks数组
+          let blanks = [];
+          if (questionType === 'fill-in-blanks') {
+            // 计算题目中的空白数量
+            const blankCount = (questionContent.match(/_____/g) || []).length;
+            for (let i = 0; i < blankCount; i++) {
+              blanks.push({
+                id: `blank${i + 1}`,
+                placeholder: `空白 ${i + 1}`
+              });
+            }
+            console.log(`填空题空白数量: ${blankCount}, blanks数组:`, blanks);
+          }
+
+          return {
+            id: index + 1, // 使用索引作为ID，确保与currentQuestion匹配
+            originalId: questionObj?.questionId, // 保存原始ID用于后续处理
+            type: questionType,
+            question: questionContent,
+            content: questionContent, // 添加content字段用于填空题渲染
+            description: questionObj?.questionDescription || '',
+            options: options,
+            blanks: blanks,
+            correctAnswer: questionObj?.answer || '',
+            analysis: questionObj?.analysis || '',
+            difficulty: questionObj?.difficulty || '中等',
+            category: questionObj?.questionCategory || '数学',
+            subCategory: questionObj?.questionSubCategory || ''
+          };
+        }).filter(Boolean) // 过滤掉 null 项
+      };
+      
+      // 验证转换后的数据
+      console.log('转换后的数据:', transformedData);
+      console.log('题目数量:', transformedData.questions.length);
+      
+      if (transformedData.questions.length === 0) {
+        setError('没有找到有效的题目数据');
+        return;
+      }
+      
+      setRealExamData(transformedData);
+      setOriginalServerData(questionsData); // 保存原始服务端数据
+      setLoading(false);
+      return;
+    }
+    
+    // 否则从API获取数据
     const fetchRealExamData = async () => {
       try {
         setLoading(true);
         console.log('开始请求题目数据，sectionId:', sectionId);
-        const result = await getQuestionListBySectionId(sectionId);
+        const result = await answerOfSection(sectionId);
         
         // 调试日志：打印服务端返回的完整数据结构
         console.log('服务端返回数据:', result);
@@ -106,7 +259,7 @@ function ExamContent() {
         
         // 转换后端数据格式为前端需要的格式
         const transformedData = {
-          title: examTitle,
+          title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
           totalQuestions: totalQuestions,
           directions: {
             title: 'Directions',
@@ -154,16 +307,7 @@ Each multiple-choice question has a single correct answer.
             if (questionObj?.options) {
               try {
                 const parsedOptions = JSON.parse(questionObj.options);
-                // 适配两种可能的选项格式
-                if (Array.isArray(parsedOptions)) {
-                  // 格式: [{"option": "A", "content": "Rare"}, ...]
-                  options = parsedOptions.map(opt => {
-                    return `${opt.option}) ${opt.content}`;
-                  });
-                } else if (typeof parsedOptions === 'object') {
-                  // 格式: {"A": "Rare", "B": "Common", ...}
-                  options = Object.entries(parsedOptions).map(([key, value]) => `${key}) ${value}`);
-                }
+                options = Object.entries(parsedOptions).map(([key, value]) => `(${key}) ${value}`);
               } catch (e) {
                 console.warn('Failed to parse options JSON:', questionObj.options);
                 // 尝试直接使用字符串格式的选项
@@ -175,9 +319,9 @@ Each multiple-choice question has a single correct answer.
             
             // 根据题目类型确定题型 - 适配实际的类型值
             let questionType = 'multiple-choice';
-            if (questionObj?.questionType === 'BLANK' || questionObj?.questionType === 'blank') {
-              questionType = 'student-produced';
-            } else if (questionObj?.questionType === 'choice') {
+            if (questionObj?.questionType?.toUpperCase() === 'BLANK' || questionObj?.questionType === '填空题') {
+              questionType = 'fill-in-blanks';
+            } else if (questionObj?.questionType?.toUpperCase() === 'CHOICE' || questionObj?.questionType === '选择题') {
               questionType = 'multiple-choice';
             }
             
@@ -187,16 +331,81 @@ Each multiple-choice question has a single correct answer.
                                   questionObj?.content || 
                                   `题目 ${index + 1} 内容加载中...`;
             
+            // 为填空题创建blanks数组
+            let blanks = [];
+            if (questionType === 'fill-in-blanks') {
+              // 计算题目中的空白数量
+              const blankCount = (questionContent.match(/_____/g) || []).length;
+              for (let i = 0; i < blankCount; i++) {
+                blanks.push({
+                  id: `blank${i + 1}`,
+                  placeholder: `空白 ${i + 1}`
+                });
+              }
+              console.log(`路径B - 填空题空白数量: ${blankCount}, blanks数组:`, blanks);
+            }
+            
+            // 提取图片URL - 检查questionContent中是否包含图片URL
+            let imageUrls = [];
+            let processedQuestionContent = questionContent;
+            
+            // 匹配Markdown格式的图片标记 ![图片](url) 或 ![alt text](url)
+            const markdownImageRegex = /!\[([^\]]*)\]\(([^)]+)\)/gi;
+            const markdownMatches = [...questionContent.matchAll(markdownImageRegex)];
+            
+            if (markdownMatches && markdownMatches.length > 0) {
+              // 提取所有匹配的图片URL和alt文本
+              imageUrls = markdownMatches.map((match, imgIndex) => ({
+                url: match[2], // 第二个捕获组是URL
+                alt: match[1] || `题目 ${index + 1} 图片 ${imgIndex + 1}`,
+                index: imgIndex
+              }));
+              
+              // 从questionContent中移除所有Markdown图片标记
+              processedQuestionContent = questionContent.replace(markdownImageRegex, '').trim();
+            } else {
+              // 如果没有Markdown格式，尝试匹配裸图片URL
+              const imageUrlRegex = /https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp|svg)(?:\?[^\s]*)?/gi;
+              const imageMatches = questionContent.match(imageUrlRegex);
+              
+              if (imageMatches && imageMatches.length > 0) {
+                // 提取所有匹配的图片URL
+                imageUrls = imageMatches.map((url, imgIndex) => ({
+                  url: url,
+                  alt: `题目 ${index + 1} 图片 ${imgIndex + 1}`,
+                  index: imgIndex
+                }));
+                
+                // 从questionContent中移除所有图片URL
+                processedQuestionContent = questionContent.replace(imageUrlRegex, '').trim();
+              }
+            }
+            
+            // 如果存在图片URL，调整题目类型为带图片的类型
+            let finalQuestionType = questionType;
+            
+            if (imageUrls.length > 0 && questionType === 'multiple-choice') {
+              finalQuestionType = 'multiple-choice-with-image';
+            } else if (imageUrls.length > 0 && questionType === 'student-produced') {
+              finalQuestionType = 'student-produced-with-image';
+            }
+            
             return {
-              id: questionObj?.questionId || index + 1,
-              type: questionType,
-              question: questionContent,
+              id: index + 1, // 使用索引作为ID，确保与currentQuestion匹配
+              originalId: questionObj?.questionId, // 保存原始ID用于后续处理
+              type: finalQuestionType,
+              question: processedQuestionContent,
+              content: processedQuestionContent, // 添加content字段用于填空题渲染
+              images: imageUrls, // 使用图片数组
+              image: imageUrls.length > 0 ? imageUrls[0].url : '', // 向后兼容：保留第一个图片作为image字段
+              imageAlt: imageUrls.length > 0 ? imageUrls[0].alt : `题目 ${index + 1} 图片`,
               description: questionObj?.questionDescription || '',
               options: options,
+              blanks: blanks, // 添加blanks数组用于填空题
               correctAnswer: questionObj?.answer || '',
               analysis: questionObj?.analysis || '',
-              difficulty: questionObj?.difficulty || 'Medium',
-              category: questionObj?.questionCategory || 'MATH',
+              difficulty: questionObj?.difficulty || '中等',
+              category: questionObj?.questionCategory || '数学',
               subCategory: questionObj?.questionSubCategory || ''
             };
           }).filter(Boolean) // 过滤掉 null 项
@@ -212,6 +421,7 @@ Each multiple-choice question has a single correct answer.
         }
         
         setRealExamData(transformedData);
+        setOriginalServerData(questionsData); // 保存原始服务端数据
       } catch (err) {
         setError('网络错误，请检查网络连接');
         console.error('获取题目数据失败:', err);
@@ -221,7 +431,7 @@ Each multiple-choice question has a single correct answer.
     };
     
     fetchRealExamData();
-  }, [sectionId, realExamData]); // 依赖sectionId和realExamData，避免重复请求
+  }, [sectionId, realExamData, stateQuestions]); // 依赖sectionId、realExamData和stateQuestions，避免重复请求
 
   const [showDirections, setShowDirections] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
@@ -323,12 +533,116 @@ Each multiple-choice question has a single correct answer.
     resetOnBeginExam();
   };
 
-  const handleFinishExam = () => {
-    recordQuestionTime(currentQuestion);
-    setExamFinished(true);
-    setShowEndExamModal(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // 使用Ref来追踪最新的questionTimes状态
+  const questionTimesRef = React.useRef(questionTimes);
+  useEffect(() => {
+    // 当questionTimes更新时，同步更新Ref
+    questionTimesRef.current = questionTimes;
+  }, [questionTimes]);
+
+  const handleFinishExam = async () => {
+    try {
+      // 先记录最后一道题的耗时
+      recordQuestionTime(currentQuestion);
+      
+      // 等待React状态更新完成
+      await new Promise(resolve => {
+        const checkInterval = setInterval(() => {
+          // 使用Ref获取最新的questionTimes状态
+          const latestQuestionTimes = questionTimesRef.current;
+          // 检查最后一道题的耗时是否已记录（只要存在即可，0也是有效记录）
+          if (latestQuestionTimes.hasOwnProperty(currentQuestion)) {
+            clearInterval(checkInterval);
+            resolve();
+          }
+        }, 50);
+      });
+
+      // 使用Ref获取最新的questionTimes状态
+      console.log('提交前题目耗时数据:', questionTimesRef.current);
+
+      // 准备提交数据
+      const submitData = {
+        answers: []
+      };
+
+      // 遍历所有题目，构建提交数据
+      if (originalServerData && originalServerData.length > 0) {
+        // 使用Ref获取最新的状态
+        const latestQuestionTimes = questionTimesRef.current;
+
+        console.log('开始构建提交数据，题目数量:', originalServerData.length);
+        console.log('用户答案数据:', answers);
+        console.log('最新题目耗时数据:', latestQuestionTimes);
+        console.log('原始服务端数据结构:', originalServerData);
+
+        for (let i = 0; i < originalServerData.length; i++) {
+          // 获取原始服务端数据
+          const originalQuestionData = originalServerData[i];
+          console.log(`题目 ${i + 1} 原始服务端数据结构:`, originalQuestionData);
+
+          // 从原始服务端数据获取ID
+          // 数据结构: {answerId: 102, question: {questionId: 3, ...}, sectionName: '阅读部分', sectionTiming: 65}
+          const answerId = originalQuestionData.answerId; // 直接获取answerId
+          const questionId = originalQuestionData.question?.questionId; // 从嵌套的question对象获取questionId
+
+          // 获取本地对应的题目数据
+          const localQuestion = examDataToUse.questions[i];
+          // 用户答案（使用本地题目ID）
+          const userAnswer = answers[localQuestion?.id || i + 1] || '';
+
+          // 获取耗时（使用本地题目ID，与报告页面保持一致）
+          let timeConsuming = 0;
+          
+          if (localQuestion) {
+            // 直接使用本地题目ID，与ExamReportView保持一致
+            timeConsuming = latestQuestionTimes[localQuestion.id] || 0;
+            console.log(`题目 ${i + 1} 耗时查找结果:`, {
+              questionId, // 服务端ID
+              localQuestionId: localQuestion.id, // 本地ID
+              timeConsuming,
+              localQuestionIdInQuestionTimes: latestQuestionTimes.hasOwnProperty(localQuestion.id)
+            });
+          } else {
+            timeConsuming = latestQuestionTimes[i + 1] || 0;
+            console.warn(`题目 ${i + 1} 未找到对应的本地题目数据，使用索引作为fallback`);
+          }
+
+          // 只要有有效的ID就提交，即使没有用户答案（记录未作答状态）
+          if (answerId && questionId) {
+            submitData.answers.push({
+              answerId: answerId,
+              questionId: questionId,
+              userAnswer: userAnswer,
+              timeConsuming: timeConsuming
+            });
+            console.log(`题目 ${i + 1} 已添加到提交列表`);
+          } else {
+            console.warn(`题目 ${i + 1} 缺少必要的ID字段，跳过提交`);
+            console.warn('answerId:', answerId, 'questionId:', questionId);
+          }
+        }
+      }
+
+      console.log('提交的作答数据:', submitData);
+
+      // 调用结束作答接口
+      if (submitData.answers.length > 0) {
+        const result = await finishAnswer(submitData);
+        console.log('作答提交结果:', result);
+      } else {
+        console.warn('没有有效的作答数据需要提交');
+      }
+
+    } catch (error) {
+      console.error('提交作答数据时发生错误:', error);
+    } finally {
+      setExamFinished(true);
+      setShowEndExamModal(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
+
 
   if (isPreparing) {
     return <PreparingScreen />;
@@ -338,7 +652,7 @@ Each multiple-choice question has a single correct answer.
     const scores = calculateScore(examDataToUse, answers);
     return (
       <ExamReportView
-        examData={examData}
+        examData={examDataToUse}  // 修复：使用真实作答数据而不是模拟数据
         scores={scores}
         answers={answers}
         questionTimes={questionTimes}
@@ -419,7 +733,7 @@ Each multiple-choice question has a single correct answer.
 
       <ExamFooterBar
         isFirstQuestion={currentQuestion === 1}
-        isLastQuestion={currentQuestion === examData.totalQuestions}
+        isLastQuestion={currentQuestion === examDataToUse.totalQuestions}
         onOpenProgress={() => setShowProgress(true)}
         onPrev={goToPrevious}
         onNext={goToNext}
@@ -430,8 +744,8 @@ Each multiple-choice question has a single correct answer.
 
       <ProgressModal
         open={showProgress}
-        examTitle={examData.title}
-        totalQuestions={examData.totalQuestions}
+        examTitle={examDataToUse.title}
+        totalQuestions={examDataToUse.totalQuestions}
         currentQuestion={currentQuestion}
         answers={answers}
         markedForReview={markedForReview}

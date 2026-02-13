@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { Button, Space } from 'antd';
+
 import {
   BarChartOutlined,
   LeftOutlined,
@@ -27,36 +29,43 @@ function ExamFooterBar({
           </div>
         </div>
 
-        <Space size="small" className="w-full sm:w-auto justify-between sm:justify-end">
+        <Space size="middle" className="w-full sm:w-auto justify-between sm:justify-end">
           <Button
             icon={<BarChartOutlined />}
             onClick={onOpenProgress}
-            className="flex-1 sm:flex-none"
+            className="flex-1 sm:flex-none bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 hover:text-blue-800 transition-all duration-200"
+            size="middle"
           >
-            <span className="hidden xs:inline">Progress</span>
+            <span className="hidden xs:inline font-medium">Progress</span>
           </Button>
           <Button
             icon={<LeftOutlined />}
             onClick={onPrev}
             disabled={isFirstQuestion}
             type="primary"
+            className="min-w-[80px] bg-gradient-to-r from-blue-500 to-blue-600 border-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
+            size="middle"
           >
-            Back
+            <span className="font-medium">Back</span>
           </Button>
           <Button
             icon={<RightOutlined />}
             onClick={onNext}
             disabled={isLastQuestion}
             type="primary"
+            className="min-w-[80px] bg-gradient-to-r from-green-500 to-green-600 border-green-600 hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-sm hover:shadow-md"
+            size="middle"
           >
-            Next
+            <span className="font-medium">Next</span>
           </Button>
           <Button
             danger
             icon={<StopOutlined />}
             onClick={onEndExam}
+            className="min-w-[90px] bg-gradient-to-r from-red-500 to-red-600 border-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow-md"
+            size="middle"
           >
-            结束考试
+            <span className="font-medium">Finish</span>
           </Button>
         </Space>
       </div>
@@ -65,4 +74,3 @@ function ExamFooterBar({
 }
 
 export default ExamFooterBar;
-

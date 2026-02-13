@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
+import { startPractice } from '../../services/training.js';
+
 import { TRAINING_SUBJECTS } from './constants';
 import TrainingConfig from './TrainingConfig';
+
 
 function SpecialTraining() {
   const navigate = useNavigate();
@@ -13,8 +16,8 @@ function SpecialTraining() {
     source: '全部',
     dimension: '全部',
     difficulty: '随机',
-    count: '5题',
-    viewMode: '随时查看答案和解析'
+    count: '5题'
+    // viewMode: '随时查看答案和解析'
   });
 
   const handleConfigChange = (key, value) => {
@@ -24,18 +27,34 @@ function SpecialTraining() {
     }));
   };
 
-  const handleStartTraining = () => {
-    const params = {
-      subject: activeSubject,
-      ...trainingConfig
+  const handleStartTraining = async () => {
+    // 转换参数格式
+    const practiceParams = {
+      questionCategory: activeSubject,
+      questionSubCategory: trainingConfig.questionType,
+      difficulty: trainingConfig.difficulty,
+      source: trainingConfig.source,
+      records: trainingConfig.dimension,
+      size: parseInt(trainingConfig.count) || 5
     };
-    
-    console.log('开始训练，配置参数：', params);
-    
-    // TODO: 调用后端API获取题目
-    // const response = await fetchTrainingQuestions(params);
-    // navigate('/training-exercise', { state: { questions: response.data } });
+
+    console.log('开始训练，配置参数：', practiceParams);
+
+    try {
+      // 调用开始练习API
+      const questions = await startPractice(practiceParams);
+      console.log('获取到题目：', questions);
+
+      // 直接使用返回的题目数组，因为startPractice已经返回了response.data
+      console.log('提取题目数据：', questions);
+
+      navigate('/training-exercise', { state: { questions } });
+    } catch (error) {
+      console.error('开始训练失败：', error);
+      // 可以添加错误提示
+    }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -54,8 +73,8 @@ function SpecialTraining() {
                     source: '全部',
                     dimension: '全部',
                     difficulty: '随机',
-                    count: '5题',
-                    viewMode: '随时查看答案和解析'
+                    count: '5题'
+                    // viewMode: '随时查看答案和解析'
                   });
                 }}
                 className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
@@ -121,4 +140,3 @@ function SpecialTraining() {
 }
 
 export default SpecialTraining;
-

@@ -5,8 +5,8 @@ import {
     QUESTION_DIFFICULTIES,
     QUESTION_DIMENSIONS,
     QUESTION_SOURCES,
-    QUESTION_TYPES,
-    VIEW_MODES
+    QUESTION_TYPES
+    // VIEW_MODES
 } from './constants';
 import FilterSection from './FilterSection';
 
@@ -52,15 +52,15 @@ function TrainingConfig({ subject, config, onConfigChange }) {
       color: 'from-green-500 to-teal-600',
       options: QUESTION_COUNTS,
       value: config.count
-    },
-    {
-      id: 'viewMode',
-      title: '选项选择',
-      icon: 'fas fa-eye',
-      color: 'from-cyan-500 to-blue-600',
-      options: VIEW_MODES,
-      value: config.viewMode
     }
+    // {
+    //   id: 'viewMode',
+    //   title: '选项选择',
+    //   icon: 'fas fa-eye',
+    //   color: 'from-cyan-500 to-blue-600',
+    //   options: VIEW_MODES,
+    //   value: config.viewMode
+    // }
   ];
 
   return (

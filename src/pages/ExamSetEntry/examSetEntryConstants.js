@@ -6,7 +6,7 @@ export const DRAFT_STORAGE_KEY = 'exam_set_draft';
 
 export const SUBJECTS = ['数学', '阅读', '语法'];
 
-export const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
+export const DIFFICULTIES = ['简单', '中等', '困难'];
 
 export const QUESTION_TYPES_MAP = {
   '阅读语法': ['词汇题', '结构目的题', '主旨细节题', '推断题', '标点符号', '句子连接', '逻辑词'],
@@ -28,7 +28,7 @@ export const DEFAULT_CREATOR_ID = 1;
 export const FORM_INITIAL_VALUES = {
   type: 'SAT',
   region: '北美',
-  difficulty: 'Hard',
+  difficulty: '困难',
   year: 2025
 };
 

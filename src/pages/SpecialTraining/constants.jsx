@@ -63,9 +63,9 @@ export const TRAINING_SUBJECTS = [
   // 题目难度
   export const QUESTION_DIFFICULTIES = [
     { id: '随机', name: '随机' },
-    { id: 'Hard题目', name: 'Hard题目' },
-    { id: 'Medium题目', name: 'Medium题目' },
-    { id: 'Easy题目', name: 'Easy题目' }
+    { id: '简单', name: '简单' },
+    { id: '中等', name: '中等' },
+    { id: '困难', name: '困难' }
   ];
   
   // 练习题数
@@ -76,9 +76,8 @@ export const TRAINING_SUBJECTS = [
   ];
   
   // 查看模式
-  export const VIEW_MODES = [
-    { id: '随时查看答案和解析', name: '随时查看答案和解析' },
-    { id: '做完全部题再看答案解析', name: '做完全部题再看答案解析' }
-  ];
-  
-  
+  // export const VIEW_MODES = [
+  //   { id: '随时查看答案和解析', name: '随时查看答案和解析' },
+  //   { id: '做完全部题再看答案解析', name: '做完全部题再看答案解析' }
+  // ];
+  //

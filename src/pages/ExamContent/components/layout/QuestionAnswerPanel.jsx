@@ -27,14 +27,14 @@ function QuestionAnswerPanel({
         (option, index) => (
           <label
             key={index}
-            className={`radio-option ${answers[currentQuestion] === option.charAt(0) ? 'selected' : ''}`}
+            className={`radio-option ${answers[currentQuestion] === option.charAt(1) ? 'selected' : ''}`}
           >
             <div className="modern-radio">
               <input
                 type="radio"
                 name={`question-${currentQuestion}`}
-                value={option.charAt(0)}
-                checked={answers[currentQuestion] === option.charAt(0)}
+                value={option.charAt(1)}
+                checked={answers[currentQuestion] === option.charAt(1)}
                 onChange={(e) => handleAnswerSelect(e.target.value)}
               />
               <div className="modern-radio-circle" />
@@ -75,10 +75,6 @@ function QuestionAnswerPanel({
           <div className="mb-4">
             {question.content.split('_____').map((part, index, array) => (
               <span key={index}>
-                <span
-                  dangerouslySetInnerHTML={{ __html: formatText(part) }}
-                  onMouseUp={handleTextSelection}
-                />
                 {index < array.length - 1 && (
                   <input
                     type="text"
@@ -92,7 +88,7 @@ function QuestionAnswerPanel({
                       setAnswers(newAnswers);
                     }}
                     className="inline-block w-32 mx-2 px-2 py-1 border-b-2 border-red-500 focus:outline-none focus:border-red-700 text-center"
-                    placeholder={question.blanks[index]?.placeholder}
+                    placeholder=""
                   />
                 )}
               </span>
@@ -108,14 +104,14 @@ function QuestionAnswerPanel({
       {question.options.map((option, index) => (
         <label
           key={index}
-          className={`radio-option ${answers[currentQuestion] === option.charAt(0) ? 'selected' : ''}`}
+          className={`radio-option ${answers[currentQuestion] === option.charAt(1) ? 'selected' : ''}`}
         >
           <div className="modern-radio">
             <input
               type="radio"
               name={`question-${currentQuestion}`}
-              value={option.charAt(0)}
-              checked={answers[currentQuestion] === option.charAt(0)}
+              value={option.charAt(1)}
+              checked={answers[currentQuestion] === option.charAt(1)}
               onChange={(e) => handleAnswerSelect(e.target.value)}
             />
             <div className="modern-radio-circle" />
@@ -158,15 +154,18 @@ function QuestionAnswerPanel({
           <div className="text-sm text-gray-600 mb-2">Answer Preview:</div>
           <div className="text-base font-medium text-gray-900">
             {question.type === 'fill-in-blanks' || question.type === 'image-with-blanks' ? (
-              <div className="space-y-2">
-                {question.blanks?.map((blank) => (
-                  <div key={blank.id} className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-500">{blank.placeholder}:</span>
-                    <span className="font-mono">
-                      {answers[currentQuestion]?.[blank.id] || 'Not answered'}
-                    </span>
+              <div>
+                {question.blanks?.some(blank => answers[currentQuestion]?.[blank.id]) ? (
+                  <div className="space-y-2">
+                    {question.blanks?.map((blank) => (
+                      <span key={blank.id} className="font-mono">
+                        {answers[currentQuestion]?.[blank.id]}
+                      </span>
+                    ))}
                   </div>
-                )) || 'No blanks filled'}
+                ) : (
+                  'Not answered'
+                )}
               </div>
             ) : (
               answers[currentQuestion] || 'No answer selected'
@@ -179,4 +178,3 @@ function QuestionAnswerPanel({
 }
 
 export default QuestionAnswerPanel;
-

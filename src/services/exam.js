@@ -26,7 +26,7 @@ export const getExamSetList = async (params) => {
  * @param {string} data.examType - 套题类型（如：SAT）
  * @param {string} data.examYear - 套题年份
  * @param {string} data.examRegion - 套题地区
- * @param {string} data.difficulty - 套题难度（EASY/MEDIUM/HARD）
+ * @param {string} data.difficulty - 套题难度（简单/中等/困难）
  * @param {string} [data.examDescription] - 套题描述
  * @param {string} [data.source] - 套题来源
  * @param {number} data.creatorId - 创建人ID
@@ -63,7 +63,7 @@ export const checkExamExists = async (params) => {
  * @param {string} data.examType - 套题类型（如：SAT）
  * @param {string} data.examYear - 套题年份
  * @param {string} data.examRegion - 套题地区
- * @param {string} data.difficulty - 套题难度（EASY/MEDIUM/HARD）
+ * @param {string} data.difficulty - 套题难度（简单/中等/困难）
  * @param {string} [data.examDescription] - 套题描述
  * @param {string} [data.source] - 套题来源
  * @param {number} [data.status] - 状态（0-正常/1-禁用，默认0）
@@ -80,7 +80,7 @@ export const updateExamSet = async (data) => {
  * @param {number} data.examId - 关联套题ID
  * @param {string} data.sectionName - Section名称
  * @param {string} data.sectionCategory - Section分类（如：阅读语法/数学）
- * @param {string} data.sectionDifficulty - Section难度（EASY/MEDIUM/HARD）
+ * @param {string} data.sectionDifficulty - Section难度（简单/中等/困难）
  * @param {number} data.sectionTiming - Section限时（分钟）
  * @param {number} data.creatorId - 创建人ID
  * @param {number} [data.status] - 状态（0-正常/1-禁用，默认0）
@@ -98,7 +98,7 @@ export const createExamSection = async (data) => {
  * @param {number} data.examId - 关联套题ID
  * @param {string} data.sectionName - Section名称
  * @param {string} data.sectionCategory - Section分类（如：阅读语法/数学）
- * @param {string} data.sectionDifficulty - Section难度（EASY/MEDIUM/HARD）
+ * @param {string} data.sectionDifficulty - Section难度（简单/中等/困难）
  * @param {number} data.sectionTiming - Section限时（分钟）
  * @param {number} [data.status] - 状态（0-正常/1-禁用，默认0）
  * @returns {Promise} 更新后的Section数据
@@ -127,10 +127,10 @@ export const checkSectionExists = async (params) => {
  * @param {Array} data - 题目数据数组
  * @param {number} data[].examId - 关联套题ID
  * @param {number} data[].sectionId - 关联Section ID
- * @param {string} data[].questionType - 题目类型（CHOICE-选择题）
- * @param {string} data[].questionCategory - 题目分类（READING-阅读/WRITING-写作/MATH-数学）
+ * @param {string} data[].questionType - 题目类型（选择题）
+ * @param {string} data[].questionCategory - 题目分类（阅读/语法/数学）
  * @param {string} data[].questionSubCategory - 题目子分类（如：词汇题/细节题）
- * @param {string} data[].difficulty - 题目难度（EASY/MEDIUM/HARD）
+ * @param {string} data[].difficulty - 题目难度（简单/中等/困难）
  * @param {string} data[].questionContent - 题目内容
  * @param {string} [data[].questionDescription] - 题目描述
  * @param {string} data[].optionA - 选项A（选择题必填）
@@ -154,7 +154,7 @@ export const batchCreateQuestions = async (data) => {
  * @param {string} data.examPool.examType - 套题类型（SAT/IELTS/TOEFL）
  * @param {string} [data.examPool.examYear] - 套题年份
  * @param {string} [data.examPool.examRegion] - 套题区域（北美/亚太）
- * @param {string} data.examPool.difficulty - 套题难度（Easy/Medium/Hard）
+ * @param {string} data.examPool.difficulty - 套题难度（简单/中等/困难）
  * @param {string} [data.examPool.examDescription] - 套题描述
  * @param {string} [data.examPool.source] - 套题来源
  * @param {number} data.examPool.creatorId - 创建者ID
@@ -165,7 +165,7 @@ export const batchCreateQuestions = async (data) => {
  * @param {number} [data.examSections[].sectionId] - 套题Section ID（新增时可不填，更新时必填）
  * @param {string} data.examSections[].sectionName - 套题Section名称
  * @param {string} data.examSections[].sectionCategory - 套题Section分类（阅读/语法/数学）
- * @param {string} [data.examSections[].sectionDifficulty] - 套题Section难度（Easy/Medium/Hard）
+ * @param {string} [data.examSections[].sectionDifficulty] - 套题Section难度（简单/中等/困难）
  * @param {number} [data.examSections[].sectionTiming] - 套题Section限时（分钟）
  * @param {number} [data.examSections[].status] - 状态（0-正常，1-禁用）
  *
@@ -174,10 +174,10 @@ export const batchCreateQuestions = async (data) => {
  * @param {number} data.questions[].sectionId - 所属Section ID
  * @param {number} data.questions[].sectionName - 所属Section Name
  * @param {number} [data.questions[].questionId] - 题目ID（新增时可不填，更新时必填）
- * @param {string} data.questions[].questionType - 题目类型（CHOICE/BLANK）
- * @param {string} data.questions[].questionCategory - 题目分类（READING/WRITING/MATH）
+ * @param {string} data.questions[].questionType - 题目类型（选择/填空）
+ * @param {string} data.questions[].questionCategory - 题目分类（阅读/语法/数学）
  * @param {string} [data.questions[].questionSubCategory] - 题目子分类
- * @param {string} data.questions[].difficulty - 题目难度（EASY/MEDIUM/HARD）
+ * @param {string} data.questions[].difficulty - 题目难度（简单/中等/困难）
  * @param {string} data.questions[].questionContent - 题目题干
  * @param {string} [data.questions[].questionDescription] - 问题描述
  * @param {string} [data.questions[].optionA] - 选项A（选择题必填）
@@ -212,10 +212,10 @@ export const getSectionListByExamId = async (examId) => {
  * @returns {Object} return.data[].question - 题目信息对象
  * @returns {number} return.data[].question.questionId - 题目ID
  * @returns {number} return.data[].question.sectionId - 章节ID
- * @returns {string} return.data[].question.questionCategory - 题目分类（READING/WRITING/MATH）
+ * @returns {string} return.data[].question.questionCategory - 题目分类（阅读/语法/数学）
  * @returns {string} return.data[].question.questionSubCategory - 题目子分类
  * @returns {string} return.data[].question.difficulty - 难度等级
- * @returns {string} return.data[].question.questionType - 题目类型（CHOICE/BLANK）
+ * @returns {string} return.data[].question.questionType - 题目类型（选择/填空）
  * @returns {string} return.data[].question.questionContent - 题目内容
  * @returns {string} return.data[].question.questionDescription - 问题描述
  * @returns {string} return.data[].question.options - 选项内容，JSON格式：{"A":"xxx","B":"xxx","C":"xxx","D":"xxx"}
@@ -266,10 +266,10 @@ export const getQuestionListByExamId = async (examId) => {
  * @param {Array} data.questions - 题目列表
  * @param {number} data.questions[].sectionId - 所属Section ID（必填）
  * @param {number} data.questions[].questionId - 题目ID（必填）
- * @param {string} [data.questions[].questionType] - 题目类型（CHOICE/BLANK）
- * @param {string} [data.questions[].questionCategory] - 题目分类（READING/WRITING/MATH）
+ * @param {string} [data.questions[].questionType] - 题目类型（选择/填空）
+ * @param {string} [data.questions[].questionCategory] - 题目分类（阅读/语法/数学）
  * @param {string} [data.questions[].questionSubCategory] - 题目子分类
- * @param {string} [data.questions[].difficulty] - 题目难度（EASY/MEDIUM/HARD）
+ * @param {string} [data.questions[].difficulty] - 题目难度（简单/中等/困难）
  * @param {string} [data.questions[].questionContent] - 题目题干
  * @param {string} [data.questions[].questionDescription] - 问题描述
  * @param {string} [data.questions[].optionA] - 选项A
@@ -355,15 +355,17 @@ export const queryExamSectionList = async (params) => {
  * @returns {Object} return - 响应结果
  * @returns {number} return.code - 状态码（0-成功，非0-失败）
  * @returns {string} return.message - 响应消息
- * @returns {Array} return.data - 题目列表数据
  *
+ * @returns {string} return.data[].answerId - 题目作答ID
+ *
+ * @returns {Array} return.data - 题目列表数据
  * @returns {Object} return.data[].question - 题目信息实体
  * @returns {number} return.data[].question.questionId - 题目ID
  * @returns {number} return.data[].question.sectionId - 章节ID
- * @returns {string} return.data[].question.questionCategory - 题目分类（READING/WRITING/MATH）
+ * @returns {string} return.data[].question.questionCategory - 题目分类（阅读/语法/数学）
  * @returns {string} return.data[].question.questionSubCategory - 题目子分类
  * @returns {string} return.data[].question.difficulty - 难度等级
- * @returns {string} return.data[].question.questionType - 题目类型（CHOICE/BLANK）
+ * @returns {string} return.data[].question.questionType - 题目类型（选择/填空）
  * @returns {string} return.data[].question.questionContent - 题目内容
  * @returns {string} return.data[].question.questionDescription - 问题描述
  * @returns {string} return.data[].question.options - 选项内容（JSON格式）
@@ -379,8 +381,28 @@ export const queryExamSectionList = async (params) => {
  * @returns {string} return.data[].sectionName - 套题Section名称
  * @returns {string} return.data[].sectionTiming - 套题Section限时（分钟）
   */
-export const getQuestionListBySectionId = async (sectionId) => {
+export const answerOfSection = async (sectionId) => {
   // 根据接口文档，直接传递Long类型的sectionId值，不需要JSON对象包装
-  const response = await post('/question/section/list', sectionId);
+  const response = await post('/answer/exam/start', sectionId);
+  return response.data;
+};
+
+/**
+ * 结束作答并提交用户答案
+ * @param {Object} finishData - 结束作答数据
+ * @param {Array} finishData.answers - 用户作答的题目答案列表
+ * @param {number} finishData.answers[].answerId - 作答明细ID
+ * @param {number} finishData.answers[].questionId - 题目ID
+ * @param {string} finishData.answers[].userAnswer - 用户作答答案
+ * @param {number} finishData.answers[].timeConsuming - 作答耗时（秒）
+ * @returns {Promise} 提交结果
+ *
+ * @returns {Object} return - 响应结果
+ * @returns {number} return.code - 状态码（0-成功，非0-失败）
+ * @returns {string} return.message - 响应消息
+ * @returns {boolean} return.data - 响应数据（true-成功，false-失败）
+ */
+export const finishAnswer = async (finishData) => {
+  const response = await post('/answer/finish', finishData);
   return response.data;
 };

@@ -525,7 +525,7 @@ function SectionManager({ visible, examSet, onSave, onCancel }) {
                           {q.type}
                         </Tag>
                         <Tag
-                          color={q.difficulty === 'Hard' ? 'error' : 'warning'}
+                          color={q.difficulty === '困难' ? 'error' : q.difficulty === '简单' ? 'success' : 'warning'}
                           className='m-0 rounded-md border-0 font-bold text-[10px]'
                         >
                           {q.difficulty}
@@ -912,9 +912,9 @@ function SectionManager({ visible, examSet, onSave, onCancel }) {
                                 </Tag>
                                 <Tag
                                   color={
-                                    question.difficulty === 'Easy'
+                                    question.difficulty === '简单'
                                       ? 'success'
-                                      : question.difficulty === 'Medium'
+                                      : question.difficulty === '中等'
                                       ? 'warning'
                                       : 'error'
                                   }

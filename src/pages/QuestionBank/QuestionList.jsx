@@ -618,8 +618,8 @@ function QuestionList({ onEdit }) {
                     <Tag color="blue">{getTypeLabel(question.type)}</Tag>
                     <Tag color="purple">{question.subject}</Tag>
                     <Tag color={
-                      question.difficulty === 'Easy' ? 'success' :
-                      question.difficulty === 'Medium' ? 'warning' : 'error'
+                      question.difficulty === '简单' ? 'success' :
+                      question.difficulty === '中等' ? 'warning' : 'error'
                     }>
                       {question.difficulty}
                     </Tag>
@@ -674,4 +674,3 @@ function QuestionList({ onEdit }) {
 }
 
 export default QuestionList;
-

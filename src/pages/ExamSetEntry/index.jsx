@@ -139,9 +139,9 @@ function ExamSetEntry() {
               sectionId: section.id,
               sectionName: section.name,
               subject: section.subject,
-              interactionType: 'CHOICE',
+              interactionType: '选择题',
               type: QUESTION_TYPES_MAP[section.subject] ? QUESTION_TYPES_MAP[section.subject][0] : '未分类',
-              difficulty: 'Medium',
+              difficulty: '中等',
               content: `题目 ${qId} 的内容`,
               options: ['选项A', '选项B', '选项C', '选项D'],
               correctAnswer: 'A',
@@ -173,7 +173,7 @@ function ExamSetEntry() {
             examType: baseInfo.type,
             examYear: baseInfo.year.toString(),
             examRegion: baseInfo.region,
-            difficulty: baseInfo.difficulty.toUpperCase(), // 转换为大写
+            difficulty: baseInfo.difficulty, // 使用中文难度
             examDescription: baseInfo.description,
             source: baseInfo.source || '官方样题', // 默认值，后续可从表单获取
             status: 0
@@ -206,7 +206,7 @@ function ExamSetEntry() {
             examType: baseInfo.type,
             examYear: baseInfo.year.toString(),
             examRegion: baseInfo.region,
-            difficulty: baseInfo.difficulty.toUpperCase(), // 转换为大写
+            difficulty: baseInfo.difficulty, // 使用中文难度
             examDescription: baseInfo.description,
             source: baseInfo.source || '官方样题', // 默认值，后续可从登录信息获取
             creatorId: 1 // 假设当前用户ID为1，后续可从登录信息获取
@@ -260,8 +260,8 @@ function ExamSetEntry() {
   const handleAddSection = () => {
     setEditingSection(null);
     sectionForm.resetFields();
-    // 设置默认难度为Medium
-    sectionForm.setFieldsValue({ difficulty: 'Medium' });
+    // 设置默认难度为中等
+          sectionForm.setFieldsValue({ difficulty: '中等' });
     setIsSectionModalVisible(true);
   };
 
@@ -350,9 +350,9 @@ function ExamSetEntry() {
       sectionId: defaultSection.id,
       sectionName: defaultSection.name,
       subject: defaultSection.subject,
-      interactionType: 'CHOICE',
+      interactionType: '选择题',
       type: questionTypes.length > 0 ? questionTypes[0] : '未分类',
-      difficulty: 'Medium',
+      difficulty: '中等',
       content: '',
       description: '',
       options: ['', '', '', ''],

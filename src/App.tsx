@@ -48,6 +48,7 @@ function AppContent() {
     const handleSessionConflict = () => {
       // 只有当当前路径不是登录页面时，才处理会话冲突
       const currentPath = window.location.pathname;
+      // @ts-ignore
       if (currentPath !== '/login' && !currentPath.endsWith('/login')) {
         message.error('您的账号已在其他设备登录，将被强制退出');
         navigate('/login', { state: { sessionConflict: true } });
@@ -96,35 +97,37 @@ function AppContent() {
   };
 
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/exam/:examId" element={<ProtectedRoute><ExamContent /></ProtectedRoute>} />
-      
-      {/* 公开的主页路由 */}
-      <Route path="/" element={<Layout><Home /></Layout>} />
-      
-      {/* 受保护的其他功能路由 */}
-      <Route path="/*" element={
-        <ProtectedRoute>
-          <Layout>
-            <Routes>
-              <Route path="/special-training" element={<SpecialTraining />} />
-              <Route path="/mock-exam" element={<MockExam />} />
-                  <Route path="/practice-record" element={<PracticeRecord />} />
-                  <Route path="/courses" element={<Courses />} />
-                  <Route path="/encyclopedia" element={<Encyclopedia />} />
-                  <Route path="/profile" element={<Profile />} />
-              <Route path="/question-bank" element={<QuestionBank />} />
-              <Route path="/system-overview" element={<SystemOverview />} />
-              <Route path="/exam-set-management" element={<ExamSetManagement />} />
-              <Route path="/exam-set-entry" element={<ExamSetEntry />} />
-              <Route path="/exam-set-entry/:id" element={<ExamSetEntry />} />
-            </Routes>
-          </Layout>
-        </ProtectedRoute>
-      } />
-    </Routes>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/exam/:examId" element={<ProtectedRoute children={undefined}><ExamContent /></ProtectedRoute>} />
+        <Route path="/training-exercise" element={<ProtectedRoute children={undefined}><ExamContent /></ProtectedRoute>} />
+        <Route path="/practice-record" element={<ProtectedRoute children={undefined}><PracticeRecord /></ProtectedRoute>} />
+
+        {/* 公开的主页路由 */}
+        <Route path="/" element={<Layout children={undefined}><Home /></Layout>} />
+
+        {/* 受保护的其他功能路由 */}
+        <Route path="/*" element={
+          <ProtectedRoute children={undefined}>
+            <Layout children={undefined}>
+              <Routes>
+                <Route path="/special-training" element={<SpecialTraining />} />
+                <Route path="/mock-exam" element={<MockExam />} />
+                <Route path="/courses" element={<Courses />} />
+                <Route path="/encyclopedia" element={<Encyclopedia />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/question-bank" element={<QuestionBank />} />
+                <Route path="/system-overview" element={<SystemOverview />} />
+                <Route path="/exam-set-management" element={<ExamSetManagement />} />
+                <Route path="/exam-set-entry" element={<ExamSetEntry />} />
+                <Route path="/exam-set-entry/:id" element={<ExamSetEntry />} />
+              </Routes>
+            </Layout>
+          </ProtectedRoute>
+        } />
+      </Routes>
+
   );
 }
 

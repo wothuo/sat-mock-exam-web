@@ -2,59 +2,74 @@ import React from 'react';
 
 function TimeModeScreen({ timeMode, setTimeMode, onStart }) {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="max-w-2xl mx-auto p-8">
-        <div className="bg-white rounded-2xl shadow-lg p-12">
-          <h1 className="text-3xl font-bold text-gray-900 text-center mb-12">
-            Choose a Time Mode for Your Practice
-          </h1>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 sm:p-8">
+            {/* 标题区域 */}
+            <div className="text-center mb-6 sm:mb-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="fas fa-clock text-2xl text-white" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                Choose Time Mode
+              </h1>
+              <p className="text-gray-600 text-sm sm:text-base">
+                Select your preferred timing option
+              </p>
+            </div>
 
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <label className="text-lg font-medium text-gray-900">
+            {/* 时间模式选择 */}
+            <div className="mb-6 sm:mb-8">
+              <label className="block text-sm font-semibold text-gray-800 mb-3">
                 Timing <span className="text-red-500">*</span>
               </label>
-              <span className="text-sm text-gray-500">* = Required</span>
-            </div>
 
-            <div className="relative">
-              <select
-                value={timeMode}
-                onChange={(e) => setTimeMode(e.target.value)}
-                className="w-full px-4 py-4 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent appearance-none bg-white"
-              >
-                <option value="timed">✓ Timed</option>
-                <option value="untimed">Untimed</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
-                <i className="fas fa-chevron-down text-gray-400" />
+              <div className="relative">
+                <select
+                    value={timeMode}
+                    onChange={(e) => setTimeMode(e.target.value)}
+                    className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white shadow-sm transition-all duration-200"
+                >
+                  <option value="timed">✓ Timed</option>
+                  <option value="untimed">Untimed</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                  <i className="fas fa-chevron-down text-gray-400" />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={onStart}
-              className="bg-red-600 hover:bg-red-700 text-white px-12 py-4 rounded-lg font-medium text-lg transition-colors shadow-lg hover:shadow-xl"
-            >
-              Start Practice
-            </button>
-          </div>
+            {/* 模式说明 */}
+            <div className="bg-gray-50 rounded-lg p-4 mb-6 sm:mb-8">
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <i className="fas fa-info text-xs text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    <span className="font-semibold text-gray-900">Timed:</span> Practice with time limits to simulate real exam conditions
+                  </p>
+                  <p className="text-sm text-gray-700 leading-relaxed mt-2">
+                    <span className="font-semibold text-gray-900">Untimed:</span> Practice at your own pace without time pressure
+                  </p>
+                </div>
+              </div>
+            </div>
 
-          <div className="mt-8 text-center text-sm text-gray-500">
-            <p>
-              <strong>Timed:</strong> Practice with time limits to simulate real exam conditions
-            </p>
-            <p className="mt-2">
-              <strong>Untimed:</strong> Practice at your own pace without time pressure
-            </p>
+            {/* 开始按钮 */}
+            <div className="text-center">
+              <button
+                  type="button"
+                  onClick={onStart}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 w-full sm:w-auto min-w-[140px]"
+              >
+                Start Practice
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 }
 
 export default TimeModeScreen;
-
