@@ -147,7 +147,16 @@ Each multiple-choice question has a single correct answer.
           if (questionObj?.options) {
             try {
               const parsedOptions = JSON.parse(questionObj.options);
-              options = Object.entries(parsedOptions).map(([key, value]) => `(${key}) ${value}`);
+              
+              // 处理数组格式的选项数据
+              if (Array.isArray(parsedOptions)) {
+                options = parsedOptions.map(option => `(${option.option}) ${option.content || option.text || option.value}`);
+              } else if (typeof parsedOptions === 'object') {
+                // 处理对象格式的选项数据
+                options = Object.entries(parsedOptions).map(([key, value]) => `(${key}) ${value}`);
+              }
+              
+              console.log(`题目 ${index + 1} 解析后的选项:`, options);
             } catch (e) {
               console.warn('Failed to parse options JSON:', questionObj.options);
               // 尝试直接使用字符串格式的选项

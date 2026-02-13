@@ -37,13 +37,16 @@ function SpecialTraining() {
       records: trainingConfig.dimension,
       size: parseInt(trainingConfig.count) || 5
     };
-    
+
     console.log('开始训练，配置参数：', practiceParams);
-    
+
     try {
       // 调用开始练习API
       const questions = await startPractice(practiceParams);
       console.log('获取到题目：', questions);
+
+      // 直接使用返回的题目数组，因为startPractice已经返回了response.data
+      console.log('提取题目数据：', questions);
 
       navigate('/training-exercise', { state: { questions } });
     } catch (error) {
@@ -51,6 +54,7 @@ function SpecialTraining() {
       // 可以添加错误提示
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
