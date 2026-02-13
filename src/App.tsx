@@ -102,7 +102,6 @@ function AppContent() {
         <Route path="/register" element={<Register />} />
         <Route path="/exam/:examId" element={<ProtectedRoute children={undefined}><ExamContent /></ProtectedRoute>} />
         <Route path="/training-exercise" element={<ProtectedRoute children={undefined}><ExamContent /></ProtectedRoute>} />
-        <Route path="/practice-record" element={<ProtectedRoute children={undefined}><PracticeRecord /></ProtectedRoute>} />
 
         {/* 公开的主页路由 */}
         <Route path="/" element={<Layout children={undefined}><Home /></Layout>} />
@@ -116,6 +115,7 @@ function AppContent() {
                 <Route path="/mock-exam" element={<MockExam />} />
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/encyclopedia" element={<Encyclopedia />} />
+                <Route path="/practice-record" element={<ProtectedRoute children={undefined}><PracticeRecord /></ProtectedRoute>} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/question-bank" element={<QuestionBank />} />
                 <Route path="/system-overview" element={<SystemOverview />} />
