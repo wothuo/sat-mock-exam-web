@@ -1,4 +1,9 @@
 /**
+ * 专项训练相关API服务
+ */
+import { get, post } from '../utils/request.ts';
+
+/**
  * 开始练习
  * @param {Object} params - 练习参数
  * @param {string} params.questionCategory - 题目分类
@@ -43,11 +48,6 @@ export const startPractice = async (params) => {
   const response = await post('/answer/practice/start', params);
   return response.data;
 };
-
-/**
- * 专项训练相关API服务
- */
-import { get, post } from '../utils/request.ts';
 
 /**
  * 获取训练题目

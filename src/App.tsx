@@ -120,6 +120,7 @@ function AppContent() {
               <Route path="/exam-set-management" element={<ExamSetManagement />} />
               <Route path="/exam-set-entry" element={<ExamSetEntry />} />
               <Route path="/exam-set-entry/:id" element={<ExamSetEntry />} />
+              <Route path="/training-exercise" element={<ExamContent />} />
             </Routes>
           </Layout>
         </ProtectedRoute>

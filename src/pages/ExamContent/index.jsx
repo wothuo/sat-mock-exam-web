@@ -52,13 +52,14 @@ function ExamContent() {
   const location = useLocation();
   
   // 使用useMemo缓存路由状态，避免无限重渲染
-  const { sectionId, examTitle, examDuration, totalQuestions } = useMemo(() => {
+  const { sectionId, examTitle, examDuration, totalQuestions, stateQuestions } = useMemo(() => {
     const state = location.state || {};
     return {
       sectionId: state.sectionId || examId,
       examTitle: state.examTitle || 'Section 1, Module 1: Reading and Writing',
       examDuration: state.examDuration || '35分钟',
-      totalQuestions: state.totalQuestions || 27
+      totalQuestions: state.totalQuestions || 27,
+      stateQuestions: state.questions || null // 新增：获取路由状态中的题目数据
     };
   }, [location.state, examId]); // 只有当location.state或examId变化时才重新计算
   
@@ -76,6 +77,141 @@ function ExamContent() {
       return;
     }
     
+    // 如果路由状态中已有题目数据，直接使用
+    if (stateQuestions) {
+      console.log('使用路由状态中的题目数据:', stateQuestions);
+      
+      // 适配不同格式的题目数据
+      let questionsData = null;
+      if (Array.isArray(stateQuestions)) {
+        // 情况1：直接是题目数组
+        questionsData = stateQuestions;
+        console.log('使用直接返回的数组作为数据源');
+      } else if (stateQuestions.code === 0 && Array.isArray(stateQuestions.data)) {
+        // 情况2：标准响应格式 {code: 0, data: [...]}
+        questionsData = stateQuestions.data;
+        console.log('使用标准响应格式的数据源');
+      } else {
+        setError(`数据格式错误：无法识别返回的数据结构`);
+        console.error('数据格式错误:', stateQuestions);
+        return;
+      }
+      
+      // 转换后端数据格式为前端需要的格式
+      const transformedData = {
+        title: examTitle,
+        totalQuestions: questionsData.length,
+        directions: {
+          title: 'Directions',
+          content: `The questions in this section address a number of important reading and writing skills.
+Use of a calculator is not permitted for this section. These directions can be accessed throughout the test.
+
+**For multiple-choice questions**, solve each problem and choose the correct answer from the choices provided.
+Each multiple-choice question has a single correct answer.
+
+**For student-produced response questions:**
+• If you find more than one correct answer, enter only one answer.
+• You can enter up to 5 characters for a positive answer and up to 6 characters (including the negative sign) for a negative answer.
+• If your answer is a fraction that doesn't fit in the provided space, enter the decimal equivalent.
+• If your answer is a decimal that doesn't fit in the provided space, enter it by truncating or rounding at the fourth digit.`
+        },
+        questions: questionsData.map((item, index) => {
+          // 验证 item 结构
+          if (!item || typeof item !== 'object') {
+            console.warn('无效的题目数据项:', item);
+            return null;
+          }
+          
+          // 根据实际数据结构，item 包含嵌套的 question 对象
+          const questionObj = item.question; // 题目数据在 question 字段中
+          
+          // 详细调试每个题目的完整数据结构
+          console.log(`题目 ${index + 1} 完整数据结构:`, item);
+          console.log(`题目 ${index + 1} 嵌套question对象:`, questionObj);
+          console.log(`题目 ${index + 1} 关键字段:`, {
+            questionId: questionObj?.questionId,
+            questionContent: questionObj?.questionContent,
+            questionType: questionObj?.questionType,
+            options: questionObj?.options,
+            hasQuestionContent: !!questionObj?.questionContent,
+            keys: questionObj ? Object.keys(questionObj) : []
+          });
+          
+          // 检查题目内容是否存在
+          if (!questionObj || !questionObj.questionContent) {
+            console.warn(`题目 ${index + 1} 缺少 questionContent 字段，可用字段:`, questionObj ? Object.keys(questionObj) : []);
+          }
+          
+          // 解析选项JSON字符串 - 适配实际的数据格式
+          let options = [];
+          if (questionObj?.options) {
+            try {
+              const parsedOptions = JSON.parse(questionObj.options);
+              // 适配两种可能的选项格式
+              if (Array.isArray(parsedOptions)) {
+                // 格式: [{"option": "A", "content": "Rare"}, ...]
+                options = parsedOptions.map(opt => {
+                  return `${opt.option}) ${opt.content}`;
+                });
+              } else if (typeof parsedOptions === 'object') {
+                // 格式: {"A": "Rare", "B": "Common", ...}
+                options = Object.entries(parsedOptions).map(([key, value]) => `${key}) ${value}`);
+              }
+            } catch (e) {
+              console.warn('Failed to parse options JSON:', questionObj.options);
+              // 尝试直接使用字符串格式的选项
+              if (typeof questionObj.options === 'string') {
+                options = questionObj.options.split(',').map(opt => opt.trim());
+              }
+            }
+          }
+          
+          // 根据题目类型确定题型 - 适配实际的类型值
+          let questionType = 'multiple-choice';
+          if (questionObj?.questionType?.toUpperCase() === 'BLANK') {
+            questionType = 'student-produced';
+          } else if (questionObj?.questionType?.toUpperCase() === 'CHOICE') {
+            questionType = 'multiple-choice';
+          }
+          
+          // 改进题目内容处理逻辑 - 正确访问嵌套的question对象
+          const questionContent = questionObj?.questionContent || 
+                                questionObj?.question || 
+                                questionObj?.content || 
+                                `题目 ${index + 1} 内容加载中...`;
+          
+          return {
+            id: index + 1, // 使用索引作为ID，确保与currentQuestion匹配
+            originalId: questionObj?.questionId, // 保存原始ID用于后续处理
+            type: questionType,
+            question: questionContent,
+            description: questionObj?.questionDescription || '',
+            options: options,
+            correctAnswer: questionObj?.answer || '',
+            analysis: questionObj?.analysis || '',
+            difficulty: questionObj?.difficulty || '中等',
+            category: questionObj?.questionCategory || '数学',
+            subCategory: questionObj?.questionSubCategory || ''
+          };
+        }).filter(Boolean) // 过滤掉 null 项
+      };
+      
+      // 验证转换后的数据
+      console.log('转换后的数据:', transformedData);
+      console.log('题目数量:', transformedData.questions.length);
+      
+      if (transformedData.questions.length === 0) {
+        setError('没有找到有效的题目数据');
+        return;
+      }
+      
+      setRealExamData(transformedData);
+      setOriginalServerData(questionsData); // 保存原始服务端数据
+      setLoading(false);
+      return;
+    }
+    
+    // 否则从API获取数据
     const fetchRealExamData = async () => {
       try {
         setLoading(true);
@@ -224,7 +360,7 @@ Each multiple-choice question has a single correct answer.
     };
     
     fetchRealExamData();
-  }, [sectionId, realExamData]); // 依赖sectionId和realExamData，避免重复请求
+  }, [sectionId, realExamData, stateQuestions]); // 依赖sectionId、realExamData和stateQuestions，避免重复请求
 
   const [showDirections, setShowDirections] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
@@ -526,7 +662,7 @@ Each multiple-choice question has a single correct answer.
 
       <ExamFooterBar
         isFirstQuestion={currentQuestion === 1}
-        isLastQuestion={currentQuestion === examData.totalQuestions}
+        isLastQuestion={currentQuestion === examDataToUse.totalQuestions}
         onOpenProgress={() => setShowProgress(true)}
         onPrev={goToPrevious}
         onNext={goToNext}
