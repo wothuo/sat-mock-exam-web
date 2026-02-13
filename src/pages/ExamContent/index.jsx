@@ -99,7 +99,7 @@ function ExamContent() {
       
       // 转换后端数据格式为前端需要的格式
       const transformedData = {
-        title: examTitle,
+        title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
         totalQuestions: questionsData.length,
         directions: {
           title: 'Directions',
@@ -147,16 +147,7 @@ Each multiple-choice question has a single correct answer.
           if (questionObj?.options) {
             try {
               const parsedOptions = JSON.parse(questionObj.options);
-              // 适配两种可能的选项格式
-              if (Array.isArray(parsedOptions)) {
-                // 格式: [{"option": "A", "content": "Rare"}, ...]
-                options = parsedOptions.map(opt => {
-                  return `${opt.option}) ${opt.content}`;
-                });
-              } else if (typeof parsedOptions === 'object') {
-                // 格式: {"A": "Rare", "B": "Common", ...}
-                options = Object.entries(parsedOptions).map(([key, value]) => `${key}) ${value}`);
-              }
+              options = Object.entries(parsedOptions).map(([key, value]) => `${key}) ${value}`);
             } catch (e) {
               console.warn('Failed to parse options JSON:', questionObj.options);
               // 尝试直接使用字符串格式的选项
@@ -243,7 +234,7 @@ Each multiple-choice question has a single correct answer.
         
         // 转换后端数据格式为前端需要的格式
         const transformedData = {
-          title: examTitle,
+          title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
           totalQuestions: totalQuestions,
           directions: {
             title: 'Directions',
@@ -291,16 +282,7 @@ Each multiple-choice question has a single correct answer.
             if (questionObj?.options) {
               try {
                 const parsedOptions = JSON.parse(questionObj.options);
-                // 适配两种可能的选项格式
-                if (Array.isArray(parsedOptions)) {
-                  // 格式: [{"option": "A", "content": "Rare"}, ...]
-                  options = parsedOptions.map(opt => {
-                    return `${opt.option}) ${opt.content}`;
-                  });
-                } else if (typeof parsedOptions === 'object') {
-                  // 格式: {"A": "Rare", "B": "Common", ...}
-                  options = Object.entries(parsedOptions).map(([key, value]) => `${key}) ${value}`);
-                }
+                options = Object.entries(parsedOptions).map(([key, value]) => `${key}) ${value}`);
               } catch (e) {
                 console.warn('Failed to parse options JSON:', questionObj.options);
                 // 尝试直接使用字符串格式的选项
@@ -324,11 +306,59 @@ Each multiple-choice question has a single correct answer.
                                   questionObj?.content || 
                                   `题目 ${index + 1} 内容加载中...`;
             
+            // 提取图片URL - 检查questionContent中是否包含图片URL
+            let imageUrls = [];
+            let processedQuestionContent = questionContent;
+            
+            // 匹配Markdown格式的图片标记 ![图片](url) 或 ![alt text](url)
+            const markdownImageRegex = /!\[([^\]]*)\]\(([^)]+)\)/gi;
+            const markdownMatches = [...questionContent.matchAll(markdownImageRegex)];
+            
+            if (markdownMatches && markdownMatches.length > 0) {
+              // 提取所有匹配的图片URL和alt文本
+              imageUrls = markdownMatches.map((match, imgIndex) => ({
+                url: match[2], // 第二个捕获组是URL
+                alt: match[1] || `题目 ${index + 1} 图片 ${imgIndex + 1}`,
+                index: imgIndex
+              }));
+              
+              // 从questionContent中移除所有Markdown图片标记
+              processedQuestionContent = questionContent.replace(markdownImageRegex, '').trim();
+            } else {
+              // 如果没有Markdown格式，尝试匹配裸图片URL
+              const imageUrlRegex = /https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp|svg)(?:\?[^\s]*)?/gi;
+              const imageMatches = questionContent.match(imageUrlRegex);
+              
+              if (imageMatches && imageMatches.length > 0) {
+                // 提取所有匹配的图片URL
+                imageUrls = imageMatches.map((url, imgIndex) => ({
+                  url: url,
+                  alt: `题目 ${index + 1} 图片 ${imgIndex + 1}`,
+                  index: imgIndex
+                }));
+                
+                // 从questionContent中移除所有图片URL
+                processedQuestionContent = questionContent.replace(imageUrlRegex, '').trim();
+              }
+            }
+            
+            // 如果存在图片URL，调整题目类型为带图片的类型
+            let finalQuestionType = questionType;
+            
+            if (imageUrls.length > 0 && questionType === 'multiple-choice') {
+              finalQuestionType = 'multiple-choice-with-image';
+            } else if (imageUrls.length > 0 && questionType === 'student-produced') {
+              finalQuestionType = 'student-produced-with-image';
+            }
+            
             return {
               id: index + 1, // 使用索引作为ID，确保与currentQuestion匹配
               originalId: questionObj?.questionId, // 保存原始ID用于后续处理
-              type: questionType,
-              question: questionContent,
+              type: finalQuestionType,
+              question: processedQuestionContent,
+              images: imageUrls, // 使用图片数组
+              image: imageUrls.length > 0 ? imageUrls[0].url : '', // 向后兼容：保留第一个图片作为image字段
+              imageAlt: imageUrls.length > 0 ? imageUrls[0].alt : `题目 ${index + 1} 图片`,
               description: questionObj?.questionDescription || '',
               options: options,
               correctAnswer: questionObj?.answer || '',

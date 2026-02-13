@@ -4,7 +4,7 @@ import { get, post } from '@/utils/request';
  * 获取OSS上传策略
  */
 export const getOssPolicy = () => {
-  return get('/api/oss/policy');
+  return get('/oss/policy');
 };
 
 /**
@@ -12,7 +12,7 @@ export const getOssPolicy = () => {
  * @param {string} tempUrl 临时文件完整URL
  */
 export const confirmOssUpload = (tempUrl) => {
-  return post('/api/oss/confirm', { tempUrl });
+  return post('/oss/confirm', { tempUrl });
 };
 
 /**

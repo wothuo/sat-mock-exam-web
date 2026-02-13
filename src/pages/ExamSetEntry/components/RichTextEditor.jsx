@@ -79,7 +79,7 @@ function RichTextEditor({
     // 4. 还原图片
     matches.forEach((m, i) => {
       const encodedUrl = encodeURI(m.url).replace(/\(/g, '%28').replace(/\)/g, '%29');
-      const imgHtml = `<img src="${encodedUrl}" alt="${m.alt}" style="max-width: 100%; max-height: 400px; height: auto; display: block; margin: 12px 0; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee; background: #f9f9f9;" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x150?text=Image+Load+Failed';" />`;
+      const imgHtml = `<img src="${encodedUrl}" alt="${m.alt}" style="max-width: 100%; max-height: 500px; height: auto; display: block; margin: 12px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee; background: #f9f9f9; object-fit: contain; width: auto;" onerror="this.style.display='none'; console.warn('图片加载失败:', this.src);" loading="lazy" />`;
       htmlResult = htmlResult.split(`@@@IMAGEBLOCK${i}@@@`).join(imgHtml);
     });
 

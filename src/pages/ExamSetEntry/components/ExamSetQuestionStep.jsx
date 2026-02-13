@@ -7,7 +7,7 @@ import RichTextEditor from './RichTextEditor';
 
 const { Option } = Select;
 
-/** 与 RichTextEditor 一致的 Markdown→HTML，保留 $...$ 供 KaTeX 渲染 */
+/** 题目索引专用：移除图片，保留数学公式和基础格式 */
 function formatContentToHtml(text) {
   if (!text || typeof text !== 'string') return '';
   
@@ -19,48 +19,20 @@ function formatContentToHtml(text) {
     return placeholder;
   });
 
-  // 2. 解析图片 (支持嵌套括号)
-  const imageBlocks = [];
-  const imgRegex = /!\[([^\]]*)\]\(/g;
-  let imgMatch;
-  while ((imgMatch = imgRegex.exec(processed)) !== null) {
-    const startIdx = imgMatch.index;
-    const alt = imgMatch[1];
-    let openBrackets = 1;
-    let i = imgMatch.index + imgMatch[0].length;
-    let url = '';
-    while (i < processed.length && openBrackets > 0) {
-      if (processed[i] === '(') openBrackets++;
-      else if (processed[i] === ')') openBrackets--;
-      if (openBrackets > 0) url += processed[i];
-      i++;
-    }
-    if (openBrackets === 0) {
-      const fullMatch = processed.substring(startIdx, i);
-      const placeholder = `@@@IMAGEBLOCK${imageBlocks.length}@@@`;
-      const encodedUrl = encodeURI(url.trim()).replace(/\(/g, '%28').replace(/\)/g, '%29');
-      imageBlocks.push({ alt, url: encodedUrl, fullMatch, placeholder });
-      imgRegex.lastIndex = i;
-    }
-  }
+  // 2. 移除所有图片标记（不显示图片）
+  // 匹配Markdown图片格式 ![alt](url)
+  processed = processed.replace(/!\[[^\]]*\]\([^)]*\)/g, '');
+  
+  // 3. 移除裸图片URL
+  processed = processed.replace(/https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp|svg)(?:\?[^\s]*)?/gi, '');
 
-  // 执行占位替换
-  [...imageBlocks].reverse().forEach(block => {
-    processed = processed.replace(block.fullMatch, block.placeholder);
-  });
-
-  // 3. 其他标签
+  // 4. 基础文本格式处理
   processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
   processed = processed.replace(/~~(.+?)~~/g, '<s>$1</s>');
   processed = processed.replace(/\n/g, '<br />');
 
-  // 4. 还原
-  imageBlocks.forEach((block) => {
-    const imgHtml = `<img src="${block.url}" alt="${block.alt}" class="max-w-full h-auto rounded-lg my-1 max-h-32 object-contain" />`;
-    processed = processed.split(block.placeholder).join(imgHtml);
-  });
-
+  // 5. 还原数学公式
   mathBlocks.forEach((block, index) => {
     processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
   });
