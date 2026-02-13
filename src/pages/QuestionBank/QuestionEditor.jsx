@@ -4,6 +4,8 @@ import { Button, Card, Form, Input, message, Radio, Select } from 'antd';
 
 import { CloseOutlined, SaveOutlined } from '@ant-design/icons';
 
+import { uploadToOss } from '@/services/oss';
+
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -173,14 +175,18 @@ function QuestionEditor({ question, onSave, onCancel }) {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          handleToolbarAction('image', event.target.result, activeEditorId);
-        };
-        reader.readAsDataURL(file);
+        try {
+          message.loading({ content: '图片上传中...', key: 'oss_upload' });
+          const finalUrl = await uploadToOss(file);
+          handleToolbarAction('image', finalUrl);
+          message.success({ content: '图片上传成功', key: 'oss_upload' });
+        } catch (error) {
+          console.error('图片上传失败:', error);
+          message.error({ content: '图片上传失败，请重试', key: 'oss_upload' });
+        }
       }
     };
     input.click();

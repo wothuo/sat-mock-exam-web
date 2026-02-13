@@ -35,6 +35,8 @@ import {
   updateExamSectionAndQuestion
 } from '@/services/exam';
 
+import { uploadToOss } from '@/services/oss';
+
 import ExamSetBaseInfoForm from './components/ExamSetBaseInfoForm';
 import ExamSetQuestionStep from './components/ExamSetQuestionStep';
 import ExamSetSectionStep from './components/ExamSetSectionStep';
@@ -590,14 +592,18 @@ function ExamSetEntry() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          handleToolbarAction('image', event.target.result, activeEditorId);
-        };
-        reader.readAsDataURL(file);
+        try {
+          message.loading({ content: '图片上传中...', key: 'oss_upload' });
+          const finalUrl = await uploadToOss(file);
+          handleToolbarAction('image', finalUrl, activeEditorId);
+          message.success({ content: '图片上传成功', key: 'oss_upload' });
+        } catch (error) {
+          console.error('图片上传失败:', error);
+          message.error({ content: '图片上传失败，请重试', key: 'oss_upload' });
+        }
       }
     };
     input.click();

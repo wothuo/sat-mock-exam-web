@@ -10,22 +10,61 @@ const { Option } = Select;
 /** 与 RichTextEditor 一致的 Markdown→HTML，保留 $...$ 供 KaTeX 渲染 */
 function formatContentToHtml(text) {
   if (!text || typeof text !== 'string') return '';
+  
+  // 1. 保护数学公式
   const mathBlocks = [];
-  let processed = text.replace(/\$\$[\s\S]*?\$\$|\$[^$\n]+?\$/g, (match) => {
+  let processed = text.replace(/\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$/g, (match) => {
     const placeholder = `@@@MATHBLOCK${mathBlocks.length}@@@`;
     mathBlocks.push(match);
     return placeholder;
   });
+
+  // 2. 解析图片 (支持嵌套括号)
+  const imageBlocks = [];
+  const imgRegex = /!\[([^\]]*)\]\(/g;
+  let imgMatch;
+  while ((imgMatch = imgRegex.exec(processed)) !== null) {
+    const startIdx = imgMatch.index;
+    const alt = imgMatch[1];
+    let openBrackets = 1;
+    let i = imgMatch.index + imgMatch[0].length;
+    let url = '';
+    while (i < processed.length && openBrackets > 0) {
+      if (processed[i] === '(') openBrackets++;
+      else if (processed[i] === ')') openBrackets--;
+      if (openBrackets > 0) url += processed[i];
+      i++;
+    }
+    if (openBrackets === 0) {
+      const fullMatch = processed.substring(startIdx, i);
+      const placeholder = `@@@IMAGEBLOCK${imageBlocks.length}@@@`;
+      const encodedUrl = encodeURI(url.trim()).replace(/\(/g, '%28').replace(/\)/g, '%29');
+      imageBlocks.push({ alt, url: encodedUrl, fullMatch, placeholder });
+      imgRegex.lastIndex = i;
+    }
+  }
+
+  // 执行占位替换
+  [...imageBlocks].reverse().forEach(block => {
+    processed = processed.replace(block.fullMatch, block.placeholder);
+  });
+
+  // 3. 其他标签
   processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
   processed = processed.replace(/~~(.+?)~~/g, '<s>$1</s>');
-  processed = processed.replace(/(?<!\*)(\*)(?!\*)(.+?)(?<!\*)(\*)(?!\*)/g, '<em>$2</em>');
-  processed = processed.replace(/(?<!_)(_)(?!_)(.+?)(?<!_)(_)(?!_)/g, '<em>$2</em>');
-  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-1 max-h-8 object-contain" />');
   processed = processed.replace(/\n/g, '<br />');
+
+  // 4. 还原
+  imageBlocks.forEach((block) => {
+    const imgHtml = `<img src="${block.url}" alt="${block.alt}" class="max-w-full h-auto rounded-lg my-1 max-h-32 object-contain" />`;
+    processed = processed.split(block.placeholder).join(imgHtml);
+  });
+
   mathBlocks.forEach((block, index) => {
     processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
   });
+
   return processed;
 }
 
