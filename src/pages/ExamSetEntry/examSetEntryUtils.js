@@ -46,6 +46,89 @@ export function parseQuestionOptions(options) {
 }
 
 /**
+ * 从 HTML/富文本中提取纯文本并 trim，用于校验是否填写
+ * @param {string} html
+ * @returns {string}
+ */
+function stripHtmlToText(html) {
+  if (!html || typeof html !== 'string') return '';
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * 校验题目必填项：题目内容、选项内容（选择题）、正确答案
+ * @param {Array} questions 题目列表
+ * @returns {{ valid: boolean, errors: Array<{ questionId, index, sectionName, field, message }> }}
+ */
+export function validateQuestions(questions, sections = []) {
+  const errors = [];
+  const activeQuestions = (questions || []).filter(q => q.delFlag !== '1');
+
+  activeQuestions.forEach((q, idx) => {
+    const displayIndex = idx + 1;
+    const section = sections.find(s => s.id === q.sectionId);
+    const sectionName = section?.name?.split(':')[0] || '未分配';
+
+    const contentText = stripHtmlToText(q.content === '已录入' ? '' : (q.content || ''));
+    if (!contentText) {
+      errors.push({
+        questionId: q.id,
+        index: displayIndex,
+        sectionName,
+        field: 'content',
+        message: `第 ${displayIndex} 题：题目内容未填写`
+      });
+    }
+
+    if (q.interactionType === '选择题') {
+      const opts = Array.isArray(q.options) ? q.options : ['', '', '', ''];
+      const optLabels = ['A', 'B', 'C', 'D'];
+      const hasEmptyOption = opts.some((opt, i) => !stripHtmlToText(opt ?? '').trim());
+      if (hasEmptyOption) {
+        const emptyList = opts
+          .map((opt, i) => (stripHtmlToText(opt ?? '').trim() ? null : optLabels[i]))
+          .filter(Boolean);
+        errors.push({
+          questionId: q.id,
+          index: displayIndex,
+          sectionName,
+          field: 'options',
+          message: `第 ${displayIndex} 题：选项 ${emptyList.join('、')} 未填写`
+        });
+      }
+
+      const correctAnswer = (q.correctAnswer || '').trim().toUpperCase();
+      if (!['A', 'B', 'C', 'D'].includes(correctAnswer)) {
+        errors.push({
+          questionId: q.id,
+          index: displayIndex,
+          sectionName,
+          field: 'correctAnswer',
+          message: `第 ${displayIndex} 题：正确答案未选择`
+        });
+      }
+    } else {
+      const correctAnswer = (q.correctAnswer || '').trim();
+      if (!correctAnswer) {
+        errors.push({
+          questionId: q.id,
+          index: displayIndex,
+          sectionName,
+          field: 'correctAnswer',
+          message: `第 ${displayIndex} 题：正确答案未填写`
+        });
+      }
+    }
+  });
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
  * 获取题目选项安全访问，用于提交 payload
  * @param {object} question 前端题目对象
  * @returns {[string, string, string, string]}

@@ -50,6 +50,7 @@ import {
   buildExamPoolPayload,
   buildExamSectionsPayload,
   buildQuestionsPayload,
+  validateQuestions,
   renderMathInPreview,
   renderMathInContainers
 } from './examSetEntryUtils';
@@ -92,6 +93,7 @@ function ExamSetEntry() {
   const [sectionSaveLoading, setSectionSaveLoading] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [summaryFormValues, setSummaryFormValues] = useState({});
+  const [questionValidationErrors, setQuestionValidationErrors] = useState([]);
 
   const fetchExamSetData = async (id, signal) => {
     setFetchLoading(true);
@@ -465,7 +467,17 @@ function ExamSetEntry() {
       return;
     }
 
-    // Store form values for the summary modal
+    const { valid, errors } = validateQuestions(questions, sections);
+    if (!valid) {
+      setQuestionValidationErrors(errors);
+      message.warning(`有 ${errors.length} 处题目信息未填写完整，请检查后提交`);
+      if (questionListRef.current) {
+        questionListRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+
+    setQuestionValidationErrors([]);
     setSummaryFormValues(form.getFieldsValue());
     setShowSummaryModal(true);
   };
@@ -748,6 +760,7 @@ function ExamSetEntry() {
               difficulties={DIFFICULTIES}
               isEditMode={isEditMode}
               questionListRef={questionListRef}
+              questionValidationErrors={questionValidationErrors}
               onAddQuestion={addQuestion}
               onSelectQuestion={setSelectedQuestionId}
               onUpdateQuestion={updateQuestion}
@@ -755,7 +768,10 @@ function ExamSetEntry() {
               onToolbarAction={handleToolbarAction}
               onRenderMathInPreview={renderMathInPreview}
               onInsertImage={insertImage}
-              onPrev={() => setCurrentStep(1)}
+              onPrev={() => {
+                setQuestionValidationErrors([]);
+                setCurrentStep(1);
+              }}
               onSubmit={handleSubmit}
             />
           </div>
