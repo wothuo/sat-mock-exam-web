@@ -14,8 +14,8 @@ import { get, post } from '../utils/request.ts';
  * @param {number} params.pageSize - 每页条数（可选，默认10）
  * @returns {Promise} 套题列表数据（包含分页信息）
  */
-export const getExamSetList = async (params) => {
-  const response = await post('/exam/list', params);
+export const getExamSetList = async (params, config = {}) => {
+  const response = await post('/exam/list', params, config);
   return response.data;
 };
 
