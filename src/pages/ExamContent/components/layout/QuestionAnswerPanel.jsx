@@ -1,5 +1,7 @@
 import React from 'react';
 
+const FILL_IN_BLANKS_TYPES = ['fill-in-blanks', 'image-with-blanks'];
+
 function QuestionAnswerPanel({
   question,
   currentQuestion,
@@ -68,36 +70,47 @@ function QuestionAnswerPanel({
     </div>
   );
 
-  const renderFillInBlanks = () => (
-    <div className="space-y-6">
-      <div className="text-gray-700 text-base leading-relaxed">
-        {question.content && (
-          <div className="mb-4">
-            {question.content.split('_____').map((part, index, array) => (
-              <span key={index}>
-                {index < array.length - 1 && (
-                  <input
-                    type="text"
-                    value={answers[currentQuestion]?.[question.blanks[index]?.id] || ''}
-                    onChange={(e) => {
-                      const newAnswers = { ...answers };
-                      if (!newAnswers[currentQuestion]) {
-                        newAnswers[currentQuestion] = {};
-                      }
-                      newAnswers[currentQuestion][question.blanks[index].id] = e.target.value;
-                      setAnswers(newAnswers);
-                    }}
-                    className="inline-block w-32 mx-2 px-2 py-1 border-b-2 border-red-500 focus:outline-none focus:border-red-700 text-center"
-                    placeholder=""
-                  />
-                )}
-              </span>
-            ))}
-          </div>
-        )}
+  const renderFillInBlanks = () => {
+    const blanks = question.blanks || [];
+
+    const renderBlankInput = (blank) => (
+      <input
+        key={blank.id}
+        type="text"
+        value={answers[currentQuestion]?.[blank.id] || ''}
+        onChange={(e) => {
+          const newAnswers = { ...answers };
+          if (!newAnswers[currentQuestion]) {
+            newAnswers[currentQuestion] = {};
+          }
+          newAnswers[currentQuestion][blank.id] = e.target.value;
+          setAnswers(newAnswers);
+        }}
+        className="inline-block min-w-[12rem] px-3 py-2 border-b-2 border-gray-400 focus:outline-none focus:border-red-500 text-base"
+        placeholder={blank.placeholder || 'Enter your answer'}
+        aria-label="Answer"
+      />
+    );
+
+    return (
+      <div className="space-y-6">
+        <div className="text-gray-700 text-base leading-relaxed">
+          <p className="text-gray-600 text-sm mb-3">
+            Enter your answer in the box below.
+          </p>
+          {blanks.length > 0 && (
+            <div className="space-y-4">
+              {blanks.map((blank) => (
+                <div key={blank.id}>
+                  {renderBlankInput(blank)}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderTableOptions = () => (
     <div className="space-y-4">
@@ -144,8 +157,7 @@ function QuestionAnswerPanel({
           question.type === 'student-produced-with-image') &&
           renderStudentProduced()}
 
-        {(question.type === 'fill-in-blanks' || question.type === 'image-with-blanks') &&
-          renderFillInBlanks()}
+        {FILL_IN_BLANKS_TYPES.includes(question.type) && renderFillInBlanks()}
 
         {(question.type === 'table-question' || question.type === 'complex-table') &&
           renderTableOptions()}
@@ -153,19 +165,13 @@ function QuestionAnswerPanel({
         <div className="mt-8 p-4 bg-gray-50 rounded-lg">
           <div className="text-sm text-gray-600 mb-2">Answer Preview:</div>
           <div className="text-base font-medium text-gray-900">
-            {question.type === 'fill-in-blanks' || question.type === 'image-with-blanks' ? (
-              <div>
-                {question.blanks?.some(blank => answers[currentQuestion]?.[blank.id]) ? (
-                  <div className="space-y-2">
-                    {question.blanks?.map((blank) => (
-                      <span key={blank.id} className="font-mono">
-                        {answers[currentQuestion]?.[blank.id]}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  'Not answered'
-                )}
+            {FILL_IN_BLANKS_TYPES.includes(question.type) ? (
+              <div className="space-y-2">
+                {(question.blanks || []).map((blank) => (
+                  <span key={blank.id} className="font-mono">
+                    {answers[currentQuestion]?.[blank.id] ?? '—'}
+                  </span>
+                ))}
               </div>
             ) : (
               answers[currentQuestion] || 'No answer selected'
