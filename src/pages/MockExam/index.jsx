@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 
 import { Link } from 'react-router-dom';
 
-import { Button, Card, Col, Pagination, Row, Space, Tag, message } from 'antd';
+import { Button, Card, Col, Empty, Pagination, Row, Space, Spin, Tag, message } from 'antd';
 
 import { ClockCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
@@ -17,15 +17,16 @@ function MockExam() {
   const [pageSize, setPageSize] = useState(9);
   const [examSets, setExamSets] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [examError, setExamError] = useState(null);
   const [total, setTotal] = useState(0);
 
   const subjects = ['全部', '数学', '阅读语法'];
   const difficulties = ['全部', 'Easy', 'Medium', 'Hard'];
   const years = ['全部', '2025', '2024', '2023', '2022', '2021'];
 
-  // 获取套题数据
-  const fetchExamData = async () => {
+  const fetchExamData = useCallback(async (signal) => {
     setLoading(true);
+    setExamError(null);
     try {
       const params = {
         pageNum: currentPage,
@@ -38,10 +39,10 @@ function MockExam() {
         examName: 'ALL'
       };
 
-      const response = await queryExamSectionList(params);
-      
+      const response = await queryExamSectionList(params, { signal, showError: false });
+
+      if (signal.aborted) return;
       if (response && response.list) {
-        // 转换接口数据格式以适配现有UI
         const transformedData = response.list.map(item => ({
           id: item.sectionId,
           title: item.examSummary.examName,
@@ -53,21 +54,30 @@ function MockExam() {
           description: item.examSummary.examDescription || `${item.examSummary.examYear}年${item.examSummary.examType}${item.examSummary.examRegion}地区${item.sectionCategory}部分`,
           year: parseInt(item.examSummary.examYear) || 2025
         }));
-        
+
         setExamSets(transformedData);
         setTotal(response.total || 0);
       }
     } catch (error) {
+      if (signal.aborted || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
       console.error('获取套题数据失败:', error);
-      message.error('获取套题数据失败，请稍后重试');
+      setExamError(error);
     } finally {
-      setLoading(false);
+      if (!signal.aborted) setLoading(false);
     }
-  };
+  }, [activeTab, selectedSubject, selectedDifficulty, selectedYear, currentPage, pageSize]);
 
   useEffect(() => {
-    fetchExamData();
-  }, [activeTab, selectedSubject, selectedDifficulty, selectedYear, currentPage, pageSize]);
+    const controller = new AbortController();
+    fetchExamData(controller.signal);
+    return () => controller.abort();
+  }, [fetchExamData]);
+
+  const handleRetry = () => {
+    setExamError(null);
+    const controller = new AbortController();
+    fetchExamData(controller.signal);
+  };
 
   const filteredExams = examSets.filter(exam => {
     const matchSource = exam.source === activeTab;
@@ -255,9 +265,30 @@ function MockExam() {
           </div>
         </div>
 
-        <Row gutter={[12, 12]} className="mb-8">
-          {paginatedExams.map((exam) => (
-            <Col xs={24} sm={12} lg={8} key={exam.id}>
+        <Spin spinning={loading}>
+          {examError ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100 mb-8">
+              <i className="fas fa-exclamation-circle text-5xl text-amber-500 mb-4"></i>
+              <p className="text-gray-600 mb-6">获取套题列表失败，请稍后重试</p>
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="px-6 py-2.5 rounded-xl font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-500/20 transition-all"
+              >
+                重试
+              </button>
+            </div>
+          ) : paginatedExams.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100 mb-8">
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="暂无符合条件的套题"
+              />
+            </div>
+          ) : (
+            <Row gutter={[12, 12]} className="mb-8">
+              {paginatedExams.map((exam) => (
+                <Col xs={24} sm={12} lg={8} key={exam.id}>
               <Card
                 hoverable
                 className="h-full"
@@ -326,11 +357,13 @@ function MockExam() {
                   </Link>
                 </div>
               </Card>
-            </Col>
-          ))}
-        </Row>
+                </Col>
+              ))}
+            </Row>
+          )}
+        </Spin>
 
-        {total > 0 && (
+        {total > 0 && !examError && (
           <div className="flex justify-center mb-8">
             <Pagination
               current={currentPage}

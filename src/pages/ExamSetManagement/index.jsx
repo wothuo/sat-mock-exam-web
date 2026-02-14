@@ -29,10 +29,9 @@ function ExamSetManagement() {
   const [managingSections, setManagingSections] = useState(null);
 
   // 获取套题列表
-  const fetchExamSetList = async (pageNum = 1, pageSize = 10, keyword) => {
+  const fetchExamSetList = async (pageNum = 1, pageSize = 10, keyword, signal) => {
     // 使用当前searchKeyword作为默认值（如果没有提供keyword参数）
     const actualKeyword = keyword !== undefined ? keyword : searchKeyword;
-    console.log('调用fetchExamSetList函数:', { pageNum, pageSize, keyword: actualKeyword });
     setLoading(true);
     try {
       const params = {
@@ -40,17 +39,16 @@ function ExamSetManagement() {
         pageSize,
         examType: 'SAT', // 固定为SAT，后续可扩展为可选项
       };
-      
+
       // 只有当关键词有值时才添加到参数中
       if (actualKeyword && actualKeyword.trim() !== '') {
         params.examName = actualKeyword;
       }
-      
-      console.log('准备发送请求，参数:', params);
-      // 调用API获取套题列表
-      const result = await getExamSetList(params);
-      console.log('请求返回结果:', result);
-      
+
+      const requestConfig = signal ? { signal, showError: false } : {};
+      const result = await getExamSetList(params, requestConfig);
+
+      if (signal?.aborted) return;
       // 适配后端的分页查询结构
       if (result && result.list) {
         // getExamSetList已经在exam.js中返回了response.data
@@ -85,12 +83,7 @@ function ExamSetManagement() {
           pageSize: result.pageSize || pageSize,
           total: total,
         });
-        
-        // 调试信息
-        console.log('获取到的套题数据:', transformedData);
-        console.log('分页信息:', { current: result.pageNum || pageNum, pageSize: result.pageSize || pageSize, total: total });
       } else {
-        console.log('未获取到套题数据或数据格式不正确:', result);
         // 确保在无数据情况下也更新状态
         setExamSets([]);
         setPagination({
@@ -100,8 +93,8 @@ function ExamSetManagement() {
         });
       }
     } catch (error) {
+      if (signal?.aborted || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
       console.error('获取套题列表失败:', error);
-      console.error('错误详情:', error.stack);
       message.error('获取套题列表失败，请稍后重试');
       // 确保在错误情况下也更新状态
       setExamSets([]);
@@ -111,7 +104,7 @@ function ExamSetManagement() {
         total: 0,
       });
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   };
   
@@ -132,8 +125,9 @@ function ExamSetManagement() {
 
   // 初始化加载数据
   useEffect(() => {
-    console.log('开始加载套题列表');
-    fetchExamSetList();
+    const controller = new AbortController();
+    fetchExamSetList(1, pagination.pageSize, undefined, controller.signal);
+    return () => controller.abort();
   }, []);
 
   const columns = [

@@ -50,6 +50,7 @@ import {
   buildExamPoolPayload,
   buildExamSectionsPayload,
   buildQuestionsPayload,
+  validateQuestions,
   renderMathInPreview,
   renderMathInContainers
 } from './examSetEntryUtils';
@@ -86,54 +87,64 @@ function ExamSetEntry() {
   const [examId, setExamId] = useState(null);
   const [examData, setExamData] = useState(null);
   const [fetchLoading, setFetchLoading] = useState(false);
+  const [fetchExamError, setFetchExamError] = useState(null);
   const [stepNextLoading, setStepNextLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [sectionSaveLoading, setSectionSaveLoading] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [summaryFormValues, setSummaryFormValues] = useState({});
+  const [questionValidationErrors, setQuestionValidationErrors] = useState([]);
 
-  const fetchExamSetData = async (id) => {
+  const fetchExamSetData = async (id, signal) => {
     setFetchLoading(true);
+    setFetchExamError(null);
     try {
       const params = {
         examType: 'SAT',
         pageNum: 1,
         pageSize: 100
       };
-      const result = await getExamSetList(params);
+      const requestConfig = signal ? { signal, showError: false } : {};
+      const result = await getExamSetList(params, requestConfig);
+
+      if (signal?.aborted) return null;
       if (result && result.list) {
         const examSet = result.list.find(item => item.examId === parseInt(id, 10));
         return transformExamSetFromList(examSet);
       }
       return null;
     } catch (error) {
-      message.error('获取套题数据失败');
+      if (signal?.aborted || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return null;
+      setFetchExamError(error);
       return null;
     } finally {
-      setFetchLoading(false);
+      if (!signal?.aborted) setFetchLoading(false);
     }
   };
 
   useEffect(() => {
+    if (!editId) return;
+    const controller = new AbortController();
     const loadExamData = async () => {
-      if (editId) {
-        setIsEditMode(true);
-        const data = await fetchExamSetData(editId);
-        
-        if (data) {
-          form.setFieldsValue({
+      setIsEditMode(true);
+      const data = await fetchExamSetData(editId, controller.signal);
+
+      if (controller.signal.aborted) return;
+      if (data) {
+        setFetchExamError(null);
+        form.setFieldsValue({
             title: data.title,
             year: data.year,
             type: data.type,
             region: data.region,
             difficulty: data.difficulty,
             description: data.description
-          });
+        });
 
-          setSections(data.sections || []);
-          setExamId(data.id);
+        setSections(data.sections || []);
+        setExamId(data.id);
 
-          const mockQuestions = (data.sections || []).flatMap(section =>
+        const mockQuestions = (data.sections || []).flatMap(section =>
             (section.selectedQuestions || []).map(qId => ({
               id: qId,
               sectionId: section.id,
@@ -147,14 +158,54 @@ function ExamSetEntry() {
               correctAnswer: 'A',
               explanation: '解析内容'
             }))
-          );
-          setQuestions(mockQuestions);
-        }
+        );
+        setQuestions(mockQuestions);
       }
     };
 
     loadExamData();
+    return () => controller.abort();
   }, [editId]);
+
+  const handleFetchRetry = () => {
+    setFetchExamError(null);
+    const controller = new AbortController();
+    const loadExamData = async () => {
+      setIsEditMode(true);
+      const data = await fetchExamSetData(editId, controller.signal);
+      if (controller.signal.aborted) return;
+      if (data) {
+        setFetchExamError(null);
+        form.setFieldsValue({
+          title: data.title,
+          year: data.year,
+          type: data.type,
+          region: data.region,
+          difficulty: data.difficulty,
+          description: data.description
+        });
+        setSections(data.sections || []);
+        setExamId(data.id);
+        const mockQuestions = (data.sections || []).flatMap(section =>
+          (section.selectedQuestions || []).map(qId => ({
+            id: qId,
+            sectionId: section.id,
+            sectionName: section.name,
+            subject: section.subject,
+            interactionType: '选择题',
+            type: QUESTION_TYPES_MAP[section.subject] ? QUESTION_TYPES_MAP[section.subject][0] : '未分类',
+            difficulty: '中等',
+            content: `题目 ${qId} 的内容`,
+            options: ['选项A', '选项B', '选项C', '选项D'],
+            correctAnswer: 'A',
+            explanation: '解析内容'
+          }))
+        );
+        setQuestions(mockQuestions);
+      }
+    };
+    loadExamData();
+  };
 
   const handleNext = async () => {
     if (currentStep === 0) {
@@ -416,7 +467,17 @@ function ExamSetEntry() {
       return;
     }
 
-    // Store form values for the summary modal
+    const { valid, errors } = validateQuestions(questions, sections);
+    if (!valid) {
+      setQuestionValidationErrors(errors);
+      message.warning(`有 ${errors.length} 处题目信息未填写完整，请检查后提交`);
+      if (questionListRef.current) {
+        questionListRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+
+    setQuestionValidationErrors([]);
     setSummaryFormValues(form.getFieldsValue());
     setShowSummaryModal(true);
   };
@@ -506,6 +567,9 @@ function ExamSetEntry() {
       case 'underline':
         newValue = currentValue.substring(0, start) + `<u>${selectedText}</u>` + currentValue.substring(end);
         break;
+      case 'insertUnderline':
+        newValue = currentValue.substring(0, start) + '<u>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0</u>' + currentValue.substring(end);
+        break;
       case 'strikethrough':
         newValue = currentValue.substring(0, start) + `~~${selectedText}~~` + currentValue.substring(end);
         break;
@@ -530,6 +594,9 @@ function ExamSetEntry() {
       }
       case 'blockIndent':
         newValue = currentValue.substring(0, start) + `<div style="margin-left: 2em;">${selectedText}</div>` + currentValue.substring(end);
+        break;
+      case 'center':
+        newValue = currentValue.substring(0, start) + `<div style="text-align: center;">${selectedText}</div>` + currentValue.substring(end);
         break;
       case 'formula':
         newValue = currentValue.substring(0, start) + data + currentValue.substring(end);
@@ -622,6 +689,24 @@ function ExamSetEntry() {
     );
   }
 
+  if (fetchExamError && editId) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8 flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center justify-center py-16 px-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100">
+          <i className="fas fa-exclamation-circle text-5xl text-amber-500 mb-4"></i>
+          <p className="text-gray-600 mb-6">获取套题数据失败，请稍后重试</p>
+          <button
+            type="button"
+            onClick={handleFetchRetry}
+            className="px-6 py-2.5 rounded-xl font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-500/20 transition-all"
+          >
+            重试
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-8">
@@ -675,6 +760,7 @@ function ExamSetEntry() {
               difficulties={DIFFICULTIES}
               isEditMode={isEditMode}
               questionListRef={questionListRef}
+              questionValidationErrors={questionValidationErrors}
               onAddQuestion={addQuestion}
               onSelectQuestion={setSelectedQuestionId}
               onUpdateQuestion={updateQuestion}
@@ -682,7 +768,10 @@ function ExamSetEntry() {
               onToolbarAction={handleToolbarAction}
               onRenderMathInPreview={renderMathInPreview}
               onInsertImage={insertImage}
-              onPrev={() => setCurrentStep(1)}
+              onPrev={() => {
+                setQuestionValidationErrors([]);
+                setCurrentStep(1);
+              }}
               onSubmit={handleSubmit}
             />
           </div>

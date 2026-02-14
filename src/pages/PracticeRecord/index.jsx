@@ -77,9 +77,11 @@ function PracticeRecord() {
   const [wrongSubject, setWrongSubject] = useState('all');
   const [wrongDifficulty, setWrongDifficulty] = useState('all');
   const [wrongPeriod, setWrongPeriod] = useState('all');
+  const [wrongError, setWrongError] = useState(null);
 
   const loadWrongList = useCallback(async () => {
     setWrongLoading(true);
+    setWrongError(null);
     try {
       const res = await fetchWrongRecordList({
         pageNum: wrongPageNum,
@@ -92,6 +94,8 @@ function PracticeRecord() {
       setWrongTotal(res.total ?? 0);
       setWrongPageNum(res.pageNum ?? wrongPageNum);
       setWrongPageSize(res.pageSize ?? wrongPageSize);
+    } catch (err) {
+      setWrongError(err);
     } finally {
       setWrongLoading(false);
     }
@@ -356,6 +360,21 @@ function PracticeRecord() {
       case 'notes':
         return <NotesTab records={noteRecords} />;
       case 'wrong':
+        if (wrongError) {
+          return (
+            <div className='flex flex-col items-center justify-center py-16 px-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100'>
+              <i className='fas fa-exclamation-circle text-5xl text-amber-500 mb-4'></i>
+              <p className='text-gray-600 mb-6'>获取错题列表失败，请稍后重试</p>
+              <button
+                type='button'
+                onClick={() => loadWrongList()}
+                className='px-6 py-2.5 rounded-xl font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-500/20 transition-all'
+              >
+                重试
+              </button>
+            </div>
+          );
+        }
         return (
           <WrongTab
             records={wrongList}

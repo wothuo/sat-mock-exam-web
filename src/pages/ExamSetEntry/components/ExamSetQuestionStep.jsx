@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Button, Empty, Input, Select, Space, Tag } from 'antd';
+import { Alert, Button, Empty, Input, Select, Space, Tag } from 'antd';
 import { CheckCircleOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 
 import RichTextEditor from './RichTextEditor';
@@ -61,6 +61,7 @@ function ExamSetQuestionStep({
   difficulties,
   isEditMode,
   questionListRef,
+  questionValidationErrors = [],
   onAddQuestion,
   onSelectQuestion,
   onUpdateQuestion,
@@ -93,8 +94,26 @@ function ExamSetQuestionStep({
     return () => clearTimeout(t);
   }, [questions]);
 
+  const invalidQuestionIds = new Set(questionValidationErrors.map(e => e.questionId));
+
   return (
     <>
+      {questionValidationErrors.length > 0 && (
+        <Alert
+          type="error"
+          showIcon
+          message="题目信息不完整"
+          description={
+            <ul className="list-disc pl-4 mt-2 space-y-1 text-sm">
+              {questionValidationErrors.map((e, i) => (
+                <li key={i}>{e.message}</li>
+              ))}
+            </ul>
+          }
+          className="mb-6 border-2 border-red-300 bg-red-50"
+          style={{ borderLeftWidth: 4, borderLeftColor: '#ef4444' }}
+        />
+      )}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6 sticky top-20 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1.5 flex-wrap gap-y-2">
@@ -121,6 +140,14 @@ function ExamSetQuestionStep({
               title="下划线"
             >
               <i className="fas fa-underline"></i>
+            </button>
+            <button
+              type="button"
+              onClick={() => onToolbarAction('insertUnderline', null, activeEditorId)}
+              className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
+              title="插入下划线"
+            >
+              <i className="fas fa-minus mr-0.5"></i>插入下划线
             </button>
             <button
               type="button"
@@ -177,6 +204,14 @@ function ExamSetQuestionStep({
               title="段落整体缩进"
             >
               <i className="fas fa-indent"></i>
+            </button>
+            <button
+              type="button"
+              onClick={() => onToolbarAction('center', null, activeEditorId)}
+              className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
+              title="居中"
+            >
+              <i className="fas fa-align-center"></i>
             </button>
             <div className="w-px h-3 bg-gray-300"></div>
             <button
@@ -274,6 +309,8 @@ function ExamSetQuestionStep({
               const section = sections.find(s => s.id === q.sectionId);
               const isSectionDeleted = section?.delFlag === '1';
 
+              const hasValidationError = !isDeleted && invalidQuestionIds.has(q.id);
+
               return (
                 <div
                   key={q.id || `question-${index}`}
@@ -281,9 +318,11 @@ function ExamSetQuestionStep({
                   className={`p-2.5 rounded-xl transition-all border-2 ${
                     isDeleted
                       ? 'border-red-200 bg-red-50/50 cursor-not-allowed'
-                      : selectedQuestionId === q.id
-                        ? 'border-blue-500 bg-blue-50 shadow-sm cursor-pointer'
-                        : 'border-transparent hover:bg-gray-50 cursor-pointer'
+                      : hasValidationError
+                        ? 'border-red-500 bg-red-50 shadow-sm ring-2 ring-red-400/50 cursor-pointer'
+                        : selectedQuestionId === q.id
+                          ? 'border-blue-500 bg-blue-50 shadow-sm cursor-pointer'
+                          : 'border-transparent hover:bg-gray-50 cursor-pointer'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1.5">

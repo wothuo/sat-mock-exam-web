@@ -69,14 +69,24 @@ function ExamContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // 获取真实题目数据
+  const hasFetchedRef = React.useRef(false);
+  const prevSectionIdRef = React.useRef(sectionId);
+
+  // 获取真实题目数据（初始化仅请求一次，ref 防止 StrictMode 双重调用）
   useEffect(() => {
-    // 如果已经有数据，避免重复请求
-    if (realExamData) {
-      console.log('已有真实数据，跳过请求');
+    const sectionIdChanged = prevSectionIdRef.current !== sectionId;
+    if (sectionIdChanged) {
+      hasFetchedRef.current = false;
+      prevSectionIdRef.current = sectionId;
+      setRealExamData(null);
+      setOriginalServerData(null);
+    }
+    if (hasFetchedRef.current) return;
+    if (realExamData && !sectionIdChanged) {
+      hasFetchedRef.current = true;
       return;
     }
-    
+
     // 如果路由状态中已有题目数据，直接使用
     if (stateQuestions) {
       console.log('使用路由状态中的题目数据:', stateQuestions);
@@ -166,7 +176,7 @@ Each multiple-choice question has a single correct answer.
             }
           }
           
-          // 根据题目类型确定题型 - 适配实际的类型值
+          // 根据题目类型确定题型
           let questionType = 'multiple-choice';
           if (questionObj?.questionType?.toUpperCase() === 'BLANK' || questionObj?.questionType === '填空题') {
             questionType = 'fill-in-blanks';
@@ -174,32 +184,19 @@ Each multiple-choice question has a single correct answer.
             questionType = 'multiple-choice';
           }
           
-          // 改进题目内容处理逻辑 - 正确访问嵌套的question对象
           const questionContent = questionObj?.questionContent || 
                                 questionObj?.question || 
                                 questionObj?.content || 
                                 `题目 ${index + 1} 内容加载中...`;
           
-          // 为填空题创建blanks数组
-          let blanks = [];
-          if (questionType === 'fill-in-blanks') {
-            // 计算题目中的空白数量
-            const blankCount = (questionContent.match(/_____/g) || []).length;
-            for (let i = 0; i < blankCount; i++) {
-              blanks.push({
-                id: `blank${i + 1}`,
-                placeholder: `空白 ${i + 1}`
-              });
-            }
-            console.log(`填空题空白数量: ${blankCount}, blanks数组:`, blanks);
-          }
+          const blanks = questionType === 'fill-in-blanks' ? [{ id: 'blank1' }] : [];
 
           return {
-            id: index + 1, // 使用索引作为ID，确保与currentQuestion匹配
-            originalId: questionObj?.questionId, // 保存原始ID用于后续处理
+            id: index + 1,
+            originalId: questionObj?.questionId,
             type: questionType,
             question: questionContent,
-            content: questionContent, // 添加content字段用于填空题渲染
+            content: questionContent,
             description: questionObj?.questionDescription || '',
             options: options,
             blanks: blanks,
@@ -221,13 +218,16 @@ Each multiple-choice question has a single correct answer.
         return;
       }
       
+      hasFetchedRef.current = true;
       setRealExamData(transformedData);
-      setOriginalServerData(questionsData); // 保存原始服务端数据
+      setOriginalServerData(questionsData);
       setLoading(false);
       return;
     }
-    
-    // 否则从API获取数据
+
+    // 从 API 获取数据
+    hasFetchedRef.current = true;
+
     const fetchRealExamData = async () => {
       try {
         setLoading(true);
@@ -317,7 +317,7 @@ Each multiple-choice question has a single correct answer.
               }
             }
             
-            // 根据题目类型确定题型 - 适配实际的类型值
+            // 根据题目类型确定题型
             let questionType = 'multiple-choice';
             if (questionObj?.questionType?.toUpperCase() === 'BLANK' || questionObj?.questionType === '填空题') {
               questionType = 'fill-in-blanks';
@@ -325,25 +325,12 @@ Each multiple-choice question has a single correct answer.
               questionType = 'multiple-choice';
             }
             
-            // 改进题目内容处理逻辑 - 正确访问嵌套的question对象
             const questionContent = questionObj?.questionContent || 
                                   questionObj?.question || 
                                   questionObj?.content || 
                                   `题目 ${index + 1} 内容加载中...`;
             
-            // 为填空题创建blanks数组
-            let blanks = [];
-            if (questionType === 'fill-in-blanks') {
-              // 计算题目中的空白数量
-              const blankCount = (questionContent.match(/_____/g) || []).length;
-              for (let i = 0; i < blankCount; i++) {
-                blanks.push({
-                  id: `blank${i + 1}`,
-                  placeholder: `空白 ${i + 1}`
-                });
-              }
-              console.log(`路径B - 填空题空白数量: ${blankCount}, blanks数组:`, blanks);
-            }
+            const blanks = questionType === 'fill-in-blanks' ? [{ id: 'blank1' }] : [];
             
             // 提取图片URL - 检查questionContent中是否包含图片URL
             let imageUrls = [];
@@ -388,6 +375,8 @@ Each multiple-choice question has a single correct answer.
               finalQuestionType = 'multiple-choice-with-image';
             } else if (imageUrls.length > 0 && questionType === 'student-produced') {
               finalQuestionType = 'student-produced-with-image';
+            } else if (imageUrls.length > 0 && questionType === 'fill-in-blanks') {
+              finalQuestionType = 'image-with-blanks';
             }
             
             return {
@@ -395,13 +384,13 @@ Each multiple-choice question has a single correct answer.
               originalId: questionObj?.questionId, // 保存原始ID用于后续处理
               type: finalQuestionType,
               question: processedQuestionContent,
-              content: processedQuestionContent, // 添加content字段用于填空题渲染
-              images: imageUrls, // 使用图片数组
-              image: imageUrls.length > 0 ? imageUrls[0].url : '', // 向后兼容：保留第一个图片作为image字段
+              content: processedQuestionContent,
+              images: imageUrls,
+              image: imageUrls.length > 0 ? imageUrls[0].url : '',
               imageAlt: imageUrls.length > 0 ? imageUrls[0].alt : `题目 ${index + 1} 图片`,
               description: questionObj?.questionDescription || '',
               options: options,
-              blanks: blanks, // 添加blanks数组用于填空题
+              blanks: blanks,
               correctAnswer: questionObj?.answer || '',
               analysis: questionObj?.analysis || '',
               difficulty: questionObj?.difficulty || '中等',
@@ -429,9 +418,10 @@ Each multiple-choice question has a single correct answer.
         setLoading(false);
       }
     };
-    
+
     fetchRealExamData();
-  }, [sectionId, realExamData, stateQuestions]); // 依赖sectionId、realExamData和stateQuestions，避免重复请求
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 初始化仅依赖 sectionId/stateQuestions，realExamData 变化不需要重新请求
+  }, [sectionId, stateQuestions]);
 
   const [showDirections, setShowDirections] = useState(false);
   const [showProgress, setShowProgress] = useState(false);

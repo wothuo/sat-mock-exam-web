@@ -14,8 +14,8 @@ import { get, post } from '../utils/request.ts';
  * @param {number} params.pageSize - 每页条数（可选，默认10）
  * @returns {Promise} 套题列表数据（包含分页信息）
  */
-export const getExamSetList = async (params) => {
-  const response = await post('/exam/list', params);
+export const getExamSetList = async (params, config = {}) => {
+  const response = await post('/exam/list', params, config);
   return response.data;
 };
 
@@ -354,8 +354,8 @@ export const alterExamStatus = async (data) => {
  * @returns {number} return.data.list[].sectionTiming - Section限时（分钟）
  * @returns {number} return.data.list[].questionCount - Section题目数量
  */
-export const queryExamSectionList = async (params) => {
-  const response = await post('/exam/list/section', params);
+export const queryExamSectionList = async (params, config = {}) => {
+  const response = await post('/exam/list/section', params, config);
   return response.data;
 };
 
