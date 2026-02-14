@@ -531,6 +531,9 @@ function ExamSetEntry() {
       case 'blockIndent':
         newValue = currentValue.substring(0, start) + `<div style="margin-left: 2em;">${selectedText}</div>` + currentValue.substring(end);
         break;
+      case 'center':
+        newValue = currentValue.substring(0, start) + `<div style="text-align: center;">${selectedText}</div>` + currentValue.substring(end);
+        break;
       case 'formula':
         newValue = currentValue.substring(0, start) + data + currentValue.substring(end);
         break;
