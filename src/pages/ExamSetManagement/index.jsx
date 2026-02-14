@@ -61,8 +61,8 @@ function ExamSetManagement() {
           title: item.examName,
           source: item.source || '暂无',
           totalQuestions: item.questionCount || 0,
-          status: item.status === 1 ? 'published' : 'draft', // 根据后端返回的状态字段判断（0-正常，1-禁用）
-          statusDesc: item.status === 1 ? '已发布' : '草稿', // 使用状态字段生成描述
+          status: item.status === 0 ? 0 : 1, // 保持数字状态值，0-正常（发布），1-禁用（下线）
+          statusDesc: item.status === 0 ? '已发布' : '已下线', // 使用状态字段生成描述
           examType: item.examType,
           examYear: item.examYear,
           examRegion: item.examRegion,
@@ -193,7 +193,7 @@ function ExamSetManagement() {
       width: 100,
       render: (status, record) => (
         <Switch
-          checked={status === 'published'}
+          checked={status === 0}
           onChange={(checked) => handleChangeStatus(checked, record)}
           checkedChildren="发布"
           unCheckedChildren="下线"
@@ -307,7 +307,7 @@ function ExamSetManagement() {
       // 更新本地状态
       setExamSets(prev => prev.map(item => 
         (item.examId || item.id || item.taskId) === examId 
-          ? { ...item, status: checked ? 'published' : 'offline' } 
+          ? { ...item, status: checked ? 0 : 1 }
           : item
       ));
       
