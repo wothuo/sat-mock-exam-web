@@ -490,15 +490,13 @@ Each multiple-choice question has a single correct answer.
     renderFormattedText
   } = highlightNotes;
 
+  // 准备阶段依赖 answer/exam/start 接口加载完成（通过 loading 状态体现）
   useEffect(() => {
-    if (isPreparing) {
-      const timer = setTimeout(() => {
-        setIsPreparing(false);
-        resetOnBeginExam();
-      }, 2500);
-      return () => clearTimeout(timer);
+    if (!loading) {
+      setIsPreparing(false);
+      resetOnBeginExam();
     }
-  }, [isPreparing, resetOnBeginExam]);
+  }, [loading, resetOnBeginExam]);
 
   useEffect(() => {
     const containers = document.querySelectorAll('.selectable-text, .math-content');
