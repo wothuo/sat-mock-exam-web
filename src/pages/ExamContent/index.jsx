@@ -69,14 +69,24 @@ function ExamContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // 获取真实题目数据
+  const hasFetchedRef = React.useRef(false);
+  const prevSectionIdRef = React.useRef(sectionId);
+
+  // 获取真实题目数据（初始化仅请求一次，ref 防止 StrictMode 双重调用）
   useEffect(() => {
-    // 如果已经有数据，避免重复请求
-    if (realExamData) {
-      console.log('已有真实数据，跳过请求');
+    const sectionIdChanged = prevSectionIdRef.current !== sectionId;
+    if (sectionIdChanged) {
+      hasFetchedRef.current = false;
+      prevSectionIdRef.current = sectionId;
+      setRealExamData(null);
+      setOriginalServerData(null);
+    }
+    if (hasFetchedRef.current) return;
+    if (realExamData && !sectionIdChanged) {
+      hasFetchedRef.current = true;
       return;
     }
-    
+
     // 如果路由状态中已有题目数据，直接使用
     if (stateQuestions) {
       console.log('使用路由状态中的题目数据:', stateQuestions);
@@ -208,13 +218,16 @@ Each multiple-choice question has a single correct answer.
         return;
       }
       
+      hasFetchedRef.current = true;
       setRealExamData(transformedData);
-      setOriginalServerData(questionsData); // 保存原始服务端数据
+      setOriginalServerData(questionsData);
       setLoading(false);
       return;
     }
-    
-    // 否则从API获取数据
+
+    // 从 API 获取数据
+    hasFetchedRef.current = true;
+
     const fetchRealExamData = async () => {
       try {
         setLoading(true);
@@ -405,9 +418,10 @@ Each multiple-choice question has a single correct answer.
         setLoading(false);
       }
     };
-    
+
     fetchRealExamData();
-  }, [sectionId, realExamData, stateQuestions]); // 依赖sectionId、realExamData和stateQuestions，避免重复请求
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 初始化仅依赖 sectionId/stateQuestions，realExamData 变化不需要重新请求
+  }, [sectionId, stateQuestions]);
 
   const [showDirections, setShowDirections] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
