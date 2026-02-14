@@ -506,6 +506,9 @@ function ExamSetEntry() {
       case 'underline':
         newValue = currentValue.substring(0, start) + `<u>${selectedText}</u>` + currentValue.substring(end);
         break;
+      case 'insertUnderline':
+        newValue = currentValue.substring(0, start) + '<u>\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0</u>' + currentValue.substring(end);
+        break;
       case 'strikethrough':
         newValue = currentValue.substring(0, start) + `~~${selectedText}~~` + currentValue.substring(end);
         break;
