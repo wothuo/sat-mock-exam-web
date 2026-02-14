@@ -123,7 +123,11 @@ function ExamReportView({
                         )}
                       </td>
                       <td className={`py-4 font-bold ${isCorrect ? 'text-blue-600' : 'text-red-500'}`}>
-                        {answers[q.id] || 'Omitted'}
+                        {typeof answers[q.id] === 'object' && answers[q.id] !== null ? (
+                          Object.values(answers[q.id]).join(', ')
+                        ) : (
+                          answers[q.id] || 'Omitted'
+                        )}
                       </td>
                       <td className="py-4 font-bold text-gray-900">{q.correctAnswer || 'N/A'}</td>
                       <td className="py-4">
@@ -152,4 +156,3 @@ function ExamReportView({
 }
 
 export default ExamReportView;
-

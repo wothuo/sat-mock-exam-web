@@ -579,7 +579,11 @@ Each multiple-choice question has a single correct answer.
           // 获取本地对应的题目数据
           const localQuestion = examDataToUse.questions[i];
           // 用户答案（使用本地题目ID）
-          const userAnswer = answers[localQuestion?.id || i + 1] || '';
+          let userAnswer = answers[localQuestion?.id || i + 1] || '';
+          // 检查用户答案类型，如果是对象（填空题），转换为JSON字符串
+          if (typeof userAnswer === 'object' && userAnswer !== null) {
+            userAnswer = JSON.stringify(userAnswer);
+          }
 
           // 获取耗时（使用本地题目ID，与报告页面保持一致）
           let timeConsuming = 0;
