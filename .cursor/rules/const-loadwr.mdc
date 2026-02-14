@@ -1,0 +1,22 @@
+---
+alwaysApply: true
+---
+
+const loadWrongList = useCallback(async () => {
+    setWrongLoading(true);
+    try {
+      const res = await fetchWrongRecordList({
+        pageNum: wrongPageNum,
+        pageSize: wrongPageSize,
+        questionCategory: toApiQuestionCategory(wrongSubject),
+        difficulty: toApiDifficulty(wrongDifficulty),
+        timeRange: toApiTimeRange(wrongPeriod),
+      });
+      setWrongList((res.list || []).map(mapWrongItem).filter(Boolean));
+      setWrongTotal(res.total ?? 0);
+      setWrongPageNum(res.pageNum ?? wrongPageNum);
+      setWrongPageSize(res.pageSize ?? wrongPageSize);
+    } finally {
+      setWrongLoading(false);
+    }
+  }, [wrongPageNum, wrongPageSize, wrongSubject, wrongDifficulty, wrongPeriod]);
