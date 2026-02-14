@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
-import { Button, Card, message, Modal, Space, Spin, Table, Tag } from 'antd';
+import { Button, Card, message, Modal, Space, Spin, Switch, Table, Tag } from 'antd';
 
 import { DeleteOutlined, EditOutlined, FormOutlined } from '@ant-design/icons';
 
-import { getExamSetList, deleteExam } from '@/services/exam';
+import { getExamSetList, deleteExam, alterExamStatus } from '@/services/exam';
 
-import ExamSetEditor from './ExamSetEditor';
 import ExamSetListToolbar from './components/ExamSetListToolbar';
+import ExamSetEditor from './ExamSetEditor';
 import SectionManager from './SectionManager';
 
 function ExamSetManagement() {
@@ -165,7 +165,7 @@ function ExamSetManagement() {
       key: 'sections',
       width: 120,
       render: (_, record) => (
-        <span className="font-medium text-gray-400">
+        <span className="font-medium">
           {record.sections !== null && record.sections !== undefined && record.sections > 0
             ? `${record.sections} 个`
             : '暂无'}
@@ -187,7 +187,7 @@ function ExamSetManagement() {
       key: 'totalDuration',
       width: 100,
       render: (duration) => (
-        <span className="font-medium text-gray-400">
+        <span className="font-medium">
           {duration !== null && duration !== undefined ? `${duration} 分钟` : '暂无'}
         </span>
       )
@@ -198,9 +198,12 @@ function ExamSetManagement() {
       key: 'status',
       width: 100,
       render: (status, record) => (
-        <Tag color={status === 'published' ? 'success' : 'default'}>
-          {record.statusDesc || (status === 'published' ? '已发布' : '草稿')}
-        </Tag>
+        <Switch
+          checked={status === 'published'}
+          onChange={(checked) => handleChangeStatus(checked, record)}
+          checkedChildren="发布"
+          unCheckedChildren="下线"
+        />
       )
     },
     {
@@ -295,6 +298,33 @@ function ExamSetManagement() {
         }
       }
     });
+  };
+
+  const handleChangeStatus = async (checked, record) => {
+    try {
+      // 根据开关状态确定要设置的状态值
+      // true表示发布，false表示下线
+      const status = checked ? 0 : 1; // 根据注释：0-发布，1-下线
+      const examId = record.examId || record.id || record.taskId;
+      
+      // 调用接口更新状态
+      await alterExamStatus({ examId, status });
+      
+      // 更新本地状态
+      setExamSets(prev => prev.map(item => 
+        (item.examId || item.id || item.taskId) === examId 
+          ? { ...item, status: checked ? 'published' : 'offline' } 
+          : item
+      ));
+      
+      message.success(`套题已${checked ? '发布' : '下线'}`);
+    } catch (error) {
+      console.error('更新套题状态失败:', error);
+      message.error(`更新套题状态失败: ${error.message}`);
+      
+      // 如果更新失败，刷新列表以恢复原始状态
+      fetchExamSetList(pagination.current, pagination.pageSize);
+    }
   };
 
   const handleManageSections = (record) => {

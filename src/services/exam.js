@@ -300,6 +300,18 @@ export const deleteExam = async (examId) => {
 };
 
 /**
+ * 变更套题状态（发布/下线）
+ * @param {Object} data - 套题变更状态数据
+ * @param {number} data.examId - 套题ID
+ * @param {number} data.status - 状态（0-发布，1-下线）
+ * @returns {Promise} 更新结果
+ */
+export const alterExamStatus = async (data) => {
+  const response = await post('/exam/alter', data);
+  return response.data;
+};
+
+/**
  * 查询套题模考Section列表信息（分页查询）
  * @param {Object} params - 查询参数
  *
