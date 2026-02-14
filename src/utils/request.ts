@@ -240,19 +240,19 @@ axiosInstance.interceptors.response.use(
 
 /**
  * 统一错误处理
+ * 请求取消（AbortController/axios CancelToken）不展示错误提示，属于预期行为
  */
 const handleError = (error: any, showError: boolean = true) => {
-  let errorMessage = '请求失败，请稍后重试';
-  
-  if (error.message) {
-    errorMessage = error.message;
-  }
-  
-  if (showError) {
+  const isCancel = axios.isCancel(error) || error?.code === 'CANCELED' || error?.name === 'AbortError';
+
+  if (showError && !isCancel) {
+    const errorMessage = error?.message || '请求失败，请稍后重试';
     message.error(errorMessage);
   }
-  
-  console.error('Request Error:', error);
+
+  if (!isCancel) {
+    console.error('Request Error:', error);
+  }
   throw error;
 };
 

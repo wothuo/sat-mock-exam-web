@@ -342,8 +342,8 @@ export const deleteExam = async (examId) => {
  * @returns {number} return.data.list[].sectionTiming - Section限时（分钟）
  * @returns {number} return.data.list[].questionCount - Section题目数量
  */
-export const queryExamSectionList = async (params) => {
-  const response = await post('/exam/list/section', params);
+export const queryExamSectionList = async (params, config = {}) => {
+  const response = await post('/exam/list/section', params, config);
   return response.data;
 };
 
