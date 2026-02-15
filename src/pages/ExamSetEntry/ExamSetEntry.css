@@ -19,6 +19,10 @@
   text-overflow: ellipsis;
 }
 
+.padding-bottom-1 {
+  padding-bottom: 1rem !important;
+}
+
 .section-dropdown .ant-select-item-option-content {
   overflow: hidden;
   text-overflow: ellipsis;
