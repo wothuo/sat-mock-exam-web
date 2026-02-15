@@ -112,7 +112,7 @@ function ExamSetQuestionStep({
           style={{ borderLeftWidth: 4, borderLeftColor: '#ef4444' }}
         />
       )}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-2 sticky top-20 z-10">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 py-2 px-3 mb-2 sticky top-20 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1.5 flex-wrap gap-y-2">
             <button
@@ -284,23 +284,23 @@ function ExamSetQuestionStep({
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6 h-[800px]">
-        <div className="w-full md:w-72 flex flex-col bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-4 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between">
-            <span className="font-bold text-gray-900">题目索引 ({questions.length})</span>
+      <div className="flex flex-col md:flex-row gap-4 h-[800px]">
+        <div className="w-full md:w-72 flex flex-col bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+          <div className="py-1.5 px-3 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between">
+            <span className="font-bold text-gray-900 text-sm">题目索引 ({questions.length})</span>
             <Button
               type="primary"
               size="small"
               icon={<PlusOutlined />}
               onClick={onAddQuestion}
-              className="rounded-lg bg-blue-600 border-0 font-bold"
+              className="rounded-md bg-blue-600 border-0 font-bold"
             >
               添加
             </Button>
           </div>
           <div
             ref={questionListRef}
-            className="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar"
+            className="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar"
           >
             {questions.map((q, index) => {
               const isDeleted = q.delFlag === '1';
@@ -313,7 +313,7 @@ function ExamSetQuestionStep({
                 <div
                   key={q.id || `question-${index}`}
                   onClick={() => !isDeleted && onSelectQuestion(q.id)}
-                  className={`p-2.5 rounded-xl transition-all border-2 ${
+                  className={`p-2 rounded-md transition-all border-2 ${
                     isDeleted
                       ? 'border-red-200 bg-red-50/50 cursor-not-allowed'
                       : hasValidationError
@@ -374,13 +374,13 @@ function ExamSetQuestionStep({
           </div>
         </div>
 
-        <div className="flex-1 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+        <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden flex flex-col">
           {selectedQuestionId ? (
             <>
-              <div className="p-4 border-b border-gray-50 flex items-center justify-between">
-                <Space size="middle">
-                  <span className="font-black text-gray-500 uppercase tracking-widest text-sm">Editing Question</span>
-                  <Tag color="purple" className="font-bold border-0 text-sm px-3 py-1">
+              <div className="py-1.5 px-3 border-b border-gray-50 flex items-center justify-between">
+                <Space size="small">
+                  <span className="font-black text-gray-500 uppercase tracking-widest text-xs">Editing Question</span>
+                  <Tag color="purple" className="font-bold border-0 text-xs px-2 py-0.5">
                     {questions.find(q => q.id === selectedQuestionId)?.subject}
                   </Tag>
                 </Space>
@@ -395,30 +395,30 @@ function ExamSetQuestionStep({
                   删除
                 </Button>
               </div>
-              <div className="exam-set-question-form flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+              <div className="exam-set-question-form flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
                 {questions.filter(q => q.id === selectedQuestionId).map(q => (
-                  <div key={q.id} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div key={q.id} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">题目类型</label>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">题目类型</label>
                         <Select
                           value={q.interactionType}
                           onChange={v => {
                             onUpdateQuestion(q.id, 'interactionType', v);
                             onUpdateQuestion(q.id, 'correctAnswer', v === '选择题' ? 'A' : '');
                           }}
-                          className="w-full rounded-lg"
+                          className="w-full rounded-md"
                         >
                           <Option value="选择题">选择题</Option>
                           <Option value="填空题">填空题</Option>
                         </Select>
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">所属 Section</label>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">所属 Section</label>
                         <Select
                           value={q.sectionId ?? undefined}
                           onChange={v => onUpdateQuestion(q.id, 'sectionId', v)}
-                          className="w-full rounded-lg"
+                          className="w-full rounded-md"
                           dropdownMatchSelectWidth={false}
                           dropdownStyle={{ minWidth: 320, maxWidth: 'min(90vw, 520px)' }}
                           placeholder="请选择 Section"
@@ -431,13 +431,13 @@ function ExamSetQuestionStep({
                         </Select>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">知识点</label>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">知识点</label>
                         <Select
                           value={q.type}
                           onChange={v => onUpdateQuestion(q.id, 'type', v)}
-                          className="w-full rounded-lg"
+                          className="w-full rounded-md"
                         >
                           {(questionTypesMap[q.subject] || []).map(t => (
                             <Option key={t} value={t}>{t}</Option>
@@ -445,11 +445,11 @@ function ExamSetQuestionStep({
                         </Select>
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-2">难度</label>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">难度</label>
                         <Select
                           value={q.difficulty}
                           onChange={v => onUpdateQuestion(q.id, 'difficulty', v)}
-                          className="w-full rounded-lg"
+                          className="w-full rounded-md"
                         >
                           {difficulties.map(d => (
                             <Option key={d} value={d}>{d}</Option>
@@ -459,7 +459,7 @@ function ExamSetQuestionStep({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-gray-600 uppercase mb-2">题目内容</label>
+                      <label className="block text-xs font-bold text-gray-500 uppercase mb-1">题目内容</label>
                       <RichTextEditor
                         id={`question-content-${q.id}`}
                         value={q.content === '已录入' ? '' : (q.content || '')}
@@ -474,7 +474,7 @@ function ExamSetQuestionStep({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-gray-600 uppercase mb-2">问题描述</label>
+                      <label className="block text-xs font-bold text-gray-500 uppercase mb-1">问题描述</label>
                       <RichTextEditor
                         id={`question-description-${q.id}`}
                         value={q.description || ''}
@@ -488,10 +488,10 @@ function ExamSetQuestionStep({
                     </div>
 
                     {q.interactionType === '选择题' && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
                         {['A', 'B', 'C', 'D'].map((opt, idx) => (
                           <div key={opt}>
-                            <label className="block text-sm font-bold text-gray-600 uppercase mb-2">选项 {opt}</label>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">选项 {opt}</label>
                             <RichTextEditor
                               id={`option-${opt}-${q.id}`}
                               value={q.options[idx]}
@@ -512,14 +512,14 @@ function ExamSetQuestionStep({
                       </div>
                     )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                       <div className="md:col-span-1">
-                        <label className="block text-sm font-bold text-gray-600 uppercase mb-2">正确答案</label>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">正确答案</label>
                         {q.interactionType === '选择题' ? (
                           <Select
                             value={q.correctAnswer}
                             onChange={v => onUpdateQuestion(q.id, 'correctAnswer', v)}
-                            className="w-full rounded-lg"
+                            className="w-full rounded-md"
                           >
                             {['A', 'B', 'C', 'D'].map(o => (
                               <Option key={o} value={o}>{o}</Option>
@@ -530,12 +530,12 @@ function ExamSetQuestionStep({
                             value={q.correctAnswer}
                             onChange={e => onUpdateQuestion(q.id, 'correctAnswer', e.target.value)}
                             placeholder="输入正确答案"
-                            className="rounded-lg"
+                            className="rounded-md"
                           />
                         )}
                       </div>
                       <div className="md:col-span-3">
-                        <label className="block text-sm font-bold text-gray-600 uppercase mb-2">解析</label>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">解析</label>
                         <RichTextEditor
                           id={`explanation-${q.id}`}
                           value={q.explanation}
@@ -561,7 +561,7 @@ function ExamSetQuestionStep({
       </div>
 
       <div className="flex items-center justify-between pt-8">
-        <Button size="large" onClick={onPrev} className="h-12 px-8 rounded-xl">
+        <Button size="large" onClick={onPrev} className="h-12 px-8 rounded-md">
           上一步：修改 Section 信息
         </Button>
         <Space>
@@ -570,7 +570,7 @@ function ExamSetQuestionStep({
             size="large"
             icon={<CheckCircleOutlined />}
             onClick={onSubmit}
-            className="h-12 px-12 rounded-xl bg-green-600 hover:bg-green-700 border-0 font-bold shadow-lg shadow-green-500/20"
+            className="h-12 px-12 rounded-md bg-green-600 hover:bg-green-700 border-0 font-bold shadow-lg shadow-green-500/20"
           >
             {isEditMode ? '保存修改' : '提交并完成录入'}
           </Button>
