@@ -46,6 +46,7 @@ function MockExam() {
         const transformedData = response.list.map(item => ({
           id: item.sectionId,
           title: item.examSummary.examName,
+          sectionName: item.sectionName,
           subject: item.sectionCategory,
           source: item.examSummary.source,
           duration: `${item.sectionTiming}分钟`,
@@ -312,6 +313,13 @@ function MockExam() {
                       {exam.title}
                     </h3>
 
+                    {exam.sectionName && (
+                      <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
+                        <i className="fas fa-layer-group text-xs"></i>
+                        {exam.sectionName}
+                      </div>
+                    )}
+
                     <Tag color="purple">
                       <i className="fas fa-graduation-cap mr-1"></i>
                       {exam.subject}
@@ -346,6 +354,7 @@ function MockExam() {
                     state={{
                       sectionId: exam.id,
                       examTitle: exam.title,
+                      sectionName: exam.sectionName,
                       examDuration: exam.duration,
                       totalQuestions: exam.questions
                     }}
