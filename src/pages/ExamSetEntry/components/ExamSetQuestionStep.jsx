@@ -395,7 +395,7 @@ function ExamSetQuestionStep({
                   删除
                 </Button>
               </div>
-              <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+              <div className="exam-set-question-form flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
                 {questions.filter(q => q.id === selectedQuestionId).map(q => (
                   <div key={q.id} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -407,7 +407,7 @@ function ExamSetQuestionStep({
                             onUpdateQuestion(q.id, 'interactionType', v);
                             onUpdateQuestion(q.id, 'correctAnswer', v === '选择题' ? 'A' : '');
                           }}
-                          className="w-full h-10 rounded-lg text-sm"
+                          className="w-full rounded-lg"
                         >
                           <Option value="选择题">选择题</Option>
                           <Option value="填空题">填空题</Option>
@@ -418,7 +418,7 @@ function ExamSetQuestionStep({
                         <Select
                           value={q.sectionId ?? undefined}
                           onChange={v => onUpdateQuestion(q.id, 'sectionId', v)}
-                          className="w-full h-10 rounded-lg text-sm"
+                          className="w-full rounded-lg"
                           dropdownMatchSelectWidth={false}
                           dropdownStyle={{ minWidth: 320, maxWidth: 'min(90vw, 520px)' }}
                           placeholder="请选择 Section"
@@ -437,7 +437,7 @@ function ExamSetQuestionStep({
                         <Select
                           value={q.type}
                           onChange={v => onUpdateQuestion(q.id, 'type', v)}
-                          className="w-full h-10 rounded-lg text-sm"
+                          className="w-full rounded-lg"
                         >
                           {(questionTypesMap[q.subject] || []).map(t => (
                             <Option key={t} value={t}>{t}</Option>
@@ -449,7 +449,7 @@ function ExamSetQuestionStep({
                         <Select
                           value={q.difficulty}
                           onChange={v => onUpdateQuestion(q.id, 'difficulty', v)}
-                          className="w-full h-10 rounded-lg text-sm"
+                          className="w-full rounded-lg"
                         >
                           {difficulties.map(d => (
                             <Option key={d} value={d}>{d}</Option>
@@ -519,7 +519,7 @@ function ExamSetQuestionStep({
                           <Select
                             value={q.correctAnswer}
                             onChange={v => onUpdateQuestion(q.id, 'correctAnswer', v)}
-                            className="w-full h-10 rounded-lg text-sm"
+                            className="w-full rounded-lg"
                           >
                             {['A', 'B', 'C', 'D'].map(o => (
                               <Option key={o} value={o}>{o}</Option>
@@ -530,7 +530,7 @@ function ExamSetQuestionStep({
                             value={q.correctAnswer}
                             onChange={e => onUpdateQuestion(q.id, 'correctAnswer', e.target.value)}
                             placeholder="输入正确答案"
-                            className="h-10 rounded-lg text-sm"
+                            className="rounded-lg"
                           />
                         )}
                       </div>
