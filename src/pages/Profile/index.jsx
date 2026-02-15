@@ -264,7 +264,7 @@ function ProfileContent() {
           ))}
         </div>
         <div className="mt-4 text-center">
-          <Link to="/practice-record">
+          <Link to="/record">
             <Button type="link">查看全部记录 →</Button>
           </Link>
         </div>
@@ -299,7 +299,7 @@ function ProfileContent() {
           ))}
         </div>
         <div className="mt-4 text-center">
-          <Link to="/practice-record">
+          <Link to="/record">
             <Button type="link">查看全部记录 →</Button>
           </Link>
         </div>

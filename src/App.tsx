@@ -115,7 +115,7 @@ function AppContent() {
                 <Route path="/mock-exam" element={<MockExam />} />
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/encyclopedia" element={<Encyclopedia />} />
-                <Route path="/practice-record" element={<ProtectedRoute children={undefined}><PracticeRecord /></ProtectedRoute>} />
+                <Route path="/record" element={<ProtectedRoute children={undefined}><PracticeRecord /></ProtectedRoute>} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/question-bank" element={<QuestionBank />} />
                 <Route path="/system-overview" element={<SystemOverview />} />

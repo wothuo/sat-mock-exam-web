@@ -23,7 +23,7 @@ function Hero() {
     //   description: "每一道错题都是进步的阶梯，让提分变得有迹可循",
     //   image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=2000",
     //   icon: <LineChartOutlined />,
-    //   primaryBtn: { text: "查看学习记录", link: "/practice-record" },
+    //   primaryBtn: { text: "查看学习记录", link: "/record" },
     //   secondaryBtn: { text: "了解评分标准", link: "/encyclopedia" }
     // },
     // {

@@ -651,7 +651,7 @@ Each multiple-choice question has a single correct answer.
         questionTimes={questionTimes}
         formatQuestionTime={formatQuestionTime}
         renderFormattedText={renderFormattedText}
-        onExit={() => navigate('/practice-record')}
+        onExit={() => navigate('/record')}
         activeReportTab={activeReportTab}
         setActiveReportTab={setActiveReportTab}
       />

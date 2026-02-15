@@ -99,7 +99,7 @@ function SystemOverview() {
       }
     },
     {
-      id: 'practice-record',
+      id: 'record',
       title: '学习记录系统',
       icon: <LineChartOutlined />,
       color: 'from-indigo-500 to-purple-600',

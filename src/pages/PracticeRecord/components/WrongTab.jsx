@@ -38,13 +38,21 @@ function WrongTab({
   };
 
   const getDifficultyColor = (d) => {
-    const colors = { Easy: 'success', Medium: 'warning', Hard: 'error' };
-    return colors[d] || 'default';
+    const colors = {
+      简单: 'green',
+      中等: 'orange',
+      困难: 'red'
+    };
+    return colors[d] || 'geekblue';
   };
 
   const getSubjectColor = (s) => {
-    const colors = { 数学: 'blue', 阅读: 'purple', 语法: 'orange' };
-    return colors[s] || 'default';
+    const colors = {
+      数学: 'blue',
+      阅读语法: 'purple',
+      语法: 'orange'
+    };
+    return colors[s] || 'cyan';
   };
   console.log(records);
 
@@ -70,10 +78,10 @@ function WrongTab({
             style={{ width: 150 }}
             placeholder="选择难度"
           >
-            <Option value="all">📊 全部难度</Option>
-            <Option value="easy">Easy</Option>
-            <Option value="medium">Medium</Option>
-            <Option value="hard">Hard</Option>
+            <Option value="ALL">📊 全部难度</Option>
+            <Option value="Easy">简单</Option>
+            <Option value="Medium">中等</Option>
+            <Option value="Hard">困难</Option>
           </Select>
           <Select
             value={period}
@@ -117,11 +125,11 @@ function WrongTab({
                   <div className="flex items-center gap-8">
                     <div className="text-center">
                       <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Your</div>
-                      <div className="text-sm font-black text-red-500 bg-red-50 w-8 h-8 flex items-center justify-center rounded-lg mx-auto">{q.userAnswer}</div>
+                      <div className="text-sm font-black text-red-500 bg-red-50 min-w-10 h-8 flex items-center justify-center rounded-lg mx-auto px-2">{q.userAnswer}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Correct</div>
-                      <div className="text-sm font-black text-blue-600 bg-blue-50 w-8 h-8 flex items-center justify-center rounded-lg mx-auto">{q.correctAnswer}</div>
+                      <div className="text-sm font-black text-blue-600 bg-blue-50 min-w-10 h-8 flex items-center justify-center rounded-lg mx-auto">{q.correctAnswer}</div>
                     </div>
                     <div className="text-center hidden sm:block">
                       <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Time</div>

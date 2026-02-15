@@ -20,7 +20,7 @@ function Header() {
     // { path: '/system-overview', label: '系统总览' },
     { path: '/mock-exam', label: '套题模考' },
     { path: '/special-training', label: '专项训练' },
-    { path: '/practice-record', label: '练习记录' },
+    { path: '/record', label: '练习记录' },
     // { path: '/courses', label: '课程讲座' },
     // { path: '/encyclopedia', label: '考试百科' },
     // { path: '/question-bank', label: '题库管理' },
