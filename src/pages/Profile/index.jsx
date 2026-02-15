@@ -453,18 +453,16 @@ function ProfileContent() {
 function Profile() {
   return (
     <div className="relative">
-      {/* 模糊遮罩层 */}
-      <div className="absolute inset-0 z-50 backdrop-blur-md bg-white/30 flex flex-col items-center justify-center rounded-lg">
-        <div className="bg-white/80 p-8 rounded-full shadow-lg mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16 text-gray-600">
-            <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clipRule="evenodd" />
+      <div className="absolute inset-0 z-50 backdrop-blur-lg bg-gradient-to-br from-white/40 to-gray-100/20 flex flex-col items-center justify-center rounded-xl">
+        <div className="bg-gradient-to-br from-white/90 to-gray-50/90 p-6 rounded-2xl shadow-2xl mb-6 border border-white/50">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-14 h-14 text-gray-700">
+            <path d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">功能暂未开放</h2>
-        <p className="text-gray-600">该功能正在开发中，敬请期待下一期更新</p>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-3 tracking-tight">功能暂未开放</h2>
+        <p className="text-gray-600 text-center leading-relaxed max-w-md">该功能正在设计中，敬请期待后续更新</p>
       </div>
 
-      {/* 原有内容，将被遮罩覆盖 */}
       <div className="space-y-6 pointer-events-none select-none opacity-50" aria-hidden="true">
         <ProfileContent />
       </div>

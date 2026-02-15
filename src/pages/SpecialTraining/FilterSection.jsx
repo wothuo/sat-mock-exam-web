@@ -64,13 +64,13 @@ function FilterSection({
                       : 'bg-gradient-to-br from-white to-gray-50 text-gray-700 border border-gray-200 hover:shadow-lg'
                   }`}
                 >
-                  <div className="flex flex-col items-center gap-2">
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 flex-shrink-0 ${
                       isSelected ? 'bg-white/20 backdrop-blur-sm' : option.color
                     }`}>
-                      <i className={`${option.icon} text-xl ${isSelected ? 'text-white' : ''}`}></i>
+                      <i className={`${option.icon} text-base ${isSelected ? 'text-white' : ''}`}></i>
                     </div>
-                    <span className={`text-base font-bold text-center leading-tight px-1 ${isSelected ? 'text-white' : 'text-gray-800'}`}>
+                    <span className={`text-sm font-bold text-center leading-tight px-1 ${isSelected ? 'text-white' : 'text-gray-800'}`}>
                       {option.name}
                     </span>
                   </div>
@@ -116,4 +116,3 @@ function FilterSection({
 }
 
 export default FilterSection;
-

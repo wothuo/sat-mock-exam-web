@@ -29,7 +29,7 @@ export const FORM_INITIAL_VALUES = {
   type: 'SAT',
   region: '北美',
   difficulty: '困难',
-  year: 2025
+  year: 2026
 };
 
 /** 步骤项配置 */

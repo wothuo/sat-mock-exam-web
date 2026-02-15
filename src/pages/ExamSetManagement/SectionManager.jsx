@@ -90,16 +90,16 @@ function SectionManager({ visible, examSet, onSave, onCancel }) {
     ],
     数学: [
       '基础运算',
-      '圆方程',
+      '进阶运算',
       '一次函数',
-      '三角函数',
       '二次函数',
-      '统计',
       '指数函数',
-      '数据分析',
-      '应用题',
-      '基础函数',
+      '多项式函数',
       '几何',
+      '圆',
+      '三角形',
+      '统计',
+      '数据分析',
     ],
   };
   const [currentPage, setCurrentPage] = useState(1);

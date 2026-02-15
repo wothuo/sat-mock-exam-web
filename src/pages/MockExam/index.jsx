@@ -22,7 +22,7 @@ function MockExam() {
 
   const subjects = ['全部', '数学', '阅读语法'];
   const difficulties = ['全部', '简单', '中等', '困难'];
-  const years = ['全部', '2025', '2024', '2023'];
+  const years = ['全部', '2026', '2025', '2024', '2023'];
 
   const fetchExamData = useCallback(async (signal) => {
     setLoading(true);

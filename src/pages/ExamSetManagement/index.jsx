@@ -201,7 +201,8 @@ function ExamSetManagement() {
       width: 80,
       render: (status, record) => (
           <Switch
-              checked={record.status === 0}
+              checked={status === 0}
+              onChange={(checked) => handleChangeStatus(checked, record)}
               checkedChildren="发布"
               unCheckedChildren="下线"
           />
@@ -310,22 +311,22 @@ function ExamSetManagement() {
       // true表示发布，false表示下线
       const status = checked ? 0 : 1; // 根据注释：0-发布，1-下线
       const examId = record.examId || record.id || record.taskId;
-      
+
       // 调用接口更新状态
       await alterExamStatus({ examId, status });
-      
+
       // 更新本地状态
-      setExamSets(prev => prev.map(item => 
-        (item.examId || item.id || item.taskId) === examId 
+      setExamSets(prev => prev.map(item =>
+        (item.examId || item.id || item.taskId) === examId
           ? { ...item, status: checked ? 0 : 1 }
           : item
       ));
-      
+
       message.success(`套题已${checked ? '发布' : '下线'}`);
     } catch (error) {
       console.error('更新套题状态失败:', error);
       message.error(`更新套题状态失败: ${error.message}`);
-      
+
       // 如果更新失败，刷新列表以恢复原始状态
       fetchExamSetList(pagination.current, pagination.pageSize);
     }

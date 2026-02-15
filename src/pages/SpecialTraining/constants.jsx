@@ -29,17 +29,17 @@ export const TRAINING_SUBJECTS = [
     ],
     '数学': [
       { id: '全部', name: '全部', icon: 'fas fa-th-large', color: 'bg-gray-100 text-gray-600' },
-      { id: '基础运算', name: '基础运算', icon: 'fas fa-plus', color: 'bg-blue-100 text-blue-600' },
-      { id: '圆方程', name: '圆方程', icon: 'fas fa-circle', color: 'bg-green-100 text-green-600' },
+      { id: '基础运算', name: '基础运算', icon: 'fas fa-calculator', color: 'bg-blue-100 text-blue-600' },
+      { id: '进阶运算', name: '进阶运算', icon: 'fas fa-square-root-alt', color: 'bg-indigo-100 text-indigo-600' },
       { id: '一次函数', name: '一次函数', icon: 'fas fa-chart-line', color: 'bg-purple-100 text-purple-600' },
-      { id: '三角函数', name: '三角函数', icon: 'fas fa-wave-square', color: 'bg-orange-100 text-orange-600' },
       { id: '二次函数', name: '二次函数', icon: 'fas fa-bezier-curve', color: 'bg-pink-100 text-pink-600' },
-      { id: '统计', name: '统计', icon: 'fas fa-chart-pie', color: 'bg-indigo-100 text-indigo-600' },
       { id: '指数函数', name: '指数函数', icon: 'fas fa-superscript', color: 'bg-teal-100 text-teal-600' },
-      { id: '数据分析', name: '数据分析', icon: 'fas fa-database', color: 'bg-cyan-100 text-cyan-600' },
-      { id: '应用题', name: '应用题', icon: 'fas fa-tasks', color: 'bg-red-100 text-red-600' },
-      { id: '基础函数', name: '基础函数', icon: 'fas fa-square-root-alt', color: 'bg-yellow-100 text-yellow-600' },
-      { id: '几何', name: '几何', icon: 'fas fa-shapes', color: 'bg-lime-100 text-lime-600' }
+      { id: '多项式函数', name: '多项式函数', icon: 'fas fa-superscript', color: 'bg-amber-100 text-amber-600' },
+      { id: '几何', name: '几何', icon: 'fas fa-shapes', color: 'bg-lime-100 text-lime-600' },
+      { id: '圆', name: '圆', icon: 'fas fa-circle', color: 'bg-green-100 text-green-600' },
+      { id: '三角形', name: '三角形', icon: 'fas fa-shapes', color: 'bg-orange-100 text-orange-600' },
+      { id: '统计', name: '统计', icon: 'fas fa-chart-pie', color: 'bg-red-100 text-red-600' },
+      { id: '数据分析', name: '数据分析', icon: 'fas fa-chart-bar', color: 'bg-cyan-100 text-cyan-600' }
     ]
   };
   
