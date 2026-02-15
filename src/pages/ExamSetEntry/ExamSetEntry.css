@@ -35,6 +35,47 @@
   font-family: Georgia, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
+/* 富文本编辑器：1-5 行自伸缩 + 可拖拽拉高 */
+.rich-text-area-wrapper {
+  display: block;
+  border-radius: 0.75rem;
+  border: 1px solid #d9d9d9;
+  transition: border-color 0.2s;
+}
+.rich-text-area-wrapper:hover {
+  border-color: #4096ff;
+}
+.rich-text-area-wrapper:focus-within {
+  border-color: #4096ff;
+  box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+}
+.rich-text-area-wrapper > * {
+  height: 100% !important;
+  min-height: 100% !important;
+}
+.rich-text-area-wrapper [class*="-textarea-affix-wrapper"],
+.rich-text-area-wrapper .ant-input-affix-wrapper {
+  height: 100% !important;
+  min-height: 100% !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 6px 8px !important;
+  background: transparent !important;
+  border-radius: inherit;
+}
+.rich-text-area-wrapper textarea {
+  height: 100% !important;
+  min-height: 100% !important;
+  resize: none !important;
+  border: none !important;
+  padding: 6px 8px !important;
+  overflow-y: auto !important;
+}
+.rich-text-area-wrapper[data-measuring] textarea {
+  height: auto !important;
+  overflow: hidden !important;
+}
+
 /* 预览区域列表样式恢复：Tailwind Preflight 会重置 ol/ul 的 list-style，导致有序列表无序号 */
 .exam-question-editor-font .markdown-body ol,
 .index-preview-content ol,

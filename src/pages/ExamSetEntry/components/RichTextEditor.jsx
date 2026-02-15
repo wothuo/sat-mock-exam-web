@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 import { Input } from 'antd';
 
 import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
 
 const { TextArea } = Input;
+
+/** 约 1 行高度（px） */
+const ROW_HEIGHT = 28;
+const MAX_AUTO_ROWS = 5;
 
 function RichTextEditor({ 
   value = '', 
@@ -18,6 +22,37 @@ function RichTextEditor({
   onToolbarAction
 }) {
   const [previewVisible, setPreviewVisible] = useState(showPreview);
+  const wrapperRef = useRef(null);
+  const textareaRef = useRef(null);
+  const userResizedRef = useRef(false);
+
+  const syncHeight = () => {
+    const wrapper = wrapperRef.current;
+    const textarea = id ? document.getElementById(id) : textareaRef.current?.resizableTextArea?.textArea;
+    if (!wrapper || !textarea || userResizedRef.current) return;
+    const minH = ROW_HEIGHT;
+    const maxH = ROW_HEIGHT * MAX_AUTO_ROWS;
+    wrapper.dataset.measuring = '1';
+    textarea.style.setProperty('height', 'auto', 'important');
+    const scrollH = textarea.scrollHeight;
+    textarea.style.removeProperty('height');
+    delete wrapper.dataset.measuring;
+    const targetH = Math.min(Math.max(scrollH, minH), maxH);
+    wrapper.style.height = `${targetH}px`;
+  };
+
+  useEffect(() => { syncHeight(); }, [value]);
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+    const ro = new ResizeObserver((entries) => {
+      const h = entries[0]?.contentRect?.height;
+      if (h > ROW_HEIGHT * MAX_AUTO_ROWS) userResizedRef.current = true;
+    });
+    ro.observe(wrapper);
+    return () => ro.disconnect();
+  }, []);
 
   const formatText = (text) => {
     if (!text) return '';
@@ -118,15 +153,29 @@ function RichTextEditor({
 
   return (
     <div className="exam-question-editor-font">
-      <TextArea 
-        id={id}
-        rows={6} 
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="rounded-xl text-xs leading-relaxed exam-question-editor-font"
-        onFocus={() => handleToolbarAction('focus', null)}
-      />
+      <div
+        ref={wrapperRef}
+        className="rich-text-area-wrapper"
+        style={{
+          minHeight: ROW_HEIGHT,
+          resize: 'vertical',
+          overflow: 'hidden',
+        }}
+      >
+        <TextArea
+          ref={textareaRef}
+          id={id}
+          rows={1}
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setTimeout(syncHeight, 0);
+          }}
+          placeholder={placeholder}
+          className="rich-text-area-inner rounded-xl text-xs leading-relaxed exam-question-editor-font"
+          onFocus={() => handleToolbarAction('focus', null)}
+        />
+      </div>
       {showPreview && previewVisible && (
         <div className="mt-2 space-y-2">
           <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1">预览内容</div>
