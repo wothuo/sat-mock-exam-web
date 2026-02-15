@@ -125,19 +125,19 @@ function SectionFormModal({ open, onCancel, onOk, loading, form, editingSection 
                 className="h-12 rounded-xl"
                 suffixIcon={<i className="fas fa-chevron-down text-gray-400"></i>}
               >
-                <Option value="Easy">
+                <Option value="简单">
                   <div className="flex items-center space-x-2 py-1">
                     <i className="fas fa-star text-green-500"></i>
                     <span>简单</span>
                   </div>
                 </Option>
-                <Option value="Medium">
+                <Option value="中等">
                   <div className="flex items-center space-x-2 py-1">
                     <i className="fas fa-star text-yellow-500"></i>
                     <span>中等</span>
                   </div>
                 </Option>
-                <Option value="Hard">
+                <Option value="困难">
                   <div className="flex items-center space-x-2 py-1">
                     <i className="fas fa-star text-red-500"></i>
                     <span>困难</span>

@@ -49,8 +49,9 @@ function WrongTab({
   const getSubjectColor = (s) => {
     const colors = {
       数学: 'blue',
-      阅读语法: 'purple',
-      语法: 'orange'
+      阅读: 'purple',
+      语法: 'orange',
+      阅读语法: 'magenta'
     };
     return colors[s] || 'cyan';
   };

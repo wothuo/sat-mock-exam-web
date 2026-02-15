@@ -5,7 +5,7 @@ import { Button, Card, Form, Input, Select } from 'antd';
 const { Option } = Select;
 const { TextArea } = Input;
 
-const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
+const DIFFICULTIES = ['简单', '中等', '困难'];
 const REGIONS = ['北美', '亚太', '欧洲', '其他'];
 const EXAM_TYPES = ['SAT', 'IELTS', 'TOEFL', 'GRE'];
 const YEARS = [2025, 2024, 2023, 2022, 2021];
@@ -95,7 +95,6 @@ function ExamSetBaseInfoForm({ form, loading, isEditMode, onNext }) {
         <Form.Item
           name="description"
           label={<span className="font-bold text-gray-700">套题描述</span>}
-          rules={[{ required: true, message: '请输入套题描述' }]}
           className="md:col-span-2"
         >
           <TextArea

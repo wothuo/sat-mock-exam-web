@@ -75,40 +75,6 @@ export const updateExamSet = async (data) => {
 };
 
 /**
- * 新增套题Section
- * @param {Object} data - Section数据
- * @param {number} data.examId - 关联套题ID
- * @param {string} data.sectionName - Section名称
- * @param {string} data.sectionCategory - Section分类（如：阅读语法/数学）
- * @param {string} data.sectionDifficulty - Section难度（简单/中等/困难）
- * @param {number} data.sectionTiming - Section限时（分钟）
- * @param {number} data.creatorId - 创建人ID
- * @param {number} [data.status] - 状态（0-正常/1-禁用，默认0）
- * @returns {Promise} 新增的Section数据
- */
-export const createExamSection = async (data) => {
-  const response = await post('/exam/create/section', data);
-  return response.data;
-};
-
-/**
- * 更新套题Section
- * @param {Object} data - Section数据
- * @param {number} data.sectionId - Section ID
- * @param {number} data.examId - 关联套题ID
- * @param {string} data.sectionName - Section名称
- * @param {string} data.sectionCategory - Section分类（如：阅读语法/数学）
- * @param {string} data.sectionDifficulty - Section难度（简单/中等/困难）
- * @param {number} data.sectionTiming - Section限时（分钟）
- * @param {number} [data.status] - 状态（0-正常/1-禁用，默认0）
- * @returns {Promise} 更新后的Section数据
- */
-export const updateExamSection = async (data) => {
-  const response = await post('/exam/update/section', data);
-  return response.data;
-};
-
-/**
  * 检查套题Section是否存在
  * @param {Object} params - 查询参数
  * @param {number} [params.examId] - 套题ID
@@ -310,6 +276,53 @@ export const alterExamStatus = async (data) => {
   const response = await post('/exam/alter', data);
   return response.data;
 };
+
+/**
+ * 创建套题Section
+ * @param {Object} data - Section数据
+ * @param {number} data.examId - 套题ID
+ * @param {number} [data.sectionId] - 套题Section ID（创建时通常为空）
+ * @param {string} data.sectionName - 套题Section名称
+ * @param {string} data.sectionCategory - 套题Section分类（如：阅读语法、数学）
+ * @param {string} data.sectionDifficulty - 套题Section难度（如：Easy、Medium、Hard）
+ * @param {number} data.sectionTiming - 套题Section限时（分钟）
+ * @param {number} [data.status] - 状态：0-正常，1-禁用（默认1）
+ * @param {number} [data.delFlag] - 删除标志：0-正常，1-已删除（默认0）
+ * @returns {Promise<number>} 创建的套题Section ID
+ */
+export const createExamSection = async (data) => {
+  const response = await post('/exam/create/section', data);
+  return response.data;
+};
+
+/**
+ * 更新套题Section
+ * @param {Object} data - Section数据
+ * @param {number} data.examId - 套题ID
+ * @param {number} data.sectionId - 套题Section ID（更新时必须提供）
+ * @param {string} data.sectionName - 套题Section名称
+ * @param {string} data.sectionCategory - 套题Section分类
+ * @param {string} data.sectionDifficulty - 套题Section难度
+ * @param {number} data.sectionTiming - 套题Section限时（分钟）
+ * @param {number} [data.status] - 状态：0-正常，1-禁用（默认1）
+ * @param {number} [data.delFlag] - 删除标志：0-正常，1-已删除（默认0）
+ * @returns {Promise<boolean>} 是否更新成功
+ */
+export const updateExamSection = async (data) => {
+  const response = await post('/exam/update/section', data);
+  return response.data;
+};
+
+/**
+ * 删除套题Section
+ * @param {number} sectionId - 套题Section ID
+ * @returns {Promise<boolean>} 是否删除成功
+ */
+export const deleteExamSection = async (sectionId) => {
+  const response = await post('/exam/delete/section', sectionId);
+  return response.data;
+};
+
 
 /**
  * 查询套题模考Section列表信息（分页查询）

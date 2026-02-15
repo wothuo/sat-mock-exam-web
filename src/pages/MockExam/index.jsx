@@ -51,7 +51,8 @@ function MockExam() {
           duration: `${item.sectionTiming}分钟`,
           questions: item.questionCount,
           difficulty: item.examSummary.difficulty,
-          description: item.examSummary.examDescription || `${item.examSummary.examYear}年${item.examSummary.examType}${item.examSummary.examRegion}地区${item.sectionCategory}部分`,
+          // description: item.examSummary.examDescription || `${item.examSummary.examYear}年${item.examSummary.examType}${item.examSummary.examRegion}地区${item.sectionCategory}部分`,
+          description: `${item.examSummary.examYear}年${item.examSummary.examType} ${item.examSummary.examRegion}地区 ${item.sectionCategory}部分`,
           year: parseInt(item.examSummary.examYear) || 2025
         }));
 
@@ -298,63 +299,69 @@ function MockExam() {
               >
                 <div className="relative bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4">
                   <Space direction="vertical" size="small" className="w-full">
-                    <Space className="w-full justify-between">
-                      <Tag color="blue">{exam.source}</Tag>
-                      <Tag color={
-                        exam.difficulty === '简单' ? 'success' :
-                        exam.difficulty === '中等' ? 'warning' : 'error'
-                      }>
+                    <Space className="w-full justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
+                          {exam.source}
+                        </span>
+                        <div className="flex items-center text-xs text-purple-600 font-medium">
+                          <i className="fas fa-book mr-1"></i>
+                          {exam.subject}
+                        </div>
+                      </div>
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-md ${
+                          exam.difficulty === '简单' ? 'text-green-700 bg-green-100' :
+                              exam.difficulty === '中等' ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100'}`}>
                         {exam.difficulty}
-                      </Tag>
+                      </span>
                     </Space>
 
-                    <h3 className="text-base font-bold text-gray-800 leading-tight">
+                    <h3 className="text-sm font-semibold text-gray-900 leading-tight tracking-tight">
                       {exam.title}
                     </h3>
-
-                    <Tag color="purple">
-                      <i className="fas fa-graduation-cap mr-1"></i>
-                      {exam.subject}
-                    </Tag>
                   </Space>
                 </div>
 
                 <div className="p-4 flex-1 flex flex-col">
-                  <p className="text-sm text-gray-600 mb-4 flex-1">
+                  <p className="text-sm text-gray-600 mb-6 flex-1">
                     {exam.description}
                   </p>
 
-                  <Row gutter={8} className="mb-4">
+                  <Row gutter={8} className="mb-6">
                     <Col span={12}>
-                      <Card size="small" className="text-center">
-                        <ClockCircleOutlined className="text-blue-500 text-lg mb-1" />
-                        <div className="text-xs text-gray-500">考试时长</div>
-                        <div className="text-xs font-bold">{exam.duration}</div>
-                      </Card>
+                      <div className="flex items-center justify-center bg-blue-50 rounded-lg p-3 h-full">
+                        <ClockCircleOutlined className="text-blue-500 text-lg mr-2" />
+                        <div>
+                          <div className="text-xs font-bold">考试时长: {exam.duration}</div>
+                        </div>
+                      </div>
                     </Col>
                     <Col span={12}>
-                      <Card size="small" className="text-center">
-                        <QuestionCircleOutlined className="text-purple-500 text-lg mb-1" />
-                        <div className="text-xs text-gray-500">题目数量</div>
-                        <div className="text-xs font-bold">{exam.questions}题</div>
-                      </Card>
+                      <div className="flex items-center justify-center bg-purple-50 rounded-lg p-3 h-full">
+                        <QuestionCircleOutlined className="text-purple-500 text-lg mr-2" />
+                        <div>
+                          <div className="text-xs font-bold">题目数量: {exam.questions}题</div>
+                        </div>
+                      </div>
                     </Col>
                   </Row>
 
-                  <Link 
-                    to={`/exam/${exam.id}`} 
-                    state={{
-                      sectionId: exam.id,
-                      examTitle: exam.title,
-                      examDuration: exam.duration,
-                      totalQuestions: exam.questions
-                    }}
-                  >
-                    <Button type="primary" block size="large" className="bg-gradient-to-r from-indigo-500 to-purple-500">
-                      <i className="fas fa-rocket mr-2"></i>
-                      开始模考
-                    </Button>
-                  </Link>
+                  <div className="mt-2">
+                    <Link
+                        to={`/exam/${exam.id}`}
+                        state={{
+                          sectionId: exam.id,
+                          examTitle: exam.title,
+                          examDuration: exam.duration,
+                          totalQuestions: exam.questions
+                        }}
+                    >
+                      <Button type="primary" block size="large" className="bg-gradient-to-r from-indigo-500 to-purple-500">
+                        <i className="fas fa-rocket mr-2"></i>
+                        开始模考
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </Card>
                 </Col>
