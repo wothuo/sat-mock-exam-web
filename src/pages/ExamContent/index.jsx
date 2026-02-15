@@ -762,8 +762,15 @@ function ExamContent() {
 
       <EndExamModal
         open={showEndExamModal}
-        totalQuestions={examData.totalQuestions}
-        answeredCount={Object.keys(answers).length}
+        totalQuestions={examDataToUse?.totalQuestions ?? examData?.totalQuestions ?? 0}
+        answeredCount={Object.entries(answers ?? {}).filter(([, val]) => {
+          if (val == null) return false;
+          if (typeof val === 'string') return val.trim() !== '';
+          if (typeof val === 'object') {
+            return Object.values(val).some(v => String(v ?? '').trim() !== '');
+          }
+          return false;
+        }).length}
         timeMode={timeMode}
         timeRemaining={timeRemaining}
         formatTime={formatTime}

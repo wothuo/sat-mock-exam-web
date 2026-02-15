@@ -30,8 +30,8 @@ function EndExamModal({
             <div className="bg-blue-50/50 border border-blue-100 rounded-3xl p-5 transition-all hover:bg-blue-50">
               <div className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Answered</div>
               <div className="flex items-baseline space-x-1">
-                <span className="text-2xl font-black text-blue-700">{answeredCount}</span>
-                <span className="text-sm font-bold text-blue-300">/ {totalQuestions}</span>
+                <span className="text-2xl font-black text-blue-700">{answeredCount ?? 0}</span>
+                <span className="text-sm font-bold text-blue-300">/ {totalQuestions ?? 0}</span>
               </div>
             </div>
             <div className="bg-amber-50/50 border border-amber-100 rounded-3xl p-5 transition-all hover:bg-amber-50">
@@ -41,13 +41,13 @@ function EndExamModal({
             <div className="bg-slate-50/50 border border-slate-100 rounded-3xl p-5 transition-all hover:bg-slate-50">
               <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Time Left</div>
               <div className="text-2xl font-black text-slate-700 font-mono">
-                {timeMode === 'timed' ? formatTime(timeRemaining) : '--:--'}
+                {timeMode === 'timed' && formatTime ? formatTime(timeRemaining ?? 0) : '--:--'}
               </div>
             </div>
             <div className="bg-red-50/50 border border-red-100 rounded-3xl p-5 transition-all hover:bg-red-50">
               <div className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Unanswered</div>
               <div className="text-2xl font-black text-red-700">
-                {totalQuestions - answeredCount}
+                {Math.max(0, (totalQuestions ?? 0) - (answeredCount ?? 0))}
               </div>
             </div>
           </div>
