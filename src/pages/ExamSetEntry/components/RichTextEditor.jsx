@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 import { Input } from 'antd';
 
+import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
+
 const { TextArea } = Input;
 
 function RichTextEditor({ 
@@ -69,12 +71,8 @@ function RichTextEditor({
       processedWithPlaceholders = processedWithPlaceholders.substring(0, startIdx) + `@@@IMAGEBLOCK${i}@@@` + processedWithPlaceholders.substring(startIdx + fullMatch.length);
     }
 
-    // 3. 处理基础 Markdown 标签
-    let htmlResult = processedWithPlaceholders;
-    htmlResult = htmlResult.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    htmlResult = htmlResult.replace(/__(.+?)__/g, '<strong>$1</strong>');
-    htmlResult = htmlResult.replace(/~~(.+?)~~/g, '<s>$1</s>');
-    htmlResult = htmlResult.replace(/\n/g, '<br />');
+    // 3. 处理基础 Markdown 标签（使用共享工具，含斜体）
+    let htmlResult = applyMarkdownInlineFormat(processedWithPlaceholders);
 
     // 4. 还原图片
     matches.forEach((m, i) => {

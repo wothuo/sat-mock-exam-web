@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 
 import { Modal } from 'antd';
 
+import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
+
 /** 与题目索引一致的 Markdown→HTML，保留 $...$ 供 KaTeX 渲染 */
 function formatContentToHtml(text) {
   if (!text || typeof text !== 'string') return '';
@@ -11,15 +13,10 @@ function formatContentToHtml(text) {
     mathBlocks.push(match);
     return placeholder;
   });
-  processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
-  processed = processed.replace(/(?<!\*)(\*)(?!\*)(.+?)(?<!\*)(\*)(?!\*)/g, '<em>$2</em>');
-  processed = processed.replace(/(?<!_)(_)(?!_)(.+?)(?<!_)(_)(?!_)/g, '<em>$2</em>');
-  // processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-2 max-h-32 object-contain" loading="lazy" />');
+  processed = applyMarkdownInlineFormat(processed);
   processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, function(match, alt, src) {
     return `<img src="${src.trim()}" alt="${alt.trim()}" class="max-w-full h-auto rounded-lg my-2 max-h-32 object-contain" loading="lazy" onerror="this.style.display='none'" />`;
   });
-  processed = processed.replace(/\n/g, '<br />');
   mathBlocks.forEach((block, index) => {
     processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
   });

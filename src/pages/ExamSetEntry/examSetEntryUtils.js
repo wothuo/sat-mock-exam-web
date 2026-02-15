@@ -301,6 +301,24 @@ export function buildQuestionsPayload(questions, isEditMode) {
 }
 
 /**
+ * 共享：对文本应用 Markdown 行内格式（加粗、斜体、删除线、换行）
+ * 不处理数学公式和图片，需在调用前/后自行保护或处理
+ * @param {string} text
+ * @returns {string}
+ */
+export function applyMarkdownInlineFormat(text) {
+  if (!text) return text || '';
+  let processed = text;
+  processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
+  processed = processed.replace(/(?<!\*)(\*)(?!\*)(.+?)(?<!\*)(\*)(?!\*)/g, '<em>$2</em>');
+  processed = processed.replace(/(?<!_)(_)(?!_)(.+?)(?<!_)(_)(?!_)/g, '<em>$2</em>');
+  processed = processed.replace(/~~(.+?)~~/g, '<s>$1</s>');
+  processed = processed.replace(/\n/g, '<br />');
+  return processed;
+}
+
+/**
  * Markdown/公式文本转预览 HTML（加粗、斜体、图片、换行，保留公式块）
  * @param {string} text
  * @returns {string}
@@ -315,12 +333,8 @@ export function formatText(text) {
     return placeholder;
   });
 
-  processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
-  processed = processed.replace(/(?<!\*)(\*)(?!\*)(.+?)(?<!\*)(\*)(?!\*)/g, '<em>$2</em>');
-  processed = processed.replace(/(?<!_)(_)(?!_)(.+?)(?<!_)(_)(?!_)/g, '<em>$2</em>');
+  processed = applyMarkdownInlineFormat(processed);
   processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-2" />');
-  processed = processed.replace(/\n/g, '<br />');
 
   mathBlocks.forEach((block, index) => {
     processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
