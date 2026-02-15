@@ -112,7 +112,7 @@ function ExamSetQuestionStep({
           style={{ borderLeftWidth: 4, borderLeftColor: '#ef4444' }}
         />
       )}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6 sticky top-20 z-10">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-2 sticky top-20 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1.5 flex-wrap gap-y-2">
             <button

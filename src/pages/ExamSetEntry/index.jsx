@@ -709,7 +709,7 @@ function ExamSetEntry() {
 
   return (
     <div className="max-w-5xl mx-auto padding-bottom-1">
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl font-black text-gray-900 m-0">
             {isEditMode ? '编辑套题' : '录入新套题'}
           </h1>
