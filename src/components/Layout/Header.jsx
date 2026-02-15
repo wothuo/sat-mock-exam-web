@@ -165,18 +165,18 @@ function Header() {
           ))}
           <div className="pt-6 mt-4 border-t border-gray-100 px-2">
             {isLoggedIn ? (
-              <Button
-                type="primary"
+              <button
+                type="button"
                 onClick={handleLogout}
-                className="block w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-center rounded-2xl font-bold shadow-lg shadow-red-200 active:scale-95 transition-transform"
+                className="flex items-center justify-center w-full py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl font-bold shadow-lg shadow-red-200 active:scale-95 transition-transform border-0 cursor-pointer"
               >
                 退出登录
-              </Button>
+              </button>
             ) : (
               <>
                 <Link 
                   to="/register" 
-                  className="block w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-center rounded-2xl font-bold shadow-lg shadow-red-200 active:scale-95 transition-transform"
+                  className="flex items-center justify-center w-full py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl font-bold shadow-lg shadow-red-200 active:scale-95 transition-transform"
                   onClick={() => setMobileMenuVisible(false)}
                 >
                   立即注册
