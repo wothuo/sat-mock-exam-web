@@ -34,6 +34,7 @@ import {
   ExamReportView
 } from './components/screens';
 import { examData } from './examData';
+import { getDirectionsBySectionType, inferSectionCategory } from './directions';
 import { useExamProgress } from './hooks/useExamProgress';
 import { useExamTimer } from './hooks/useExamTimer';
 import { useHighlightAndNotes } from './hooks/useHighlightAndNotes';
@@ -108,23 +109,13 @@ function ExamContent() {
       }
       
       // 转换后端数据格式为前端需要的格式
+      const sectionCategory = inferSectionCategory(questionsData[0]);
+      const directions = getDirectionsBySectionType(sectionCategory);
+
       const transformedData = {
         title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
         totalQuestions: questionsData.length,
-        directions: {
-          title: 'Directions',
-          content: `The questions in this section address a number of important reading and writing skills.
-Use of a calculator is not permitted for this section. These directions can be accessed throughout the test.
-
-**For multiple-choice questions**, solve each problem and choose the correct answer from the choices provided.
-Each multiple-choice question has a single correct answer.
-
-**For student-produced response questions:**
-• If you find more than one correct answer, enter only one answer.
-• You can enter up to 5 characters for a positive answer and up to 6 characters (including the negative sign) for a negative answer.
-• If your answer is a fraction that doesn't fit in the provided space, enter the decimal equivalent.
-• If your answer is a decimal that doesn't fit in the provided space, enter it by truncating or rounding at the fourth digit.`
-        },
+        directions,
         questions: questionsData.map((item, index) => {
           // 验证 item 结构
           if (!item || typeof item !== 'object') {
@@ -258,23 +249,13 @@ Each multiple-choice question has a single correct answer.
         }
         
         // 转换后端数据格式为前端需要的格式
+        const sectionCategory = inferSectionCategory(questionsData[0]);
+        const directions = getDirectionsBySectionType(sectionCategory);
+
         const transformedData = {
           title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
           totalQuestions: totalQuestions,
-          directions: {
-            title: 'Directions',
-            content: `The questions in this section address a number of important reading and writing skills.
-Use of a calculator is not permitted for this section. These directions can be accessed throughout the test.
-
-**For multiple-choice questions**, solve each problem and choose the correct answer from the choices provided.
-Each multiple-choice question has a single correct answer.
-
-**For student-produced response questions:**
-• If you find more than one correct answer, enter only one answer.
-• You can enter up to 5 characters for a positive answer and up to 6 characters (including the negative sign) for a negative answer.
-• If your answer is a fraction that doesn't fit in the provided space, enter the decimal equivalent.
-• If your answer is a decimal that doesn't fit in the provided space, enter it by truncating or rounding at the fourth digit.`
-          },
+          directions,
           questions: questionsData.map((item, index) => {
             // 验证 item 结构
             if (!item || typeof item !== 'object') {
@@ -749,8 +730,8 @@ Each multiple-choice question has a single correct answer.
 
       <DirectionsModal
         open={showDirections}
-        title={examData.directions.title}
-        content={renderFormattedText(examData.directions.content, 'directions')}
+        title={examDataToUse.directions.title}
+        content={renderFormattedText(examDataToUse.directions.content, 'directions')}
         onClose={() => setShowDirections(false)}
       />
       <NoteModal

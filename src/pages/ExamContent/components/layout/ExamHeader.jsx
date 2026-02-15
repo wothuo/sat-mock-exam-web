@@ -20,14 +20,13 @@ function ExamHeader({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <h1 className="text-lg font-bold text-gray-900 tracking-tight">{title}</h1>
-          <Button
-            type="link"
+          <button
+            type="button"
             onClick={onOpenDirections}
-            className="text-sm font-bold text-blue-600 hover:text-blue-800 p-0 h-auto flex items-center"
+            className="text-sm text-blue-600 hover:text-blue-800 hover:underline p-0 h-auto font-normal"
           >
-            <i className="fas fa-info-circle mr-1.5 text-xs" />
-            <span className="underline underline-offset-4">Directions</span>
-          </Button>
+            Directions
+          </button>
         </div>
 
         <div className="flex items-center space-x-6">
