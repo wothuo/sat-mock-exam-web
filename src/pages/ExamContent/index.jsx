@@ -33,7 +33,7 @@ import {
   ExamReportView
 } from './components/screens';
 import { examData } from './examData';
-import { getDirectionsBySectionType, inferSectionCategory } from './directions';
+import { getDirectionsBySectionType, getSectionCategory } from './directions';
 import { useExamProgress } from './hooks/useExamProgress';
 import { useExamTimer } from './hooks/useExamTimer';
 import { useHighlightAndNotes } from './hooks/useHighlightAndNotes';
@@ -108,12 +108,13 @@ function ExamContent() {
       }
       
       // 转换后端数据格式为前端需要的格式
-      const sectionCategory = inferSectionCategory(questionsData[0]);
+      const sectionCategory = getSectionCategory(questionsData[0]);
       const directions = getDirectionsBySectionType(sectionCategory);
 
       const transformedData = {
         title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
         totalQuestions: questionsData.length,
+        sectionCategory,
         directions,
         questions: questionsData.map((item, index) => {
           // 验证 item 结构
@@ -248,12 +249,13 @@ function ExamContent() {
         }
         
         // 转换后端数据格式为前端需要的格式
-        const sectionCategory = inferSectionCategory(questionsData[0]);
+        const sectionCategory = getSectionCategory(questionsData[0]);
         const directions = getDirectionsBySectionType(sectionCategory);
 
         const transformedData = {
           title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
           totalQuestions: totalQuestions,
+          sectionCategory,
           directions,
           questions: questionsData.map((item, index) => {
             // 验证 item 结构
@@ -418,7 +420,7 @@ function ExamContent() {
   const [activeReportTab, setActiveReportTab] = useState('All');
   const [showReference, setShowReference] = useState(false);
 
-  const examDataToUse = realExamData || examData;
+  const examDataToUse = realExamData || [];
   
   // 只在开发环境或特定条件下输出调试信息
   if (process.env.NODE_ENV === 'development') {
@@ -675,7 +677,8 @@ function ExamContent() {
         formatTime={formatTime}
         directionsOpen={showDirections}
         onToggleDirections={() => setShowDirections(prev => !prev)}
-        directionsContent={renderFormattedText(examDataToUse.directions.content, 'directions')}
+        directionsContent={renderFormattedText(examDataToUse?.directions?.content, 'directions')}
+        showReference={examDataToUse?.sectionCategory === '数学'}
         onOpenReference={() => setShowReference(true)}
         onShowTimeAsIcon={() => setShowTimeAsIcon(true)}
         onShowTimeAsText={() => setShowTimeAsIcon(false)}

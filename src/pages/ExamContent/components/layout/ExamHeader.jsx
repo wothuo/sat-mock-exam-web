@@ -12,6 +12,7 @@ function ExamHeader({
   directionsOpen,
   onToggleDirections,
   directionsContent,
+  showReference,
   onOpenReference,
   onShowTimeAsIcon,
   onShowTimeAsText,
@@ -127,24 +128,20 @@ function ExamHeader({
             </div>
           )}
           <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={onOpenReference}
-              className="text-sm text-gray-600 hover:text-gray-800"
-            >
-              Reference
-            </button>
-            <button type="button" className="text-sm text-gray-600 hover:text-gray-800">
-              More
-            </button>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button type="button" className="p-1 text-gray-600 hover:text-gray-800">
-              <i className="fas fa-times" />
-            </button>
-            <button type="button" className="p-1 text-gray-600 hover:text-gray-800">
-              <i className="fas fa-ellipsis-v" />
-            </button>
+            {showReference && (
+              <button
+                type="button"
+                onClick={onOpenReference}
+                className="flex flex-col items-center text-gray-600 hover:text-gray-800 py-1"
+              >
+                <i className="fas fa-calculator text-sm" />
+                <span className="text-xs leading-tight mt-0.5">Reference</span>
+              </button>
+            )}
+            {/* <button type="button" className="flex flex-col items-center text-gray-600 hover:text-gray-800 py-1">
+              <i className="fas fa-ellipsis-v text-sm" />
+              <span className="text-xs leading-tight mt-0.5">More</span>
+            </button> */}
           </div>
         </div>
       </div>

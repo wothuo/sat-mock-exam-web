@@ -7,33 +7,22 @@ import { readingWritingDirections } from './readingWriting';
  * @returns {{ title: string, content: string }}
  */
 export function getDirectionsBySectionType(sectionCategory) {
-  return sectionCategory === '数学' ? mathDirections : readingWritingDirections;
+  if(!sectionCategory) return null; 
+  if(sectionCategory === '数学') return mathDirections;
+  if(sectionCategory === '阅读语法') return readingWritingDirections;
+  return null;
 }
 
 /**
- * 从题目数据推断 sectionCategory（API 可能不返回该字段）
+ * 从题目数据获取 sectionCategory
  * @param {Object} firstItem - 题目列表第一项
  * @returns {string} 数学 | 阅读语法
  */
-export function inferSectionCategory(firstItem) {
-  if (!firstItem) return '阅读语法';
-
-  const sectionCategory = firstItem.sectionCategory;
+export function getSectionCategory(firstItem) {
+  console.log('firstItem', firstItem);
+  const sectionCategory = firstItem?.question?.questionCategory;
   if (sectionCategory === '数学' || sectionCategory === '阅读语法') {
     return sectionCategory;
   }
-
-  const sectionName = (firstItem.sectionName || '').toLowerCase();
-  if (sectionName.includes('math') || sectionName.includes('数学')) {
-    return '数学';
-  }
-  if (sectionName.includes('reading') || sectionName.includes('writing') || sectionName.includes('阅读') || sectionName.includes('语法')) {
-    return '阅读语法';
-  }
-
-  const questionCategory = firstItem.question?.questionCategory || '';
-  if (questionCategory === '数学') return '数学';
-  if (questionCategory === '阅读' || questionCategory === '语法') return '阅读语法';
-
-  return '阅读语法';
+  return '';
 }
