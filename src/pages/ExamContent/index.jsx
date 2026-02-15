@@ -22,7 +22,6 @@ import {
   QuestionNotesPanel
 } from './components/layout';
 import {
-  DirectionsModal,
   NoteModal,
   ProgressModal,
   EndExamModal
@@ -404,7 +403,7 @@ function ExamContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- 初始化仅依赖 sectionId/stateQuestions，realExamData 变化不需要重新请求
   }, [sectionId, stateQuestions]);
 
-  const [showDirections, setShowDirections] = useState(false);
+  const [showDirections, setShowDirections] = useState(true);
   const [showProgress, setShowProgress] = useState(false);
   const [showTimeMode, setShowTimeMode] = useState(true);
   const [showIntro, setShowIntro] = useState(false);
@@ -480,9 +479,21 @@ function ExamContent() {
     }
   }, [loading]);
 
+  const prevQuestionRef = React.useRef(currentQuestion);
+  const prevExamFinishedRef = React.useRef(examFinished);
+
   useEffect(() => {
-    const containers = document.querySelectorAll('.selectable-text, .math-content');
-    containers.forEach((c) => { c.style.visibility = 'hidden'; });
+    const questionChanged = prevQuestionRef.current !== currentQuestion;
+    const examFinishedChanged = prevExamFinishedRef.current !== examFinished;
+    prevQuestionRef.current = currentQuestion;
+    prevExamFinishedRef.current = examFinished;
+
+    // 仅在题目切换或考试结束时隐藏并重渲染，避免 Directions 开闭导致题目内容闪烁
+    if (questionChanged || examFinishedChanged) {
+      const containers = document.querySelectorAll('.selectable-text, .math-content');
+      containers.forEach((c) => { c.style.visibility = 'hidden'; });
+    }
+
     const timer = setTimeout(() => renderMathInContainers(), 50);
     return () => clearTimeout(timer);
   }, [currentQuestion, showDirections, examFinished]);
@@ -662,7 +673,9 @@ function ExamContent() {
         hideTime={hideTime}
         showTimeAsIcon={showTimeAsIcon}
         formatTime={formatTime}
-        onOpenDirections={() => setShowDirections(true)}
+        directionsOpen={showDirections}
+        onToggleDirections={() => setShowDirections(prev => !prev)}
+        directionsContent={renderFormattedText(examDataToUse.directions.content, 'directions')}
         onOpenReference={() => setShowReference(true)}
         onShowTimeAsIcon={() => setShowTimeAsIcon(true)}
         onShowTimeAsText={() => setShowTimeAsIcon(false)}
@@ -728,12 +741,6 @@ function ExamContent() {
         onEndExam={() => setShowEndExamModal(true)}
       />
 
-      <DirectionsModal
-        open={showDirections}
-        title={examDataToUse.directions.title}
-        content={renderFormattedText(examDataToUse.directions.content, 'directions')}
-        onClose={() => setShowDirections(false)}
-      />
       <NoteModal
         open={showNoteModal}
         selectedText={selectedText}
