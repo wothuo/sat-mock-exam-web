@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { Alert, Button, Empty, Input, Select, Space, Tag } from 'antd';
 import { CheckCircleOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 
+import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
 import RichTextEditor from './RichTextEditor';
 
 const { Option } = Select;
@@ -26,11 +27,8 @@ function formatContentToHtml(text) {
   // 3. 移除裸图片URL
   processed = processed.replace(/https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp|svg)(?:\?[^\s]*)?/gi, '');
 
-  // 4. 基础文本格式处理
-  processed = processed.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  processed = processed.replace(/__(.+?)__/g, '<strong>$1</strong>');
-  processed = processed.replace(/~~(.+?)~~/g, '<s>$1</s>');
-  processed = processed.replace(/\n/g, '<br />');
+  // 4. 基础文本格式处理（使用共享工具，含斜体）
+  processed = applyMarkdownInlineFormat(processed);
 
   // 5. 还原数学公式
   mathBlocks.forEach((block, index) => {

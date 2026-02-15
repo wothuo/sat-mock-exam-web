@@ -7,7 +7,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import QuestionEditor from './QuestionEditor';
 import QuestionList from './QuestionList';
 
+// 这是一个不会在线上使用的组件
 function QuestionBank() {
+  return null;
   const [activeTab, setActiveTab] = useState('list');
   const [editingQuestion, setEditingQuestion] = useState(null);
 

@@ -14,7 +14,7 @@ import Home from './pages/Home';
 import MockExam from './pages/MockExam';
 import PracticeRecord from './pages/PracticeRecord';
 import Profile from './pages/Profile';
-import QuestionBank from './pages/QuestionBank';
+// import QuestionBank from './pages/QuestionBank';
 import SpecialTraining from './pages/SpecialTraining';
 import SystemOverview from './pages/SystemOverview';
 import { getRouteNavigateEventName } from './utils/router';
@@ -117,7 +117,7 @@ function AppContent() {
                 <Route path="/encyclopedia" element={<Encyclopedia />} />
                 <Route path="/record" element={<ProtectedRoute children={undefined}><PracticeRecord /></ProtectedRoute>} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/question-bank" element={<QuestionBank />} />
+                {/* <Route path="/question-bank" element={<QuestionBank />} /> */}
                 <Route path="/system-overview" element={<SystemOverview />} />
                 <Route path="/exam-set-management" element={<ExamSetManagement />} />
                 <Route path="/exam-set-entry" element={<ExamSetEntry />} />
