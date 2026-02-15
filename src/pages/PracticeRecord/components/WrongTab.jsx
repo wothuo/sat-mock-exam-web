@@ -78,7 +78,7 @@ function WrongTab({
             style={{ width: 150 }}
             placeholder="选择难度"
           >
-            <Option value="ALL">📊 全部难度</Option>
+            <Option value="all">📊 全部难度</Option>
             <Option value="Easy">简单</Option>
             <Option value="Medium">中等</Option>
             <Option value="Hard">困难</Option>
