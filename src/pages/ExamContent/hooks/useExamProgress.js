@@ -63,7 +63,9 @@ export function useExamProgress(examData) {
   };
 
   const resetOnBeginExam = () => {
+    // 重置题目开始时间和耗时记录
     setQuestionStartTime(Date.now());
+    setQuestionTimes({});
   };
 
   return {

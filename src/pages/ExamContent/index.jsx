@@ -494,9 +494,10 @@ Each multiple-choice question has a single correct answer.
   useEffect(() => {
     if (!loading) {
       setIsPreparing(false);
-      resetOnBeginExam();
+      // 移除这里的 resetOnBeginExam 调用，避免过早重置开始时间
+      // resetOnBeginExam();
     }
-  }, [loading, resetOnBeginExam]);
+  }, [loading]);
 
   useEffect(() => {
     const containers = document.querySelectorAll('.selectable-text, .math-content');
