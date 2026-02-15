@@ -14,8 +14,8 @@ function Hero() {
       description: "助你精准定位弱项，高效突破目标分数",
       image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=2000",
       icon: <RocketOutlined />,
-      primaryBtn: { text: "立即开始模考", link: "/mock-exam" },
-      secondaryBtn: { text: "专项技能训练", link: "/special-training" }
+      primaryBtn: { text: "立即开始模考", link: "/exam" },
+      secondaryBtn: { text: "专项技能训练", link: "/practice" }
     },
     // {
     //   title: "AI 驱动的智能分析系统",

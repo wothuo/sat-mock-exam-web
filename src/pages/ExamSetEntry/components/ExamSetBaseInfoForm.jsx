@@ -8,7 +8,7 @@ const { TextArea } = Input;
 const DIFFICULTIES = ['简单', '中等', '困难'];
 const REGIONS = ['北美', '亚太', '欧洲', '其他'];
 const EXAM_TYPES = ['SAT', 'IELTS', 'TOEFL', 'GRE'];
-const YEARS = [2025, 2024, 2023, 2022, 2021];
+const YEARS = [2025, 2024, 2023];
 const SOURCES = ['历年真题', '官方样题', '模拟试题', '机构题库', '教师自编', '其他'];
 
 /**

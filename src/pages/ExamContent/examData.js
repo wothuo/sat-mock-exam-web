@@ -4,6 +4,7 @@
 export const examData = {
   title: 'Section 1, Module 1: Reading and Writing',
   totalQuestions: 27,
+  sectionCategory: '数学',
   directions: {
     title: 'Directions',
     content: `The questions in this section address a number of important reading and writing skills.

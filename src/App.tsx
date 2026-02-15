@@ -111,15 +111,15 @@ function AppContent() {
           <ProtectedRoute children={undefined}>
             <Layout children={undefined}>
               <Routes>
-                <Route path="/special-training" element={<SpecialTraining />} />
-                <Route path="/mock-exam" element={<MockExam />} />
+                <Route path="/practice" element={<SpecialTraining />} />
+                <Route path="/exam" element={<MockExam />} />
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/encyclopedia" element={<Encyclopedia />} />
                 <Route path="/record" element={<ProtectedRoute children={undefined}><PracticeRecord /></ProtectedRoute>} />
                 <Route path="/profile" element={<Profile />} />
                 {/* <Route path="/question-bank" element={<QuestionBank />} /> */}
                 <Route path="/system-overview" element={<SystemOverview />} />
-                <Route path="/exam-set-management" element={<ExamSetManagement />} />
+                <Route path="/management" element={<ExamSetManagement />} />
                 <Route path="/exam-set-entry" element={<ExamSetEntry />} />
                 <Route path="/exam-set-entry/:id" element={<ExamSetEntry />} />
               </Routes>

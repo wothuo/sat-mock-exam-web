@@ -623,7 +623,7 @@ function ExamSetEntry() {
       clearDraft();
       setShowSummaryModal(false);
       message.success(isEditMode ? '套题更新成功！' : '套题录入成功！');
-      navigate('/exam-set-management');
+      navigate('/management');
     } catch (error) {
       message.error('提交套题失败，请稍后重试');
     } finally {

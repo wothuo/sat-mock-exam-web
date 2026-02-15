@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Button } from 'antd';
 import { ClockCircleOutlined } from '@ant-design/icons';
 
@@ -9,25 +9,79 @@ function ExamHeader({
   hideTime,
   showTimeAsIcon,
   formatTime,
-  onOpenDirections,
+  directionsOpen,
+  onToggleDirections,
+  directionsContent,
+  showReference,
   onOpenReference,
   onShowTimeAsIcon,
   onShowTimeAsText,
   onToggleHideTime
 }) {
+  const directionsRef = useRef(null);
+
+  useEffect(() => {
+    if (!directionsOpen) return;
+    const handleClickOutside = (e) => {
+      if (directionsRef.current && !directionsRef.current.contains(e.target)) {
+        onToggleDirections();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [directionsOpen, onToggleDirections]);
+
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <h1 className="text-lg font-bold text-gray-900 tracking-tight">{title}</h1>
-          <Button
-            type="link"
-            onClick={onOpenDirections}
-            className="text-sm font-bold text-blue-600 hover:text-blue-800 p-0 h-auto flex items-center"
-          >
-            <i className="fas fa-info-circle mr-1.5 text-xs" />
-            <span className="underline underline-offset-4">Directions</span>
-          </Button>
+          <div className="relative" ref={directionsRef}>
+            <button
+              type="button"
+              onClick={onToggleDirections}
+              className={`text-sm px-2 py-1 rounded-md font-normal ${directionsOpen ? 'text-blue-800 font-semibold underline' : 'text-blue-600 hover:text-blue-800 hover:underline'}`}
+              aria-expanded={directionsOpen}
+            >
+              Directions
+            </button>
+
+            {/* 浮层常驻 DOM，通过透明度切换避免每次打开时重新挂载导致内容闪烁 */}
+            <div
+              className={directionsOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+              aria-hidden={!directionsOpen}
+            >
+              {/* Arrow pointing to Directions */}
+              <div
+                className="absolute left-1/2 top-full -translate-x-1/2 z-50"
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderLeft: '8px solid transparent',
+                  borderRight: '8px solid transparent',
+                  borderBottom: '8px solid white',
+                  filter: 'drop-shadow(0 -1px 0 rgb(229 231 235))'
+                }}
+              />
+              <div className="absolute left-0 top-full mt-2 z-50 w-[480px] max-h-[70vh] bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col overflow-hidden">
+                <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
+                  <div className="text-gray-800 text-base leading-relaxed">
+                    {directionsContent}
+                  </div>
+                </div>
+                <div className="px-4 py-3 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+                  <span className="text-xs text-gray-500">Click Directions above to view again</span>
+                  <button
+                    type="button"
+                    onClick={onToggleDirections}
+                    className="bg-blue-600 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center space-x-6">
@@ -74,24 +128,20 @@ function ExamHeader({
             </div>
           )}
           <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={onOpenReference}
-              className="text-sm text-gray-600 hover:text-gray-800"
-            >
-              Reference
-            </button>
-            <button type="button" className="text-sm text-gray-600 hover:text-gray-800">
-              More
-            </button>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button type="button" className="p-1 text-gray-600 hover:text-gray-800">
-              <i className="fas fa-times" />
-            </button>
-            <button type="button" className="p-1 text-gray-600 hover:text-gray-800">
-              <i className="fas fa-ellipsis-v" />
-            </button>
+            {showReference && (
+              <button
+                type="button"
+                onClick={onOpenReference}
+                className="flex flex-col items-center text-gray-600 hover:text-gray-800 py-1"
+              >
+                <i className="fas fa-calculator text-sm" />
+                <span className="text-xs leading-tight mt-0.5">Reference</span>
+              </button>
+            )}
+            {/* <button type="button" className="flex flex-col items-center text-gray-600 hover:text-gray-800 py-1">
+              <i className="fas fa-ellipsis-v text-sm" />
+              <span className="text-xs leading-tight mt-0.5">More</span>
+            </button> */}
           </div>
         </div>
       </div>

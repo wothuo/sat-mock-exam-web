@@ -22,7 +22,6 @@ import {
   QuestionNotesPanel
 } from './components/layout';
 import {
-  DirectionsModal,
   NoteModal,
   ProgressModal,
   EndExamModal
@@ -34,6 +33,7 @@ import {
   ExamReportView
 } from './components/screens';
 import { examData } from './examData';
+import { getDirectionsBySectionType, getSectionCategory } from './directions';
 import { useExamProgress } from './hooks/useExamProgress';
 import { useExamTimer } from './hooks/useExamTimer';
 import { useHighlightAndNotes } from './hooks/useHighlightAndNotes';
@@ -108,23 +108,14 @@ function ExamContent() {
       }
       
       // 转换后端数据格式为前端需要的格式
+      const sectionCategory = getSectionCategory(questionsData[0]);
+      const directions = getDirectionsBySectionType(sectionCategory);
+
       const transformedData = {
         title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
         totalQuestions: questionsData.length,
-        directions: {
-          title: 'Directions',
-          content: `The questions in this section address a number of important reading and writing skills.
-Use of a calculator is not permitted for this section. These directions can be accessed throughout the test.
-
-**For multiple-choice questions**, solve each problem and choose the correct answer from the choices provided.
-Each multiple-choice question has a single correct answer.
-
-**For student-produced response questions:**
-• If you find more than one correct answer, enter only one answer.
-• You can enter up to 5 characters for a positive answer and up to 6 characters (including the negative sign) for a negative answer.
-• If your answer is a fraction that doesn't fit in the provided space, enter the decimal equivalent.
-• If your answer is a decimal that doesn't fit in the provided space, enter it by truncating or rounding at the fourth digit.`
-        },
+        sectionCategory,
+        directions,
         questions: questionsData.map((item, index) => {
           // 验证 item 结构
           if (!item || typeof item !== 'object') {
@@ -258,23 +249,14 @@ Each multiple-choice question has a single correct answer.
         }
         
         // 转换后端数据格式为前端需要的格式
+        const sectionCategory = getSectionCategory(questionsData[0]);
+        const directions = getDirectionsBySectionType(sectionCategory);
+
         const transformedData = {
           title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
           totalQuestions: totalQuestions,
-          directions: {
-            title: 'Directions',
-            content: `The questions in this section address a number of important reading and writing skills.
-Use of a calculator is not permitted for this section. These directions can be accessed throughout the test.
-
-**For multiple-choice questions**, solve each problem and choose the correct answer from the choices provided.
-Each multiple-choice question has a single correct answer.
-
-**For student-produced response questions:**
-• If you find more than one correct answer, enter only one answer.
-• You can enter up to 5 characters for a positive answer and up to 6 characters (including the negative sign) for a negative answer.
-• If your answer is a fraction that doesn't fit in the provided space, enter the decimal equivalent.
-• If your answer is a decimal that doesn't fit in the provided space, enter it by truncating or rounding at the fourth digit.`
-          },
+          sectionCategory,
+          directions,
           questions: questionsData.map((item, index) => {
             // 验证 item 结构
             if (!item || typeof item !== 'object') {
@@ -423,7 +405,7 @@ Each multiple-choice question has a single correct answer.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- 初始化仅依赖 sectionId/stateQuestions，realExamData 变化不需要重新请求
   }, [sectionId, stateQuestions]);
 
-  const [showDirections, setShowDirections] = useState(false);
+  const [showDirections, setShowDirections] = useState(true);
   const [showProgress, setShowProgress] = useState(false);
   const [showTimeMode, setShowTimeMode] = useState(true);
   const [showIntro, setShowIntro] = useState(false);
@@ -438,7 +420,7 @@ Each multiple-choice question has a single correct answer.
   const [activeReportTab, setActiveReportTab] = useState('All');
   const [showReference, setShowReference] = useState(false);
 
-  const examDataToUse = realExamData || examData;
+  const examDataToUse = realExamData || [];
   
   // 只在开发环境或特定条件下输出调试信息
   if (process.env.NODE_ENV === 'development') {
@@ -499,9 +481,21 @@ Each multiple-choice question has a single correct answer.
     }
   }, [loading]);
 
+  const prevQuestionRef = React.useRef(currentQuestion);
+  const prevExamFinishedRef = React.useRef(examFinished);
+
   useEffect(() => {
-    const containers = document.querySelectorAll('.selectable-text, .math-content');
-    containers.forEach((c) => { c.style.visibility = 'hidden'; });
+    const questionChanged = prevQuestionRef.current !== currentQuestion;
+    const examFinishedChanged = prevExamFinishedRef.current !== examFinished;
+    prevQuestionRef.current = currentQuestion;
+    prevExamFinishedRef.current = examFinished;
+
+    // 仅在题目切换或考试结束时隐藏并重渲染，避免 Directions 开闭导致题目内容闪烁
+    if (questionChanged || examFinishedChanged) {
+      const containers = document.querySelectorAll('.selectable-text, .math-content');
+      containers.forEach((c) => { c.style.visibility = 'hidden'; });
+    }
+
     const timer = setTimeout(() => renderMathInContainers(), 50);
     return () => clearTimeout(timer);
   }, [currentQuestion, showDirections, examFinished]);
@@ -681,7 +675,10 @@ Each multiple-choice question has a single correct answer.
         hideTime={hideTime}
         showTimeAsIcon={showTimeAsIcon}
         formatTime={formatTime}
-        onOpenDirections={() => setShowDirections(true)}
+        directionsOpen={showDirections}
+        onToggleDirections={() => setShowDirections(prev => !prev)}
+        directionsContent={renderFormattedText(examDataToUse?.directions?.content, 'directions')}
+        showReference={examDataToUse?.sectionCategory === '数学'}
         onOpenReference={() => setShowReference(true)}
         onShowTimeAsIcon={() => setShowTimeAsIcon(true)}
         onShowTimeAsText={() => setShowTimeAsIcon(false)}
@@ -747,12 +744,6 @@ Each multiple-choice question has a single correct answer.
         onEndExam={() => setShowEndExamModal(true)}
       />
 
-      <DirectionsModal
-        open={showDirections}
-        title={examData.directions.title}
-        content={renderFormattedText(examData.directions.content, 'directions')}
-        onClose={() => setShowDirections(false)}
-      />
       <NoteModal
         open={showNoteModal}
         selectedText={selectedText}
@@ -771,8 +762,15 @@ Each multiple-choice question has a single correct answer.
 
       <EndExamModal
         open={showEndExamModal}
-        totalQuestions={examData.totalQuestions}
-        answeredCount={Object.keys(answers).length}
+        totalQuestions={examDataToUse?.totalQuestions ?? examData?.totalQuestions ?? 0}
+        answeredCount={Object.entries(answers ?? {}).filter(([, val]) => {
+          if (val == null) return false;
+          if (typeof val === 'string') return val.trim() !== '';
+          if (typeof val === 'object') {
+            return Object.values(val).some(v => String(v ?? '').trim() !== '');
+          }
+          return false;
+        }).length}
         timeMode={timeMode}
         timeRemaining={timeRemaining}
         formatTime={formatTime}

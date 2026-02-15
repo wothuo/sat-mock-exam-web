@@ -17,7 +17,7 @@ import {
 function Features() {
   const systemModules = [
     {
-      id: 'mock-exam',
+      id: 'exam',
       title: '套题模考系统',
       icon: <TrophyOutlined />,
       color: 'from-blue-500 to-cyan-600',
@@ -25,7 +25,7 @@ function Features() {
       tag: '核心模块'
     },
     {
-      id: 'special-training',
+      id: 'practice',
       title: '专项训练系统',
       icon: <RocketOutlined />,
       color: 'from-purple-500 to-pink-600',

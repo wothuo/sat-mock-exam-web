@@ -135,104 +135,114 @@ function ExamSetManagement() {
       title: '套题名称',
       dataIndex: 'title',
       key: 'title',
-      width: 250,
+      width: 150,
       render: (text, record) => (
-        <div>
-          <div className="font-semibold text-gray-900">{text}</div>
-          {record.description && (
-            <div className="text-xs text-gray-500 mt-1">{record.description}</div>
-          )}
-        </div>
+          <div className="min-w-0 px-2">
+            <div className="font-semibold text-gray-900 truncate" title={text}>{text}</div>
+            {record.description && (
+                <div className="text-xs text-gray-500 mt-1 truncate" title={record.description}>{record.description}</div>
+            )}
+          </div>
       )
     },
     {
       title: '来源',
       dataIndex: 'source',
       key: 'source',
-      width: 120,
+      width: 80,
       render: (source) => (
-        <Tag color="purple">{source}</Tag>
+          <div className="px-2">
+            <Tag color="blue" className="truncate max-w-full" title={source}>{source}</Tag>
+          </div>
       )
     },
     {
       title: 'Section数量',
       key: 'sections',
-      width: 120,
+      width: 80,
       render: (_, record) => (
-        <span className="font-medium">
-          {record.sections !== null && record.sections !== undefined && record.sections > 0
-            ? `${record.sections} 个`
-            : '暂无'}
-        </span>
+          <div className="px-2">
+            <span className="font-medium text-blue-600">
+              {record.sections !== null && record.sections !== undefined && record.sections > 0
+                  ? `${record.sections} 个`
+                  : <span className="text-gray-400">暂无</span>}
+            </span>
+          </div>
       )
     },
     {
       title: '总题数',
       dataIndex: 'totalQuestions',
       key: 'totalQuestions',
-      width: 100,
+      width: 70,
       render: (questions) => (
-        <span className="font-medium">{questions} 题</span>
+          <div className="px-2">
+            <span className="font-medium text-green-600">{questions} 题</span>
+          </div>
       )
     },
     {
       title: '总时长',
       dataIndex: 'totalDuration',
       key: 'totalDuration',
-      width: 100,
+      width: 80,
       render: (duration) => (
-        <span className="font-medium">
-          {duration !== null && duration !== undefined ? `${duration} 分钟` : '暂无'}
-        </span>
+          <div className="px-2">
+            <span className="font-medium text-orange-600">
+              {duration !== null && duration !== undefined ? `${duration} 分钟` : <span className="text-gray-400">暂无</span>}
+            </span>
+          </div>
       )
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      width: 100,
+      width: 80,
       render: (status, record) => (
-        <Switch
-          checked={status === 0}
-          onChange={(checked) => handleChangeStatus(checked, record)}
-          checkedChildren="发布"
-          unCheckedChildren="下线"
-        />
+          <Switch
+              checked={record.status === 0}
+              checkedChildren="发布"
+              unCheckedChildren="下线"
+          />
       )
     },
     {
       title: '操作',
       key: 'action',
-      width: 200,
+      width: 150,
       fixed: 'right',
       render: (_, record) => (
-        <Space size="small">
-          {/* <Button
-            type="link"
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => handleManageSections(record)}
-          >
-            题目管理
-          </Button> */}
-          <Button
-            type="link"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record)}
-          >
-            编辑
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record)}
-          >
-            删除
-          </Button>
-        </Space>
+          <div className="px-2">
+            <Space size="middle" className="flex-nowrap">
+               {/*<Button type="link"*/}
+               {/*        size="small"*/}
+               {/*        icon={<EyeOutlined />}*/}
+               {/*        onClick={() => handleManageSections(record)}*/}
+               {/*>*/}
+               {/*  题目管理*/}
+               {/*</Button>*/}
+              <Button
+                  type="link"
+                  size="small"
+                  icon={<EditOutlined />}
+                  onClick={() => handleEdit(record)}
+                  className="text-blue-600 hover:text-blue-800 px-2"
+              >
+                编辑
+              </Button>
+              <Button
+                  type="link"
+                  size="small"
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleDelete(record)}
+                  className="text-red-600 hover:text-red-800 px-2"
+              >
+                删除
+              </Button>
+            </Space>
+          </div>
       )
     }
   ];

@@ -172,16 +172,16 @@ function RichTextEditor({
             setTimeout(syncHeight, 0);
           }}
           placeholder={placeholder}
-          className="rich-text-area-inner rounded-xl exam-question-editor-font"
+          className="rich-text-area-inner rounded-md exam-question-editor-font"
           onFocus={() => handleToolbarAction('focus', null)}
         />
       </div>
       {showPreview && previewVisible && (
-        <div className="mt-2 space-y-2">
+        <div className="mt-1.5 space-y-1">
           <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1">预览内容</div>
           <div 
             id={`preview-${id}`}
-            className="rich-text-preview bg-white rounded-xl border-2 border-dashed border-blue-100 exam-question-editor-font"
+            className="rich-text-preview bg-white rounded-md border-2 border-dashed border-blue-100 exam-question-editor-font"
           >
             {!(value || '').trim() && previewPlaceholder ? (
               <div className="text-gray-300 italic leading-relaxed">

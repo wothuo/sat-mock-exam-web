@@ -18,13 +18,13 @@ function Header() {
   const navItems = [
     { path: '/', label: '首页' },
     // { path: '/system-overview', label: '系统总览' },
-    { path: '/mock-exam', label: '套题模考' },
-    { path: '/special-training', label: '专项训练' },
+    { path: '/exam', label: '套题模考' },
+    { path: '/practice', label: '专项训练' },
     { path: '/record', label: '练习记录' },
     // { path: '/courses', label: '课程讲座' },
     // { path: '/encyclopedia', label: '考试百科' },
     // { path: '/question-bank', label: '题库管理' },
-    { path: '/exam-set-management', label: '套题管理' },
+    { path: '/management', label: '套题管理' },
   ];
   
   // 监听登录状态变化
@@ -165,18 +165,18 @@ function Header() {
           ))}
           <div className="pt-6 mt-4 border-t border-gray-100 px-2">
             {isLoggedIn ? (
-              <Button
-                type="primary"
+              <button
+                type="button"
                 onClick={handleLogout}
-                className="block w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-center rounded-2xl font-bold shadow-lg shadow-red-200 active:scale-95 transition-transform"
+                className="flex items-center justify-center w-full py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl font-bold shadow-lg shadow-red-200 active:scale-95 transition-transform border-0 cursor-pointer"
               >
                 退出登录
-              </Button>
+              </button>
             ) : (
               <>
                 <Link 
                   to="/register" 
-                  className="block w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-center rounded-2xl font-bold shadow-lg shadow-red-200 active:scale-95 transition-transform"
+                  className="flex items-center justify-center w-full py-2.5 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl font-bold shadow-lg shadow-red-200 active:scale-95 transition-transform"
                   onClick={() => setMobileMenuVisible(false)}
                 >
                   立即注册

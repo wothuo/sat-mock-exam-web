@@ -105,7 +105,7 @@ function Home() {
                     </Button>
                   </Link>
                 )}
-                <Link to="/mock-exam">
+                <Link to="/exam">
                   <Button 
                     size="large" 
                     className="h-14 px-10 bg-red-700/30 text-white hover:bg-red-700/50 border-white/30 shadow-lg font-bold text-lg rounded-2xl backdrop-blur-sm"

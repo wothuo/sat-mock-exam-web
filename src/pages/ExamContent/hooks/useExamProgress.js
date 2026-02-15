@@ -13,8 +13,8 @@ export function useExamProgress(examData) {
   const [questionTimes, setQuestionTimes] = useState({});
 
   const currentQ = useMemo(
-    () => examData.questions.find((q) => q.id === currentQuestion),
-    [examData.questions, currentQuestion]
+    () => examData?.questions?.find((q) => q?.id === currentQuestion),
+    [examData?.questions, currentQuestion]
   );
 
   const handleAnswerSelect = (answer) => {

@@ -23,7 +23,7 @@ function SystemOverview() {
 
   const systemModules = [
     {
-      id: 'mock-exam',
+      id: 'exam',
       title: '套题模考系统',
       icon: <TrophyOutlined />,
       color: 'from-blue-500 to-cyan-600',
@@ -42,7 +42,7 @@ function SystemOverview() {
       }
     },
     {
-      id: 'special-training',
+      id: 'practice',
       title: '专项训练系统',
       icon: <RocketOutlined />,
       color: 'from-purple-500 to-pink-600',
@@ -396,7 +396,7 @@ function SystemOverview() {
               加入 100,000+ 学员，一起高效备考，轻松提分
             </p>
             <Space size="large" className="flex-wrap justify-center">
-              <Link to="/mock-exam">
+              <Link to="/exam">
                 <Button 
                   type="primary" 
                   size="large" 
@@ -406,7 +406,7 @@ function SystemOverview() {
                   立即开始模考
                 </Button>
               </Link>
-              <Link to="/special-training">
+              <Link to="/practice">
                 <Button 
                   size="large" 
                   icon={<TrophyOutlined />}
