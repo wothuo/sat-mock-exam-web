@@ -6,8 +6,8 @@ import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
 
 const { TextArea } = Input;
 
-/** 约 1 行高度（px） */
-const ROW_HEIGHT = 28;
+/** 约 1 行高度（px），匹配 12px 字号 + 1.5 行高 */
+const ROW_HEIGHT = 24;
 const MAX_AUTO_ROWS = 5;
 
 function RichTextEditor({ 
@@ -172,7 +172,7 @@ function RichTextEditor({
             setTimeout(syncHeight, 0);
           }}
           placeholder={placeholder}
-          className="rich-text-area-inner rounded-xl text-xs leading-relaxed exam-question-editor-font"
+          className="rich-text-area-inner rounded-xl exam-question-editor-font"
           onFocus={() => handleToolbarAction('focus', null)}
         />
       </div>
@@ -181,15 +181,15 @@ function RichTextEditor({
           <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider px-1">预览内容</div>
           <div 
             id={`preview-${id}`}
-            className="p-4 bg-white rounded-xl border-2 border-dashed border-blue-100 exam-question-editor-font min-h-[60px]"
+            className="rich-text-preview bg-white rounded-xl border-2 border-dashed border-blue-100 exam-question-editor-font"
           >
             {!(value || '').trim() && previewPlaceholder ? (
-              <div className="text-gray-300 italic leading-relaxed text-sm">
+              <div className="text-gray-300 italic leading-relaxed">
                 {previewPlaceholder}
               </div>
             ) : (
               <div 
-                className="text-gray-900 leading-relaxed break-words markdown-body"
+                className="text-gray-900 break-words markdown-body"
                 dangerouslySetInnerHTML={{ 
                   __html: formatText(value || '')
                 }}

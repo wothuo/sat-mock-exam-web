@@ -1,5 +1,4 @@
 /* 套题录入页覆盖样式 */
-
 .ant-collapse-header {
   padding: 20px 24px !important;
   align-items: center !important;
@@ -17,6 +16,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.padding-bottom-1 {
+  padding-bottom: 1rem !important;
 }
 
 .section-dropdown .ant-select-item-option-content {
@@ -53,13 +56,38 @@
   height: 100% !important;
   min-height: 100% !important;
 }
+/* 题目编辑区：统一内边距、字号、行高 */
+.exam-set-question-form {
+  --editor-cell-padding: 4px 6px;
+  --editor-font-size: 12px;
+  --editor-line-height: 1.5;
+}
+.exam-set-question-form .ant-select-selector {
+  padding: var(--editor-cell-padding) !important;
+  font-size: var(--editor-font-size) !important;
+  line-height: var(--editor-line-height) !important;
+  font-family: Georgia, "PingFang SC", "Microsoft YaHei", sans-serif;
+  min-height: 32px !important;
+  height: auto !important;
+}
+.exam-set-question-form .ant-select-single .ant-select-selector {
+  align-items: center;
+}
+.exam-set-question-form .ant-input {
+  padding: var(--editor-cell-padding) !important;
+  font-size: var(--editor-font-size) !important;
+  line-height: var(--editor-line-height) !important;
+  font-family: Georgia, "PingFang SC", "Microsoft YaHei", sans-serif;
+  min-height: 32px !important;
+}
+
 .rich-text-area-wrapper [class*="-textarea-affix-wrapper"],
 .rich-text-area-wrapper .ant-input-affix-wrapper {
   height: 100% !important;
   min-height: 100% !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 6px 8px !important;
+  padding: var(--editor-cell-padding, 4px 6px) !important;
   background: transparent !important;
   border-radius: inherit;
 }
@@ -68,12 +96,27 @@
   min-height: 100% !important;
   resize: none !important;
   border: none !important;
-  padding: 6px 8px !important;
+  padding: 0 !important;
   overflow-y: auto !important;
+  font-size: var(--editor-font-size, 12px) !important;
+  line-height: var(--editor-line-height, 1.5) !important;
 }
 .rich-text-area-wrapper[data-measuring] textarea {
   height: auto !important;
   overflow: hidden !important;
+}
+
+/* 预览区：统一内边距、字号 + 随内容伸缩 */
+.rich-text-preview {
+  padding: var(--editor-cell-padding, 4px 6px);
+  min-height: 32px;
+  font-size: var(--editor-font-size, 12px);
+  line-height: var(--editor-line-height, 1.5);
+  font-family: Georgia, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+.rich-text-preview .markdown-body {
+  font-size: inherit;
+  line-height: inherit;
 }
 
 /* 预览区域列表样式恢复：Tailwind Preflight 会重置 ol/ul 的 list-style，导致有序列表无序号 */

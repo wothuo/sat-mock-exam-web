@@ -683,7 +683,7 @@ function ExamSetEntry() {
 
   if (fetchLoading && editId) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-8 flex items-center justify-center min-h-[400px]">
+      <div className="max-w-5xl mx-auto padding-bottom-1 flex items-center justify-center min-h-[400px]">
         <Spin size="large" tip="加载套题数据中..." />
       </div>
     );
@@ -691,7 +691,7 @@ function ExamSetEntry() {
 
   if (fetchExamError && editId) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-8 flex items-center justify-center min-h-[400px]">
+      <div className="max-w-5xl mx-auto padding-bottom-1 flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center justify-center py-16 px-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100">
           <i className="fas fa-exclamation-circle text-5xl text-amber-500 mb-4"></i>
           <p className="text-gray-600 mb-6">获取套题数据失败，请稍后重试</p>
@@ -708,8 +708,8 @@ function ExamSetEntry() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between mb-8">
+    <div className="max-w-5xl mx-auto padding-bottom-1">
+          <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl font-black text-gray-900 m-0">
             {isEditMode ? '编辑套题' : '录入新套题'}
           </h1>
