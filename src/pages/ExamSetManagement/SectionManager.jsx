@@ -28,7 +28,7 @@ import {
     UnorderedListOutlined,
 } from '@ant-design/icons';
 
-import QuestionEditor from '../QuestionBank/QuestionEditor';
+// import QuestionEditor from '../QuestionBank/QuestionEditor';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -1065,9 +1065,10 @@ function SectionManager({ visible, examSet, onSave, onCancel }) {
       </Drawer>
 
       {/* 题目编辑弹窗 */}
-      <Modal
+      {/* <Modal
         title='编辑题目信息'
-        open={isSingleQuestionEditorVisible}
+        // open={isSingleQuestionEditorVisible}
+        open={true}
         onCancel={() => setIsSingleQuestionEditorVisible(false)}
         footer={null}
         width={800}
@@ -1078,7 +1079,7 @@ function SectionManager({ visible, examSet, onSave, onCancel }) {
           onSave={handleSaveSingleQuestion}
           onCancel={() => setIsSingleQuestionEditorVisible(false)}
         />
-      </Modal>
+      </Modal> */}
     </Modal>
   );
 }
