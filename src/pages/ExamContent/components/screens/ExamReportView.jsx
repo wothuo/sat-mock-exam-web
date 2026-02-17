@@ -108,8 +108,14 @@ function ExamReportView({
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {examData.questions.map((q, idx) => {
-                  const isCorrect = answers[q.id] === q.correctAnswer;
-                  const isOmitted = !answers[q.id];
+                  // Normalize answers for comparison
+                  const userAnswer = answers[q.id];
+                  const normalizedUserAnswer = typeof userAnswer === 'object' && userAnswer !== null 
+                    ? Object.values(userAnswer).join(', ')
+                    : String(userAnswer || '');
+                  const normalizedCorrectAnswer = String(q.correctAnswer || '');
+                  const isCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
+                  const isOmitted = !userAnswer || (typeof userAnswer === 'object' && Object.values(userAnswer).every(v => !v));
                   return (
                     <tr key={q.id} className="group hover:bg-gray-50 transition-colors">
                       <td className="py-4 font-bold text-gray-700">{idx + 1}</td>

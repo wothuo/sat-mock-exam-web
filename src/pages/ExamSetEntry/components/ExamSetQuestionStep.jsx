@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 
 import { Alert, Button, Empty, Input, Select, Space, Tag } from 'antd';
+
 import { CheckCircleOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 
 import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
+
 import RichTextEditor from './RichTextEditor';
 
 const { Option } = Select;
@@ -431,28 +433,79 @@ function ExamSetQuestionStep({
                         </Select>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">科目分类</label>
+                        <Select
+                            value={q.subjectCategory || (q.subject === '阅读语法' ? '阅读' : q.subject)}
+                            onChange={v => {
+                              onUpdateQuestion(q.id, 'subjectCategory', v);
+                              // 切换科目分类时，重置知识点为第一个选项
+                              const types = questionTypesMap[v] || [];
+                              if (types.length > 0) {
+                                onUpdateQuestion(q.id, 'type', types[0]);
+                              }
+                            }}
+                            className="w-full rounded-md"
+                        >
+                          {q.subject === '阅读语法' ? (
+                            <>
+                              <Option key="阅读" value="阅读">阅读</Option>
+                              <Option key="语法" value="语法">语法</Option>
+                            </>
+                          ) : (
+                            <Option key={q.subject} value={q.subject}>{q.subject}</Option>
+                          )}
+                        </Select>
+                      </div>
                       <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">知识点</label>
                         <Select
-                          value={q.type}
-                          onChange={v => onUpdateQuestion(q.id, 'type', v)}
-                          className="w-full rounded-md"
+                            value={q.type}
+                            onChange={v => onUpdateQuestion(q.id, 'type', v)}
+                            className="w-full rounded-md"
                         >
-                          {(questionTypesMap[q.subject] || []).map(t => (
-                            <Option key={t} value={t}>{t}</Option>
-                          ))}
+                          {(() => {
+                            // 安全的获取知识点列表，优先处理阅读语法的情况
+                            let types = [];
+
+                            // 1. 如果subject是阅读语法，但没有subjectCategory，默认使用阅读
+                            if (q.subject === '阅读语法' && !q.subjectCategory) {
+                              types = questionTypesMap['阅读'] || questionTypesMap['阅读语法'] || [];
+                            }
+                            // 2. 优先使用subjectCategory
+                            else if (q.subjectCategory && questionTypesMap[q.subjectCategory]) {
+                              types = questionTypesMap[q.subjectCategory];
+                            }
+                            // 3. 使用subject
+                            else if (q.subject && questionTypesMap[q.subject]) {
+                              types = questionTypesMap[q.subject];
+                            }
+                            // 4. 如果subject是"阅读语法"，使用"阅读语法"的映射
+                            else if (q.subject === '阅读语法' && questionTypesMap['阅读语法']) {
+                              types = questionTypesMap['阅读语法'];
+                            }
+                            // 5. 最后使用空数组作为后备
+                            else {
+                              types = [];
+                            }
+
+                            return types.map(t => (
+                                <Option key={t} value={t}>{t}</Option>
+                            ));
+                          })()}
                         </Select>
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">难度</label>
                         <Select
-                          value={q.difficulty}
-                          onChange={v => onUpdateQuestion(q.id, 'difficulty', v)}
-                          className="w-full rounded-md"
+                            value={q.difficulty}
+                            onChange={v => onUpdateQuestion(q.id, 'difficulty', v)}
+                            className="w-full rounded-md"
                         >
                           {difficulties.map(d => (
-                            <Option key={d} value={d}>{d}</Option>
+                              <Option key={d} value={d}>{d}</Option>
                           ))}
                         </Select>
                       </div>

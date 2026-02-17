@@ -831,9 +831,9 @@ function SectionManager({ visible, examSet, onSave, onCancel }) {
                   placeholder='难度'
                 >
                   <Option value='全部'>全部难度</Option>
-                  <Option value='Easy'>Easy</Option>
-                  <Option value='Medium'>Medium</Option>
-                  <Option value='Hard'>Hard</Option>
+                  <Option value='简单'>简单</Option>
+                  <Option value='中等'>中等</Option>
+                  <Option value='困难'>困难</Option>
                 </Select>
                 <Select
                   className='w-full'
@@ -844,7 +844,6 @@ function SectionManager({ visible, examSet, onSave, onCancel }) {
                   <Option value='全部'>全部来源</Option>
                   <Option value='历年真题'>历年真题</Option>
                   <Option value='官方样题'>官方样题</Option>
-                  <Option value='Question Bank考题'>Question Bank考题</Option>
                 </Select>
               </div>
               <Input

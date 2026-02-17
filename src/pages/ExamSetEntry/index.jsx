@@ -309,7 +309,6 @@ function ExamSetEntry() {
               // 调用新增套题接口
               const newExamId = await createExamSet(examData);
               console.log('【测试日志】新增套题成功，返回examId:', newExamId);
-              message.success(`新增套题成功，套题ID: ${newExamId}`);
               // 记录examId并暂存套题信息
               setExamId(newExamId);
               setExamData(examData);
@@ -492,12 +491,15 @@ function ExamSetEntry() {
     }
     const newId = Date.now() * -1;
     const defaultSection = sections[0];
-    const questionTypes = QUESTION_TYPES_MAP[defaultSection.subject] || [];
+    // 根据subject设置默认的subjectCategory
+    const defaultSubjectCategory = defaultSection.subject === '阅读语法' ? '阅读' : defaultSection.subject;
+    const questionTypes = QUESTION_TYPES_MAP[defaultSubjectCategory] || [];
     const newQuestion = {
       id: newId,
       sectionId: defaultSection.id,
       sectionName: defaultSection.name,
       subject: defaultSection.subject,
+      subjectCategory: defaultSubjectCategory,
       interactionType: '选择题',
       type: questionTypes.length > 0 ? questionTypes[0] : '未分类',
       difficulty: '中等',
@@ -529,7 +531,9 @@ function ExamSetEntry() {
           if (targetSection) {
             updated.subject = targetSection.subject;
             updated.sectionName = targetSection.name;
-            const questionTypes = QUESTION_TYPES_MAP[targetSection.subject] || [];
+            const defaultSubjectCategory = targetSection.subject === '阅读语法' ? '阅读' : targetSection.subject;
+            updated.subjectCategory = defaultSubjectCategory;
+            const questionTypes = QUESTION_TYPES_MAP[defaultSubjectCategory] || [];
             updated.type = questionTypes.length > 0 ? questionTypes[0] : '未分类';
           }
         }
@@ -538,6 +542,7 @@ function ExamSetEntry() {
       return q;
     }));
   };
+
 
   const removeQuestion = (id) => {
     setQuestions(prev => {

@@ -2,20 +2,49 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import dayjs from 'dayjs';
 
+import { fetchWrongRecordList } from '../../services/record';
+
 import MockTab from './components/MockTab';
 import NotesTab from './components/NotesTab';
 import PracticeTab from './components/PracticeTab';
 import QuestionDetailModal from './components/QuestionDetailModal';
 import WrongTab from './components/WrongTab';
-import { fetchWrongRecordList } from '../../services/record';
 
 /** 解析接口 options 字符串为数组 [{ option, content }, ...] */
 function parseOptionsOptions(value) {
-  if (Array.isArray(value)) return value;
+  if (Array.isArray(value)) {
+    // 处理数组格式：可能是直接的对象数组，也可能是JSON字符串数组
+    return value.map(item => {
+      if (typeof item === 'string') {
+        try {
+          const parsed = JSON.parse(item);
+          return typeof parsed === 'object' && parsed !== null ? parsed : { option: '', content: item };
+        } catch {
+          return { option: '', content: item };
+        }
+      }
+      return item;
+    }).filter(item => item && (item.option || item.content));
+  }
+  if (typeof value === 'object' && value !== null) {
+    // 处理对象格式：{"A":"内容","B":"内容"}
+    return Object.entries(value).map(([key, content]) => ({
+      option: key,
+      content: content
+    }));
+  }
   if (typeof value !== 'string' || !value.trim()) return [];
   try {
     const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed : [];
+    if (Array.isArray(parsed)) return parsed;
+    if (typeof parsed === 'object' && parsed !== null) {
+      // 处理解析后为对象的情况
+      return Object.entries(parsed).map(([key, content]) => ({
+        option: key,
+        content: content
+      }));
+    }
+    return [];
   } catch {
     return [];
   }
@@ -50,18 +79,15 @@ function mapWrongItem(item) {
 /** 前端筛选值 → 接口参数 */
 function toApiQuestionCategory(value) {
   if (!value || value === 'all') return undefined;
-  const map = { math: '数学', reading: '阅读', grammar: '语法' };
-  return map[value];
+  return value;
 }
 function toApiDifficulty(value) {
   if (!value || value === 'all') return undefined;
-  const v = String(value).toLowerCase();
-  return v === 'easy' ? 'Easy' : v === 'medium' ? 'Medium' : v === 'hard' ? 'Hard' : undefined;
+  return value;
 }
 function toApiTimeRange(value) {
   if (!value || value === 'all') return undefined;
-  const map = { month: '最近一个月', quarter: '最近三个月', half: '最近半年' };
-  return map[value];
+  return value;
 }
 
 function PracticeRecord() {
@@ -108,7 +134,7 @@ function PracticeRecord() {
     if (lastWrongRequestKeyRef.current === requestKey) return;
     lastWrongRequestKeyRef.current = requestKey;
     loadWrongList();
-  }, [activeTab, wrongPageNum, wrongPageSize, wrongSubject, wrongDifficulty, wrongPeriod, loadWrongList]);
+  }, [activeTab, wrongPageNum, wrongPageSize, wrongSubject, wrongDifficulty, wrongPeriod]);
 
   useEffect(() => {
     if (window.renderMathInElement) {

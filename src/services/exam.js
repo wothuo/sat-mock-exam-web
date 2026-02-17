@@ -284,7 +284,7 @@ export const alterExamStatus = async (data) => {
  * @param {number} [data.sectionId] - 套题Section ID（创建时通常为空）
  * @param {string} data.sectionName - 套题Section名称
  * @param {string} data.sectionCategory - 套题Section分类（如：阅读语法、数学）
- * @param {string} data.sectionDifficulty - 套题Section难度（如：Easy、Medium、Hard）
+ * @param {string} data.sectionDifficulty - 套题Section难度（如：简单、中等、困难）
  * @param {number} data.sectionTiming - 套题Section限时（分钟）
  * @param {number} [data.status] - 状态：0-正常，1-禁用（默认1）
  * @param {number} [data.delFlag] - 删除标志：0-正常，1-已删除（默认0）
@@ -332,6 +332,7 @@ export const deleteExamSection = async (sectionId) => {
  * @param {number} [params.pageSize] - 每页显示数量，默认10条
  * @param {string} [params.examType] - 套题类型（SAT/TOEFL等）
  * @param {string} [params.difficulty] - 套题难度
+ * @param {string} [params.sectionCategory] - 套题Section分类
  * @param {string} [params.examRegion] - 套题地区
  * @param {string} [params.examYear] - 套题年份
  * @param {string} [params.source] - 套题来源

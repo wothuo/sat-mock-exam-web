@@ -69,9 +69,9 @@ function WrongTab({
             placeholder="选择科目"
           >
             <Option value="all">📚 全部科目</Option>
-            <Option value="math">🔢 数学</Option>
-            <Option value="reading">📖 阅读</Option>
-            <Option value="grammar">✏️ 语法</Option>
+            <Option value="数学">🔢 数学</Option>
+            <Option value="阅读">📖 阅读</Option>
+            <Option value="语法">✏️ 语法</Option>
           </Select>
           <Select
             value={difficulty}
@@ -80,9 +80,9 @@ function WrongTab({
             placeholder="选择难度"
           >
             <Option value="all">📊 全部难度</Option>
-            <Option value="Easy">简单</Option>
-            <Option value="Medium">中等</Option>
-            <Option value="Hard">困难</Option>
+            <Option value="简单">🎯 简单</Option>
+            <Option value="中等">⚡ 中等</Option>
+            <Option value="困难">🔥 困难</Option>
           </Select>
           <Select
             value={period}
@@ -91,9 +91,9 @@ function WrongTab({
             placeholder="选择时间"
           >
             <Option value="all">📅 全部时间</Option>
-            <Option value="month">📅 最近一个月</Option>
-            <Option value="quarter">📆 最近三个月</Option>
-            <Option value="half">🗓️ 最近半年</Option>
+            <Option value="最近一周">📅 最近一周</Option>
+            <Option value="最近一个月">📅 最近一个月</Option>
+            <Option value="最近三个月">📆 最近三个月</Option>
           </Select>
         </Space>
       </div>

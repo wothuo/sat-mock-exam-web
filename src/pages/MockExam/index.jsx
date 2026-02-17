@@ -36,7 +36,8 @@ function MockExam() {
         examRegion: 'ALL',
         examYear: selectedYear === '全部' ? 'ALL' : selectedYear,
         source: activeTab === '历年真题' ? '历年真题' : '官方样题',
-        examName: 'ALL'
+        examName: 'ALL',
+        sectionCategory: selectedSubject === '全部' ? 'ALL' : selectedSubject
       };
 
       const response = await queryExamSectionList(params, { signal, showError: false });
@@ -88,11 +89,7 @@ function MockExam() {
 
     let matchSubject = selectedSubject === '全部';
     if (!matchSubject) {
-      if (selectedSubject === '阅读语法') {
-        matchSubject = exam.subject === '阅读' || exam.subject === '语法';
-      } else {
-        matchSubject = exam.subject === selectedSubject;
-      }
+      matchSubject = exam.subject === selectedSubject;
     }
 
     return matchSource && matchSubject && matchDifficulty && matchYear;

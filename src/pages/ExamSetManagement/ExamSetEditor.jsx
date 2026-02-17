@@ -50,7 +50,7 @@ function ExamSetEditor({ visible, examSet, onSave, onCancel }) {
           label="套题名称"
           rules={[{ required: true, message: '请输入套题名称' }]}
         >
-          <Input placeholder="例如：2025年12月北美第4套" />
+          <Input placeholder="例如：2026年3月亚洲-北京SAT真题" />
         </Form.Item>
 
         <Form.Item
@@ -73,7 +73,6 @@ function ExamSetEditor({ visible, examSet, onSave, onCancel }) {
           <Select>
             <Option value="历年真题">历年真题</Option>
             <Option value="官方样题">官方样题</Option>
-            <Option value="Question Bank考题">Question Bank考题</Option>
           </Select>
         </Form.Item>
 
@@ -83,9 +82,9 @@ function ExamSetEditor({ visible, examSet, onSave, onCancel }) {
           rules={[{ required: true, message: '请选择难度' }]}
         >
           <Select>
-            <Option value="Easy">Easy</Option>
-            <Option value="Medium">Medium</Option>
-            <Option value="Hard">Hard</Option>
+            <Option value="简单">简单</Option>
+            <Option value="中等">中等</Option>
+            <Option value="困难">困难</Option>
           </Select>
         </Form.Item>
 

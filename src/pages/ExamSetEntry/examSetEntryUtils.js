@@ -203,11 +203,20 @@ export function formatQuestionListFromApi(questionListData, sections) {
     const optionsArray = parseQuestionOptions(question.options);
     const section = sections.find(s => s.id === question.sectionId);
     const subject = section?.subject || CATEGORY_TO_SUBJECT[question.questionCategory] || '阅读语法';
+
+    // 设置subjectCategory：如果questionCategory是阅读或语法，直接使用；否则根据subject推断
+    let subjectCategory = question.questionCategory;
+    if (!['阅读', '语法', '数学'].includes(question.questionCategory)) {
+      // 如果questionCategory不是标准值，根据subject推断
+      subjectCategory = subject === '阅读语法' ? '阅读' : subject;
+    }
+
     return {
       id: question.questionId,
       sectionId: question.sectionId,
       sectionName,
       subject,
+      subjectCategory, // 新增字段
       questionCategory: question.questionCategory,
       questionSubCategory: question.questionSubCategory,
       difficulty: question.difficulty,
@@ -284,7 +293,7 @@ export function buildQuestionsPayload(questions, isEditMode) {
       sectionId: question.sectionId,
       sectionName: question.sectionName,
       questionType: question.interactionType,
-      questionCategory: question.subject || '',
+      questionCategory: question.subjectCategory || question.subject || '',
       questionSubCategory: question.type,
       difficulty: question.difficulty || '',
       questionContent: question.content === '已录入' ? '' : (question.content || ''),

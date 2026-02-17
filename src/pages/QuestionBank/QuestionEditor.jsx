@@ -55,11 +55,11 @@ function QuestionEditor({ question, onSave, onCancel }) {
   }, [form.getFieldsValue()]);
 
   const subjects = ['数学', '阅读', '语法'];
-  const difficulties = ['Easy', 'Medium', 'Hard'];
-  const sources = ['历年真题', '官方样题', 'Question Bank考题'];
+  const difficulties = ['简单', '中等', '困难'];
+  const sources = ['历年真题', '官方样题'];
 
   const questionTypesMap = {
-    '数学': ['基础运算', '圆方程', '一次函数', '三角函数', '二次函数', '统计', '指数函数', '数据分析', '应用题', '基础函数', '几何'],
+    '数学': ['基础运算','进阶运算','一次函数','二次函数','指数函数','多项式函数','几何','圆','三角形','统计','数据分析',],
     '阅读': ['词汇题', '结构目的题', '双篇题', '主旨细节题', '文本证据题', '图表题', '推断题'],
     '语法': ['标点符号', '句子连接', '动词专项', '名词、代词、形容词', '定语、状语、同位语', '逻辑词', 'notes题']
   };

@@ -6,7 +6,7 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 const DIFFICULTIES = ['简单', '中等', '困难'];
-const REGIONS = ['北美', '亚太', '欧洲', '其他'];
+const REGIONS = ['亚洲-中国北京', '亚洲-中国深圳', '亚洲-中国香港', '亚洲-新加坡', '美洲-美国', '美洲-加拿大', '欧洲-英国', '大洋洲-澳大利亚', '非洲与中东-阿联酋'];
 const EXAM_TYPES = ['SAT', 'IELTS', 'TOEFL', 'GRE'];
 const YEARS = [2026, 2025, 2024, 2023];
 const SOURCES = ['历年真题', '官方样题', '模拟试题', '机构题库', '教师自编', '其他'];
@@ -24,7 +24,7 @@ function ExamSetBaseInfoForm({ form, loading, isEditMode, onNext }) {
           label={<span className="font-bold text-gray-700">套题名称</span>}
           rules={[{ required: true, message: '请输入套题名称' }]}
         >
-          <Input placeholder="例如：2025年3月北美SAT真题" className="h-11 rounded-xl" />
+          <Input placeholder="例如：2026年3月亚洲-中国北京SAT真题" className="h-11 rounded-xl" />
         </Form.Item>
 
         <Form.Item

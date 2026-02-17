@@ -94,16 +94,16 @@ function ExamSetSummaryModal({ open, onCancel, onOk, loading, summaryFormValues 
               </div>
               <h3 className="text-lg font-bold text-gray-900 m-0">套题基本信息</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white rounded-xl p-4 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="md:col-span-3 bg-white rounded-xl p-4 shadow-sm">
                 <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">套题名称</div>
                 <div className="text-base font-bold text-gray-900 truncate">{summaryFormValues.title}</div>
               </div>
-              <div className="bg-white rounded-xl p-4 shadow-sm">
+              <div className="md:col-span-1 bg-white rounded-xl p-4 shadow-sm">
                 <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">考试类型</div>
                 <div className="text-base font-bold text-gray-900">{summaryFormValues.type}</div>
               </div>
-              <div className="bg-white rounded-xl p-4 shadow-sm">
+              <div className="md:col-span-1 bg-white rounded-xl p-4 shadow-sm">
                 <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">总题目数</div>
                 <div className="text-2xl font-black text-red-600">{totalCount} <span className="text-sm font-bold text-gray-400">题</span></div>
               </div>
@@ -125,7 +125,7 @@ function ExamSetSummaryModal({ open, onCancel, onOk, loading, summaryFormValues 
 
             return (
               <div key={section.id} className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-100 rounded-2xl p-5 hover:shadow-lg transition-all duration-300">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-600 text-white rounded-xl flex items-center justify-center text-lg font-black shadow-lg">
                       {index + 1}
