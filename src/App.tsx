@@ -11,11 +11,12 @@ import ExamContent from './pages/ExamContent';
 import ExamSetManagement from './pages/ExamSetManagement';
 import ExamSetEntry from './pages/ExamSetEntry';
 import Home from './pages/Home';
-import MockExam from './pages/MockExam';
-import PracticeRecord from './pages/PracticeRecord';
-import Profile from './pages/Profile';
+import MockExam from './pages/Exam';
+import PracticeRecord from './pages/Records';
+import Profile from './pages/Profile/studentIndex';
+import TeacherProfile from './pages/Profile/teacherIndex';
 // import QuestionBank from './pages/QuestionBank';
-import SpecialTraining from './pages/SpecialTraining';
+import SpecialTraining from './pages/Practice';
 import SystemOverview from './pages/SystemOverview';
 import { getRouteNavigateEventName } from './utils/router';
 import { getToken, isTokenExpired, startSessionHeartbeat, addSessionConflictListener, clearSessionConflict, isSessionValid } from './utils/token';
@@ -77,7 +78,7 @@ function AppContent() {
   const requiresAuth = (path) => {
     // 登录和注册页面不需要认证
     const publicPaths = ['/login', '/register'];
-    return !publicPaths.includes(path);
+    return publicPaths.indexOf(path) === -1;
   };
 
   // 受保护的路由组件
@@ -117,7 +118,7 @@ function AppContent() {
                 <Route path="/encyclopedia" element={<Encyclopedia />} />
                 <Route path="/record" element={<ProtectedRoute children={undefined}><PracticeRecord /></ProtectedRoute>} />
                 <Route path="/profile" element={<Profile />} />
-                {/* <Route path="/question-bank" element={<QuestionBank />} /> */}
+                <Route path="/t-profile" element={<TeacherProfile />} />
                 <Route path="/system-overview" element={<SystemOverview />} />
                 <Route path="/management" element={<ExamSetManagement />} />
                 <Route path="/exam-set-entry" element={<ExamSetEntry />} />

@@ -31,7 +31,7 @@ function ExamReportView({
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-6xl mx-auto px-4 py-0 space-y-8">
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
           {/*<div className="p-8 md:p-12">*/}
           {/*  <h2 className="text-2xl font-bold text-gray-800 mb-8">Your Current SAT Score</h2>*/}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Button, Space } from 'antd';
 
@@ -8,6 +8,7 @@ import {
   RightOutlined,
   StopOutlined
 } from '@ant-design/icons';
+import {getCurrentUserName} from "@/services";
 
 function ExamFooterBar({
   isFirstQuestion,
@@ -17,6 +18,22 @@ function ExamFooterBar({
   onNext,
   onEndExam
 }) {
+  const [userName, setUserName] = useState('睿途学员');
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      try {
+        const name = await getCurrentUserName();
+        setUserName(name || '睿途学员');
+      } catch (error) {
+        console.error('获取用户名失败:', error);
+        setUserName('睿途学员');
+      }
+    };
+
+    fetchUserName();
+  }, []);
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 sm:px-8 py-3 sm:py-5 z-40">
       <div className="max-w-full mx-auto flex items-center justify-between">
@@ -24,8 +41,8 @@ function ExamFooterBar({
           <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
             <i className="fas fa-user text-gray-600 text-sm"></i>
           </div>
-          <div className="text-sm">
-            <div className="font-medium text-gray-900">张同学</div>
+          <div className="font-medium text-gray-900">
+            {userName}
           </div>
         </div>
 

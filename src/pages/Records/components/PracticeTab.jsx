@@ -20,10 +20,10 @@ function PracticeTab({ records }) {
   }, [records, selectedType]);
 
   // 分页逻辑
-  const paginatedRecords = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredRecords.slice(start, start + pageSize);
-  }, [filteredRecords, currentPage]);
+    const paginatedRecords = useMemo(() => {
+        const start = (currentPage - 1) * pageSize;
+        return filteredRecords.slice(start, start + pageSize);
+    }, [filteredRecords, currentPage, pageSize]);
 
   const handleTypeChange = (value) => {
     setSelectedType(value);
@@ -33,7 +33,7 @@ function PracticeTab({ records }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
-        <h2 className="text-xl font-semibold text-gray-900">专项练习记录</h2>
+        {/*<h2 className="text-xl font-semibold text-gray-900">专项练习记录</h2>*/}
         <Select
           value={selectedType}
           onChange={handleTypeChange}

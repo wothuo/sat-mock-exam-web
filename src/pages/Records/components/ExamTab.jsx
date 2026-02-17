@@ -9,11 +9,12 @@ import dayjs from 'dayjs';
 
 const { Option } = Select;
 
-function MockTab({ records }) {
+function ExamTab({ records }) {
   const [selectedSubject, setSelectedSubject] = useState('all');
   const [selectedPeriod, setSelectedPeriod] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const [isOverlayVisible, setIsOverlayVisible] = useState(true); // 控制遮挡层显示
 
   // 筛选逻辑
   const filteredRecords = useMemo(() => {
@@ -42,7 +43,7 @@ function MockTab({ records }) {
   const paginatedRecords = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredRecords.slice(start, start + pageSize);
-  }, [filteredRecords, currentPage]);
+  }, [filteredRecords, currentPage, pageSize]);
 
   const handleFilterChange = (setter) => (value) => {
     setter(value);
@@ -50,9 +51,9 @@ function MockTab({ records }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" style={{position: 'relative', minHeight: '800px'}}>
       <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
-        <h2 className="text-xl font-semibold text-gray-900">模考记录</h2>
+        {/*<h2 className="text-xl font-semibold text-gray-900">模考记录</h2>*/}
         <Space size="middle">
           <Select
             value={selectedSubject}
@@ -81,9 +82,9 @@ function MockTab({ records }) {
 
       <div className="space-y-4">
         {paginatedRecords.map((record) => (
-          <Card 
-            key={record.id} 
-            hoverable 
+          <Card
+            key={record.id}
+            hoverable
             className="border-gray-100 rounded-2xl overflow-hidden"
             styles={{ body: { padding: '24px' } }}
           >
@@ -96,7 +97,7 @@ function MockTab({ records }) {
                     {record.status}
                   </Tag>
                 </div>
-                
+
                 <div className="flex flex-wrap items-center gap-y-2 gap-x-6 mb-4">
                   <span className="text-sm text-gray-500 flex items-center">
                     <CalendarOutlined className="mr-2 text-gray-400" />
@@ -130,7 +131,7 @@ function MockTab({ records }) {
                   <div className="flex items-baseline gap-2 mb-1">
                     <span className="text-4xl font-black text-red-600 tracking-tighter">{record.score}</span>
                     <span className="text-xs font-black text-gray-400 uppercase">/ {record.totalScore}</span>
-                    <Tag 
+                    <Tag
                       color={parseInt(record.score) >= 750 ? 'success' : 'warning'}
                       className="ml-2 border-0 font-black rounded-lg px-3 py-1 text-xs uppercase"
                     >
@@ -141,11 +142,11 @@ function MockTab({ records }) {
                     Final Mock Exam Score
                   </div>
                 </div>
-                
+
                 <div className="h-12 w-px bg-gray-100 hidden md:block"></div>
-                
-                <Button 
-                  type="primary" 
+
+                <Button
+                  type="primary"
                   danger
                   className="h-12 px-6 rounded-xl font-black shadow-lg shadow-red-500/20 hover:scale-105 transition-transform"
                 >
@@ -178,4 +179,4 @@ function MockTab({ records }) {
   );
 }
 
-export default MockTab;
+export default ExamTab;

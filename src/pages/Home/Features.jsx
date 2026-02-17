@@ -7,7 +7,7 @@ import { Button, Card, Col, Row, Tag } from 'antd';
 import {
     BookOutlined,
     DatabaseOutlined,
-    EditOutlined,
+    TeamOutlined,
     LineChartOutlined,
     RightOutlined,
     RocketOutlined,
@@ -33,20 +33,12 @@ function Features() {
       tag: '提分必备'
     },
     {
-      id: 'question-bank',
+      id: 'management',
       title: '题库管理系统',
       icon: <DatabaseOutlined />,
       color: 'from-green-500 to-teal-600',
       description: '强大的题目编辑与管理功能，支持 KaTeX 数学公式与多媒体题型。',
       tag: '教研工具'
-    },
-    {
-      id: 'exam-content',
-      title: '考试答题系统',
-      icon: <EditOutlined />,
-      color: 'from-red-500 to-orange-600',
-      description: '完善的答题与标注功能，支持多色高亮、笔记备注与进度追踪。',
-      tag: '沉浸体验'
     },
     {
       id: 'record',
@@ -63,6 +55,14 @@ function Features() {
       color: 'from-yellow-500 to-orange-600',
       description: '丰富的在线课程资源，名师精品讲座，系统化知识点覆盖。',
       tag: '名师指导'
+    },
+    {
+      id: 'profile',
+      title: '多角色管理系统',
+      icon: <TeamOutlined />,
+      color: 'from-red-500 to-orange-600',
+      description: '学生/教师/管理员角色，权限分级管理，完善的用户角色管理与权限控制体系。',
+      tag: '高效管理'
     }
   ];
 

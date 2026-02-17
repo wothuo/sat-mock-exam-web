@@ -1,0 +1,84 @@
+.courses-container {
+    position: relative;
+    /* 保持您现有的样式 */
+}
+
+.content-overlay {
+    position: fixed;
+    top: 64px; /* Header高度 */
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 64px); /* 视口高度减去Header高度 */
+    /* 马赛克效果 */
+    background:
+            linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
+            linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.1) 75%),
+            linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.1) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    /* 模糊效果 */
+    backdrop-filter: blur(3px);
+    /* 布局 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 层级 */
+    z-index: 9999;
+    /* 美化 */
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.1);
+}
+
+.overlay-content {
+    /* 整体布局 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 20px;
+}
+
+.overlay-icon {
+    /* 图标样式 */
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+    padding: 28px;
+    border-radius: 50%;
+    box-shadow: 
+        0 8px 32px rgba(220, 38, 38, 0.15),
+        0 4px 16px rgba(0,0,0,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+    /* 布局 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(220, 38, 38, 0.1);
+    /* 动画 */
+    animation: pulse 2s infinite;
+}
+
+.overlay-text {
+    /* 文字样式 */
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+    padding: 20px 32px;
+    border-radius: 16px;
+    box-shadow: 
+        0 8px 32px rgba(0,0,0,0.1),
+        0 4px 16px rgba(0,0,0,0.05),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+    border: 1px solid rgba(0,0,0,0.05);
+    backdrop-filter: blur(8px);
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(102,102,102,0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(102,102,102,0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(102,102,102,0);
+    }
+}

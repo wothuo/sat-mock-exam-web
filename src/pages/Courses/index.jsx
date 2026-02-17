@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import '../index.css';
 
 import { Button, Card, Col, Rate, Row, Tag } from 'antd';
 
@@ -6,6 +7,7 @@ import { ClockCircleOutlined, PlayCircleOutlined, StarOutlined, UserOutlined } f
 
 function Courses() {
   const [activeCategory, setActiveCategory] = useState('全部');
+  const [isOverlayVisible, setIsOverlayVisible] = useState(true); // 控制遮挡层显示
 
   const categories = ['全部', '听力', '阅读', '写作', '口语', '语法', '词汇'];
 
@@ -89,7 +91,7 @@ function Courses() {
     : courses.filter(course => course.category === activeCategory);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-0">
       <div className="mb-8">
         {/* 分类筛选 */}
         <div className="flex space-x-1 bg-white/80 backdrop-blur-xl p-1 rounded-2xl w-fit shadow-lg border border-white/20 mb-8">
@@ -217,9 +219,42 @@ function Courses() {
           </Card>
         </Col>
       </Row>
+      {/* 添加遮挡层 */}
+      {isOverlayVisible && (
+          <div className="content-overlay">
+            <div className="overlay-content">
+              <div className="overlay-icon">
+                {/* 晚安月亮睡眠图标 */}
+                <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                  <defs>
+                    <linearGradient id="moonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#dc2626" />
+                      <stop offset="100%" stopColor="#b91c1c" />
+                    </linearGradient>
+                  </defs>
+                  {/* 月亮主体 */}
+                  <path
+                      d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+                      fill="url(#moonGradient)"
+                      stroke="#b91c1c"
+                      strokeWidth="1.5"
+                  />
+                  {/* 星星点缀 */}
+                  <circle cx="6" cy="8" r="0.8" fill="white" opacity="0.8"/>
+                  <circle cx="10" cy="6" r="0.6" fill="white" opacity="0.6"/>
+                  <circle cx="18" cy="7" r="0.7" fill="white" opacity="0.7"/>
+                  <circle cx="8" cy="14" r="0.9" fill="white" opacity="0.9"/>
+                </svg>
+              </div>
+              <div className="overlay-text">
+                <h3 className="text-xl font-bold text-red-600 mb-2">功能暂未开放</h3>
+                <p className="text-gray-600">敬请期待后续更新</p>
+              </div>
+            </div>
+          </div>
+      )}
     </div>
   );
 }
 
 export default Courses;
-

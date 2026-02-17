@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import dayjs from 'dayjs';
+import { message } from 'antd';
 
 import { fetchWrongRecordList } from '../../services/record';
 
-import MockTab from './components/MockTab';
+import ExamTab from './components/ExamTab';
 import NotesTab from './components/NotesTab';
 import PracticeTab from './components/PracticeTab';
 import QuestionDetailModal from './components/QuestionDetailModal';
@@ -153,27 +154,45 @@ function PracticeRecord() {
 
   // 笔记记录数据
   const tabItems = [
-    // {
-    //   id: 'mock',
-    //   label: '模考记录',
-    //   icon: 'fas fa-trophy'
-    // },
-    // {
-    //   id: 'practice',
-    //   label: '专项练习记录',
-    //   icon: 'fas fa-dumbbell'
-    // },
-    // {
-    //   id: 'notes',
-    //   label: '笔记记录',
-    //   icon: 'fas fa-sticky-note'
-    // },
     {
       id: 'wrong',
       label: '错题记录',
       icon: 'fas fa-times-circle',
     },
+    {
+      id: 'mock',
+      label: '模考记录',
+      icon: 'fas fa-trophy'
+    },
+    {
+      id: 'practice',
+      label: '专项练习记录',
+      icon: 'fas fa-dumbbell'
+    },
+    {
+      id: 'notes',
+      label: '笔记记录',
+      icon: 'fas fa-sticky-note'
+    },
   ];
+
+  // 处理标签切换
+  const handleTabChange = (tabId) => {
+    if (tabId === 'mock' || tabId === 'practice' || tabId === 'notes') {
+      message.warning({
+        content: '功能暂未开放，敬请期待后续更新',
+        duration: 2,
+        style: {
+          marginTop: '50px',
+          fontSize: '14px',
+          fontWeight: '500',
+          color: '#999999'
+        }
+      });
+      return; // 不切换标签
+    }
+    setActiveTab(tabId);
+  };
 
   const noteRecords = [
     {
@@ -380,7 +399,7 @@ function PracticeRecord() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'mock':
-        return <MockTab records={mockRecords} />;
+        return <ExamTab records={mockRecords} />;
       case 'practice':
         return <PracticeTab records={practiceRecords} />;
       case 'notes':
@@ -430,14 +449,14 @@ function PracticeRecord() {
   };
 
   return (
-    <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+    <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-0'>
       {/* Tab切换 */}
       <div className='mb-8'>
         <div className='flex space-x-1 bg-white/80 backdrop-blur-xl p-1 rounded-2xl w-fit shadow-lg border border-white/20'>
           {tabItems.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
                 activeTab === tab.id
                   ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
@@ -458,82 +477,6 @@ function PracticeRecord() {
         question={selectedWrongQuestion}
         onClose={() => setSelectedWrongQuestion(null)}
       />
-
-      {/* 统计图表 */}
-      {/* <Row gutter={[16, 16]} className="mt-12">
-        <Col xs={24} lg={12}>
-          <Card title="成绩趋势" bordered={false}>
-            <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <i className="fas fa-chart-line text-4xl mb-2"></i>
-                <p>成绩趋势图表</p>
-              </div>
-            </div>
-          </Card>
-        </Col>
-        
-        <Col xs={24} lg={12}>
-          <Card title="各科目表现" bordered={false}>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700">数学</span>
-                <div className="flex items-center space-x-3">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{width: '85%'}}></div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900 w-12">85%</span>
-                  <span className="text-xs text-green-600 font-medium">优秀</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700">阅读</span>
-                <div className="flex items-center space-x-3">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{width: '78%'}}></div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900 w-12">78%</span>
-                  <span className="text-xs text-yellow-600 font-medium">良好</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700">语法</span>
-                <div className="flex items-center space-x-3">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div className="bg-yellow-500 h-2 rounded-full" style={{width: '72%'}}></div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900 w-12">72%</span>
-                  <span className="text-xs text-yellow-600 font-medium">良好</span>
-                </div>
-              </div>
-            </div>
-            
-            <Row gutter={16} className="mt-6 pt-4 border-t border-gray-200">
-              <Col span={8}>
-                <Statistic 
-                  title="平均正确率" 
-                  value={78.3} 
-                  suffix="%" 
-                  valueStyle={{ color: '#ef4444' }}
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic 
-                  title="平均得分" 
-                  value={720} 
-                  valueStyle={{ color: '#22c55e' }}
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic 
-                  title="总练习次数" 
-                  value={11} 
-                  valueStyle={{ color: '#a855f7' }}
-                />
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-      </Row> */}
     </div>
   );
 }

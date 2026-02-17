@@ -54,8 +54,8 @@ export const logout = async () => {
  * 获取当前用户信息
  * @returns {Promise} 用户信息
  */
-export const getCurrentUser = async () => {
-  const response = await get('/user/me', {}, { needAuth: true });
+export const getCurrentUserName = async () => {
+  const response = await get('/user/info', {}, { needAuth: true });
   return response.data;
 };
 

@@ -6,7 +6,7 @@
 ## 目录结构
 ```
 src/pages/SpecialTraining/
-├── index.jsx              # 主入口组件
+├── studentIndex.jsx              # 主入口组件
 ├── TrainingConfig.jsx     # 训练配置组件
 ├── FilterSection.jsx      # 筛选区域组件
 ├── constants.js           # 配置常量
@@ -33,7 +33,7 @@ src/pages/SpecialTraining/
 
 ## 组件说明
 
-### index.jsx - 主入口组件
+### studentIndex.jsx - 主入口组件
 负责：
 - 科目切换
 - 配置状态管理
@@ -111,7 +111,7 @@ const filterSections = [
 ```
 
 ### API接口对接
-在 `index.jsx` 中调用API：
+在 `studentIndex.jsx` 中调用API：
 ```javascript
 import { fetchTrainingQuestions } from './api';
 

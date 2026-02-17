@@ -9,7 +9,7 @@ import { RocketOutlined } from '@ant-design/icons';
 function Hero() {
   const slides = [
     {
-      title: "ReachTop 专业考试门户",
+      title: "ReachTop 专业考试平台",
       subtitle: "全方位备考解决方案 · 真实模考环境 · 智能数据分析",
       description: "助你精准定位弱项，高效突破目标分数",
       image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=2000",
@@ -32,7 +32,7 @@ function Hero() {
     //   description: "涵盖 SAT/雅思/托福等主流考试，确保练习内容始终前沿",
     //   image: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&q=80&w=2000",
     //   icon: <SafetyCertificateOutlined />,
-    //   primaryBtn: { text: "进入题库管理", link: "/question-bank" },
+    //   primaryBtn: { text: "进入题库管理", link: "/management" },
     //   secondaryBtn: { text: "浏览课程讲座", link: "/courses" }
     // }
   ];
@@ -69,7 +69,7 @@ function Hero() {
 
                 <h1 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight animate-fade-in-up delay-100">
                   {slide.title.includes('ReachTop') ? (
-                    <>ReachTop <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-pink-500">专业考试门户</span></>
+                    <>ReachTop <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-pink-500">专业考试平台</span></>
                   ) : slide.title}
                 </h1>
 

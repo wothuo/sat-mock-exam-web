@@ -21,12 +21,11 @@ function Header() {
     { path: '/exam', label: '套题模考' },
     { path: '/practice', label: '专项训练' },
     { path: '/record', label: '练习记录' },
-    // { path: '/courses', label: '课程讲座' },
     // { path: '/encyclopedia', label: '考试百科' },
-    // { path: '/question-bank', label: '题库管理' },
     { path: '/management', label: '套题管理' },
+    { path: '/courses', label: '课程讲座' },
   ];
-  
+
   // 监听登录状态变化
   useEffect(() => {
     // 简单的登录状态检查函数

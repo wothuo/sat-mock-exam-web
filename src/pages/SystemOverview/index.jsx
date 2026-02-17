@@ -8,7 +8,7 @@ import {
     BookOutlined,
     CheckCircleOutlined,
     DatabaseOutlined,
-    EditOutlined,
+    TeamOutlined,
     EyeOutlined,
     LineChartOutlined,
     RocketOutlined,
@@ -61,7 +61,7 @@ function SystemOverview() {
       }
     },
     {
-      id: 'question-bank',
+      id: 'management',
       title: '题库管理系统',
       icon: <DatabaseOutlined />,
       color: 'from-green-500 to-teal-600',
@@ -77,25 +77,6 @@ function SystemOverview() {
         types: '6种',
         formulas: '支持',
         preview: '实时'
-      }
-    },
-    {
-      id: 'exam-content',
-      title: '考试答题系统',
-      icon: <EditOutlined />,
-      color: 'from-red-500 to-orange-600',
-      description: '完善的答题与标注功能',
-      features: [
-        '文本高亮标注',
-        '笔记备注功能',
-        '答题进度追踪',
-        '标记复习功能',
-        '多色高亮支持'
-      ],
-      stats: {
-        highlights: '4色',
-        notes: '无限',
-        review: '支持'
       }
     },
     {
@@ -134,6 +115,25 @@ function SystemOverview() {
         courses: '500+',
         teachers: '50+',
         students: '50000+'
+      }
+    },
+    {
+      id: 'profile',
+      title: '多角色管理系统',
+      icon: <TeamOutlined />,
+      color: 'from-teal-500 to-blue-600',
+      description: '完善的用户角色管理与权限控制体系',
+      features: [
+        '学生/教师/管理员角色',
+        '权限分级管理',
+        '个性化界面配置',
+        '数据隔离与安全',
+        '批量用户管理'
+      ],
+      stats: {
+        roles: '3种',
+        permissions: '分级',
+        security: '高级'
       }
     }
   ];
