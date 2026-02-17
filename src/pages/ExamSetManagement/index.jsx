@@ -404,7 +404,10 @@ function ExamSetManagement() {
               onShowSizeChange: (current, size) => {
                 fetchExamSetList(1, size);
               },
+              style: { textAlign: 'center' },
+              className: "flex justify-center custom-pagination"
             }}
+            className="text-center"
           />
         </Spin>
       </Card>

@@ -405,7 +405,8 @@ function MockExam() {
               }}
               showSizeChanger={true}
               pageSizeOptions={['9', '18', '27', '54']}
-              showTotal={(total, range) => `显示第 ${range[0]}-${range[1]} 项，共 ${total} 项结果`}
+              // showTotal={(total, range) => `显示第 ${range[0]}-${range[1]} 项，共 ${total} 项结果`}
+              showTotal={(t) => `共 ${t} 条记录`}
               className="custom-pagination"
             />
           </div>

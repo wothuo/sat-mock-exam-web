@@ -97,45 +97,58 @@ function PracticeRecord() {
 
   // 错题列表（方案甲：后端分页+筛选）
   const [wrongList, setWrongList] = useState([]);
-  const [wrongTotal, setWrongTotal] = useState(0);
-  const [wrongPageNum, setWrongPageNum] = useState(1);
-  const [wrongPageSize, setWrongPageSize] = useState(10);
+  const [wrongPagination, setWrongPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  });
   const [wrongLoading, setWrongLoading] = useState(false);
   const [wrongSubject, setWrongSubject] = useState('all');
   const [wrongDifficulty, setWrongDifficulty] = useState('all');
   const [wrongPeriod, setWrongPeriod] = useState('all');
   const [wrongError, setWrongError] = useState(null);
 
-  const loadWrongList = useCallback(async () => {
+  const loadWrongList = useCallback(async (pageNum = wrongPagination.current, pageSize = wrongPagination.pageSize) => {
     setWrongLoading(true);
     setWrongError(null);
     try {
       const res = await fetchWrongRecordList({
-        pageNum: wrongPageNum,
-        pageSize: wrongPageSize,
+        pageNum,
+        pageSize,
         questionCategory: toApiQuestionCategory(wrongSubject),
         difficulty: toApiDifficulty(wrongDifficulty),
         timeRange: toApiTimeRange(wrongPeriod),
       });
+      
       setWrongList((res.list || []).map(mapWrongItem).filter(Boolean));
-      setWrongTotal(res.total ?? 0);
-      setWrongPageNum(res.pageNum ?? wrongPageNum);
-      setWrongPageSize(res.pageSize ?? wrongPageSize);
+      
+      // 统一更新分页状态，参考ExamSetManagement的实现
+      setWrongPagination({
+        current: res.pageNum || pageNum,
+        pageSize: res.pageSize || pageSize,
+        total: res.total ?? 0,
+      });
     } catch (err) {
       setWrongError(err);
+      // 错误情况下也更新分页状态
+      setWrongPagination({
+        current: pageNum,
+        pageSize: pageSize,
+        total: 0,
+      });
     } finally {
       setWrongLoading(false);
     }
-  }, [wrongPageNum, wrongPageSize, wrongSubject, wrongDifficulty, wrongPeriod]);
+  }, [wrongPagination.current, wrongPagination.pageSize, wrongSubject, wrongDifficulty, wrongPeriod]);
 
   const lastWrongRequestKeyRef = useRef(null);
   useEffect(() => {
     if (activeTab !== 'wrong') return;
-    const requestKey = `${wrongPageNum}-${wrongPageSize}-${wrongSubject}-${wrongDifficulty}-${wrongPeriod}`;
+    const requestKey = `${wrongPagination.current}-${wrongPagination.pageSize}-${wrongSubject}-${wrongDifficulty}-${wrongPeriod}`;
     if (lastWrongRequestKeyRef.current === requestKey) return;
     lastWrongRequestKeyRef.current = requestKey;
-    loadWrongList();
-  }, [activeTab, wrongPageNum, wrongPageSize, wrongSubject, wrongDifficulty, wrongPeriod]);
+    loadWrongList(wrongPagination.current, wrongPagination.pageSize);
+  }, [activeTab, wrongPagination.current, wrongPagination.pageSize, wrongSubject, wrongDifficulty, wrongPeriod]);
 
   useEffect(() => {
     if (window.renderMathInElement) {
@@ -423,9 +436,9 @@ function PracticeRecord() {
         return (
           <WrongTab
             records={wrongList}
-            total={wrongTotal}
-            pageNum={wrongPageNum}
-            pageSize={wrongPageSize}
+            total={wrongPagination.total}
+            pageNum={wrongPagination.current}
+            pageSize={wrongPagination.pageSize}
             subject={wrongSubject}
             difficulty={wrongDifficulty}
             period={wrongPeriod}
@@ -433,11 +446,12 @@ function PracticeRecord() {
               if (subject !== undefined) setWrongSubject(subject);
               if (difficulty !== undefined) setWrongDifficulty(difficulty);
               if (period !== undefined) setWrongPeriod(period);
-              setWrongPageNum(1);
+              // 重置到第一页
+              setWrongPagination(prev => ({ ...prev, current: 1 }));
             }}
             onPageChange={(pageNum, pageSize) => {
-              setWrongPageNum(pageNum);
-              if (pageSize != null) setWrongPageSize(pageSize);
+              // 直接调用loadWrongList，参考ExamSetManagement的实现
+              loadWrongList(pageNum, pageSize);
             }}
             onShowDetail={setSelectedWrongQuestion}
             loading={wrongLoading}
