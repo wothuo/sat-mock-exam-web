@@ -59,13 +59,13 @@ function QuestionAnswerPanel({
         {renderFormattedText(question.answerFormat, question.id)}
       </div>
       <div>
-        <input
-          type="text"
-          value={answers[currentQuestion] || ''}
-          onChange={(e) => handleAnswerSelect(e.target.value)}
-          className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-          placeholder="Enter your answer"
-        />
+          <input
+              type="text"
+              value={answers[currentQuestion] || ''}
+              onChange={(e) => handleAnswerSelect(e.target.value)}
+              className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent overflow-x-auto whitespace-nowrap"
+              placeholder="Enter your answer"
+          />
       </div>
     </div>
   );
@@ -74,22 +74,22 @@ function QuestionAnswerPanel({
     const blanks = question.blanks || [];
 
     const renderBlankInput = (blank) => (
-      <input
-        key={blank.id}
-        type="text"
-        value={answers[currentQuestion]?.[blank.id] || ''}
-        onChange={(e) => {
-          const newAnswers = { ...answers };
-          if (!newAnswers[currentQuestion]) {
-            newAnswers[currentQuestion] = {};
-          }
-          newAnswers[currentQuestion][blank.id] = e.target.value;
-          setAnswers(newAnswers);
-        }}
-        className="inline-block min-w-[12rem] px-3 py-2 border-b-2 border-gray-400 focus:outline-none focus:border-red-500 text-base"
-        placeholder={blank.placeholder || 'Enter your answer'}
-        aria-label="Answer"
-      />
+        <input
+            key={blank.id}
+            type="text"
+            value={answers[currentQuestion]?.[blank.id] || ''}
+            onChange={(e) => {
+                const newAnswers = { ...answers };
+                if (!newAnswers[currentQuestion]) {
+                    newAnswers[currentQuestion] = {};
+                }
+                newAnswers[currentQuestion][blank.id] = e.target.value;
+                setAnswers(newAnswers);
+            }}
+            className="w-full px-3 py-2 border-b-2 border-gray-400 focus:outline-none focus:border-red-500 text-base"
+            placeholder={blank.placeholder || 'Enter your answer'}
+            aria-label="Answer"
+        />
     );
 
     return (
