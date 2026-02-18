@@ -11,7 +11,7 @@ import {
   StopOutlined
 } from '@ant-design/icons';
 
-import { answerOfSection, finishAnswer } from '../../services/exam';
+import { answerOfSection, finishAnswer } from '@/services';
 
 import { ReferenceDrawer } from './components/drawers';
 import {
@@ -32,8 +32,8 @@ import {
   IntroScreen,
   ExamReportView
 } from './components/screens';
-import { examData } from './examData';
 import { getDirectionsBySectionType, getSectionCategory } from './directions';
+import { examData } from './examData';
 import { useExamProgress } from './hooks/useExamProgress';
 import { useExamTimer } from './hooks/useExamTimer';
 import { useHighlightAndNotes } from './hooks/useHighlightAndNotes';
@@ -402,7 +402,6 @@ function ExamContent() {
     };
 
     fetchRealExamData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- 初始化仅依赖 sectionId/stateQuestions，realExamData 变化不需要重新请求
   }, [sectionId, stateQuestions]);
 
   const [showDirections, setShowDirections] = useState(true);
@@ -457,7 +456,7 @@ function ExamContent() {
 
   const { timeRemaining, formatTime } = useExamTimer(examStarted, timeMode, INITIAL_TIME_SEC);
 
-  const highlightNotes = useHighlightAndNotes(currentQuestion);
+  const highlightNotes = useHighlightAndNotes(currentQuestion, setShowNotesPanel);
   const {
     notes,
     selectedText,
@@ -639,7 +638,7 @@ function ExamContent() {
     const scores = calculateScore(examDataToUse, answers);
     return (
       <ExamReportView
-        examData={examDataToUse}  // 修复：使用真实作答数据而不是模拟数据
+        examData={examDataToUse}
         scores={scores}
         answers={answers}
         questionTimes={questionTimes}

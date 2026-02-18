@@ -27,7 +27,7 @@ function Header() {
     { path: '/courses', label: '课程讲座' },
   ];
   
-  // 管理员专属菜单项（角色>=1可见）
+  // 管理员专属菜单项（角色>=2可见）
   const adminNavItems = [
     { path: '/management', label: '套题管理' },
   ];

@@ -1,11 +1,13 @@
 import React, { useEffect, useCallback } from 'react';
+
 import { formatText } from '../utils/formatText';
 
 /**
  * 题干选中、高亮、备注及格式化渲染
  * @param {number} currentQuestion - 当前题 id
+ * @param {function} setShowNotesPanel - 控制备注面板显示的函数
  */
-export function useHighlightAndNotes(currentQuestion) {
+export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
   const [highlights, setHighlights] = React.useState({});
   const [notes, setNotes] = React.useState({});
   const [selectedText, setSelectedText] = React.useState('');
@@ -64,7 +66,7 @@ export function useHighlightAndNotes(currentQuestion) {
         hideHighlightMenu();
       }
     },
-    [hideHighlightMenu]
+    [hideHighlightMenu, setShowNotesPanel]
   );
 
   const addHighlight = useCallback(
