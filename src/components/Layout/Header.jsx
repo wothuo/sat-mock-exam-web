@@ -6,7 +6,7 @@ import { Button, Drawer, message } from 'antd';
 
 import { MenuOutlined } from '@ant-design/icons';
 
-import { logout } from '../../services/auth';
+import { logout, getCurrentUserRole } from '../../services/auth';
 import { getToken, clearToken } from '../../utils/token';
 
 function Header() {
@@ -14,32 +14,76 @@ function Header() {
   const navigate = useNavigate();
   const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!getToken());
+  const [userRole, setUserRole] = useState(0); // 默认普通用户角色
   
-  const navItems = [
+  // 基础导航菜单项（所有用户可见）
+  const baseNavItems = [
     { path: '/', label: '首页' },
     // { path: '/system-overview', label: '系统总览' },
     { path: '/exam', label: '套题模考' },
     { path: '/practice', label: '专项训练' },
     { path: '/record', label: '练习记录' },
     // { path: '/encyclopedia', label: '考试百科' },
-    { path: '/management', label: '套题管理' },
     { path: '/courses', label: '课程讲座' },
   ];
+  
+  // 管理员专属菜单项（角色>=1可见）
+  const adminNavItems = [
+    { path: '/management', label: '套题管理' },
+  ];
+  
+  // 根据用户角色组合导航菜单
+  const navItems = userRole >= 2 
+    ? [...baseNavItems, ...adminNavItems]
+    : baseNavItems;
+  
+  // 调试：输出最终的导航菜单配置
+  console.log('最终导航菜单配置:', {
+    userRole,
+    baseNavItemsCount: baseNavItems.length,
+    adminNavItemsCount: adminNavItems.length,
+    finalNavItemsCount: navItems.length,
+    hasManagementMenu: navItems.some(item => item.path === '/management'),
+    navItems
+  });
 
-  // 监听登录状态变化
+  // 监听登录状态和角色变化
   useEffect(() => {
-    // 简单的登录状态检查函数
-    const checkLoginStatus = () => {
-      setIsLoggedIn(!!getToken());
+    // 检查登录状态和获取用户角色
+    const checkAuthStatus = async () => {
+      const loggedIn = !!getToken();
+      setIsLoggedIn(loggedIn);
+      
+      if (loggedIn) {
+        try {
+          // 获取当前用户角色
+          const roleData = await getCurrentUserRole();
+          // 处理不同的API返回结构
+          let role = 0;
+          if (typeof roleData === 'number') {
+            role = roleData;
+          } else if (roleData && typeof roleData === 'object') {
+            // 尝试从不同字段获取角色值
+            role = roleData.data || roleData.role || roleData.value || roleData.code || 0;
+          }
+
+          setUserRole(role);
+        } catch (error) {
+          console.error('获取用户角色失败:', error);
+          setUserRole(0); // 获取失败时默认为普通用户
+        }
+      } else {
+        setUserRole(0); // 未登录时默认为普通用户
+      }
     };
     
-    // 监听路由变化，更新登录状态
+    // 监听路由变化，更新认证状态
     const handleLocationChange = () => {
-      checkLoginStatus();
+      checkAuthStatus();
     };
     
     // 初始检查
-    checkLoginStatus();
+    checkAuthStatus();
     
     // 监听路由变化
     window.addEventListener('popstate', handleLocationChange);
@@ -54,13 +98,15 @@ function Header() {
     try {
       await logout();
       clearToken();
+      setUserRole(0); // 重置为普通用户角色
       setIsLoggedIn(false);
       message.success('退出登录成功');
       navigate('/login');
     } catch (error) {
       console.error('Logout error:', error);
-      // 即使API调用失败，也清除本地token
+      // 即使API调用失败，也清除本地token和角色
       clearToken();
+      setUserRole(0);
       setIsLoggedIn(false);
       message.success('退出登录成功');
       navigate('/login');

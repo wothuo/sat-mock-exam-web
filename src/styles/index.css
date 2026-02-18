@@ -74,60 +74,59 @@
   .custom-radio:hover .custom-radio-indicator {
     @apply border-red-400 bg-red-25;
   }
-  
+
   /* 优化的单选框选项样式 */
   .radio-option {
-    @apply flex items-center space-x-3 cursor-pointer p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 transition-all duration-200;
+    @apply flex items-center space-x-3 cursor-pointer p-4 rounded-xl border-2 border-blue-200 bg-white hover:border-blue-300 hover:bg-blue-50 transition-all duration-200;
   }
-  
+
   .radio-option.selected {
-    @apply border-gray-500 bg-gray-50 shadow-md;
+    @apply border-blue-500 bg-blue-50 shadow-md;
   }
-  
+
   .radio-option:hover {
     @apply shadow-sm transform translate-y-[-1px];
   }
-  
+
   .radio-option .radio-text {
     @apply text-gray-800 font-medium leading-relaxed transition-colors duration-200;
   }
-  
+
   .radio-option:hover .radio-text {
     @apply text-gray-900;
   }
-  
+
   .radio-option.selected .radio-text {
     @apply text-gray-900;
   }
-  
+
   /* 现代化的单选框样式 */
   .modern-radio {
     @apply relative inline-flex items-center;
   }
-  
+
   .modern-radio input[type="radio"] {
     @apply sr-only;
   }
-  
+
   .modern-radio-circle {
-    @apply w-4 h-4 border-2 border-gray-300 rounded-full bg-white transition-all duration-300 flex items-center justify-center cursor-pointer shadow-sm;
+    @apply w-4 h-4 border-2 border-blue-300 rounded-full bg-white transition-all duration-300 flex items-center justify-center cursor-pointer shadow-sm;
   }
-  
   .modern-radio input[type="radio"]:checked + .modern-radio-circle {
-    @apply border-gray-500 bg-gradient-to-br from-gray-500 to-gray-600 shadow-lg;
+    @apply border-blue-600 bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg;
   }
-  
+
   .modern-radio input[type="radio"]:checked + .modern-radio-circle::after {
     content: '';
     @apply w-1.5 h-1.5 bg-white rounded-full animate-pulse;
   }
-  
+
   .modern-radio input[type="radio"]:focus + .modern-radio-circle {
-    @apply ring-2 ring-gray-200 ring-offset-2;
+    @apply ring-2 ring-blue-200 ring-offset-2;
   }
-  
+
   .modern-radio:hover .modern-radio-circle {
-    @apply border-gray-400 shadow-md transform scale-105;
+    @apply border-blue-400 shadow-md transform scale-105;
   }
   
   /* 文字样式优化 */

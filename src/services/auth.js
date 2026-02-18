@@ -51,11 +51,20 @@ export const logout = async () => {
 };
 
 /**
- * 获取当前用户信息
- * @returns {Promise} 用户信息
+ * 获取当前用户名称
+ * @returns {Promise} 用户名称
  */
 export const getCurrentUserName = async () => {
   const response = await get('/user/info', {}, { needAuth: true });
+  return response.data;
+};
+
+/**
+ * 获取当前用户角色
+ * @returns {Promise} 用户角色(0-普通用户, 1-机构用户, 2-管理员, 3-超级管理员)
+ */
+export const getCurrentUserRole = async () => {
+  const response = await get('/user/role', {}, { needAuth: true });
   return response.data;
 };
 

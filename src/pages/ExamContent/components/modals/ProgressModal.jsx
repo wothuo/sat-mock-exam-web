@@ -18,7 +18,7 @@ function ProgressModal({
       <div className="bg-white rounded-lg max-w-4xl max-h-[80vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">考试进度</h2>
+            <h2 className="text-xl font-bold text-gray-900">Progress</h2>
             <button
               type="button"
               onClick={onClose}
@@ -78,7 +78,7 @@ function ProgressModal({
                 onClick={onEndExam}
                 className="bg-red-500 text-white px-8 py-2 rounded-lg hover:bg-red-600 transition-colors"
               >
-                <i className="fas fa-stop mr-2" />结束考试
+                <i className="fas fa-stop mr-2" />Finish
               </button>
             </div>
           </div>
