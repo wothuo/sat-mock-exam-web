@@ -124,7 +124,7 @@ const handleStartTraining = async () => {
     
     const response = await fetchTrainingQuestions(params);
     // 处理返回的题目数据
-    navigate('/training-exercise', { 
+    navigate('/practicing', { 
       state: { questions: response.data } 
     });
   } catch (error) {

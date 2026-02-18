@@ -102,7 +102,7 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/exam/:examId" element={<ProtectedRoute children={undefined}><ExamContent /></ProtectedRoute>} />
-        <Route path="/training-exercise" element={<ProtectedRoute children={undefined}><ExamContent /></ProtectedRoute>} />
+        <Route path="/practicing" element={<ProtectedRoute children={undefined}><ExamContent /></ProtectedRoute>} />
 
         {/* 公开的主页路由 */}
         <Route path="/" element={<Layout children={undefined}><Home /></Layout>} />

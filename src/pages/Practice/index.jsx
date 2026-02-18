@@ -48,7 +48,7 @@ function SpecialTraining() {
       // 直接使用返回的题目数组，因为startPractice已经返回了response.data
       console.log('提取题目数据：', questions);
 
-      navigate('/training-exercise', { state: { questions } });
+      navigate('/practicing', { state: { questions } });
     } catch (error) {
       console.error('开始训练失败：', error);
       // 可以添加错误提示

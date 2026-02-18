@@ -67,12 +67,3 @@ export const getCurrentUserRole = async () => {
   const response = await get('/user/role', {}, { needAuth: true });
   return response.data;
 };
-
-/**
- * 刷新sessionID
- * @returns {Promise} 新的sessionID信息
- */
-export const refreshToken = async () => {
-  const response = await post('/user/refresh', {}, { needAuth: true });
-  return response.data;
-};
