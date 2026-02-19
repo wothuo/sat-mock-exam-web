@@ -2,7 +2,7 @@
  * 套题录入页工具函数：题目选项解析、提交 payload 构建、格式化、草稿、公式渲染等
  */
 
-import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SECTION_SUBJECT, DEFAULT_REGION, DEFAULT_DIFFICULTY, DEFAULT_SECTION_DIFFICULTY, DEFAULT_SECTION_SUBJECT, SECTION_SUBJECT_TO_CATEGORY } from './examSetEntryConstants';
+import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SECTION_SUBJECT, DEFAULT_REGION, DEFAULT_DIFFICULTY, DEFAULT_SECTION_DIFFICULTY, DEFAULT_SECTION_SUBJECT, SECTION_SUBJECT_TO_CATEGORY, INTERACTION_TYPE_ENUM } from './examSetEntryConstants';
 
 const DEFAULT_OPTIONS = ['', '', '', ''];
 
@@ -84,7 +84,7 @@ export function validateQuestions(questions, sections = []) {
       });
     }
 
-    if (q.interactionType === '选择题') {
+    if (q.interactionType === INTERACTION_TYPE_ENUM.CHOICE) {
       const opts = Array.isArray(q.options) ? q.options : ['', '', '', ''];
       const optLabels = ['A', 'B', 'C', 'D'];
       const hasEmptyOption = opts.some((opt, i) => !stripHtmlToText(opt ?? '').trim());
@@ -224,7 +224,7 @@ export function formatQuestionListFromApi(questionListData, sections) {
       questionSubCategory: question.questionSubCategory,
       difficulty: question.difficulty,
       type: question.questionSubCategory || '',
-      interactionType: question.questionType === 'CHOICE' ? '选择题' : question.questionType === 'BLANK' ? '填空题' : question.questionType,
+      interactionType: question.questionType === 'CHOICE' ? INTERACTION_TYPE_ENUM.CHOICE : question.questionType === 'BLANK' ? INTERACTION_TYPE_ENUM.BLANK : (question.questionType || INTERACTION_TYPE_ENUM.CHOICE),
       content: question.questionContent,
       description: question.questionDescription,
       options: optionsArray,

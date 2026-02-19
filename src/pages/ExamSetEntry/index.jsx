@@ -54,6 +54,7 @@ import {
   DEFAULT_SOURCE,
   DEFAULT_SECTION_DIFFICULTY,
   DEFAULT_SECTION_SUBJECT,
+  DEFAULT_INTERACTION_TYPE,
   SECTION_SUBJECT_TO_CATEGORY
 } from './examSetEntryConstants';
 import {
@@ -159,7 +160,7 @@ function ExamSetEntry() {
               sectionId: section.id,
               sectionName: section.name,
               subject: section.subject,
-              interactionType: '选择题',
+              interactionType: DEFAULT_INTERACTION_TYPE,
               type: QUESTION_TYPES_MAP[section.subject] ? QUESTION_TYPES_MAP[section.subject][0] : '未分类',
               difficulty: '中等',
               content: `题目 ${qId} 的内容`,
@@ -202,7 +203,7 @@ function ExamSetEntry() {
               sectionId: section.id,
               sectionName: section.name,
               subject: section.subject,
-              interactionType: '选择题',
+              interactionType: DEFAULT_INTERACTION_TYPE,
               type: QUESTION_TYPES_MAP[section.subject] ? QUESTION_TYPES_MAP[section.subject][0] : '未分类',
               difficulty: '中等',
               content: `题目 ${qId} 的内容`,
@@ -505,7 +506,7 @@ function ExamSetEntry() {
       sectionName: defaultSection.name,
       subject: defaultSection.subject,
       subjectCategory: defaultSubjectCategory,
-      interactionType: '选择题',
+      interactionType: DEFAULT_INTERACTION_TYPE,
       type: questionTypes.length > 0 ? questionTypes[0] : '未分类',
       difficulty: '中等',
       content: '',

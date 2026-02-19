@@ -89,6 +89,29 @@ export const SECTION_SUBJECT_TO_CATEGORY = {
 
 export const DEFAULT_SECTION_SUBJECT = SECTION_SUBJECT_ENUM.SAT_RW;
 
+/**
+ * 题目交互类型枚举 - 用于逻辑判断与提交值，中文仅用于展示
+ * @readonly
+ * @enum {string}
+ * @property {string} CHOICE - 选择题
+ * @property {string} BLANK - 填空题
+ */
+export const INTERACTION_TYPE_ENUM = {
+  CHOICE: 'CHOICE',
+  BLANK: 'BLANK'
+};
+
+/** 枚举值 -> 中文展示文案 */
+export const INTERACTION_TYPE_LABELS = {
+  [INTERACTION_TYPE_ENUM.CHOICE]: '选择题',
+  [INTERACTION_TYPE_ENUM.BLANK]: '填空题'
+};
+
+/** 题目交互类型选项：value 用枚举，label 用中文 */
+export const INTERACTION_TYPE_OPTIONS = Object.entries(INTERACTION_TYPE_LABELS).map(([value, label]) => ({ value, label }));
+
+export const DEFAULT_INTERACTION_TYPE = INTERACTION_TYPE_ENUM.CHOICE;
+
 export const QUESTION_TYPES_MAP = {
   '数学': ['基础运算','进阶运算','一次函数','二次函数','指数函数','多项式函数','几何','圆','三角形','统计','数据分析'],
   '阅读': ['词汇题', '结构目的题', '双篇题', '主旨细节题', '文本证据题', '图表题', '推断题'],

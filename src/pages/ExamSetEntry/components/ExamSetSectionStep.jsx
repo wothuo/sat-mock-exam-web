@@ -56,7 +56,6 @@ function ExamSetSectionStep({
       onOk: () => onRemoveSection(section.id)
     });
   };
-  console.log('activeSections', activeSections);
 
   return (
     <div className="space-y-6">

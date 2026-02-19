@@ -4,7 +4,7 @@ import { Alert, Button, Empty, Input, Select, Space, Tag } from 'antd';
 
 import { CheckCircleOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 
-import { SECTION_SUBJECT_ENUM, SECTION_SUBJECT_LABELS, SECTION_SUBJECT_TO_CATEGORY } from '../examSetEntryConstants';
+import { INTERACTION_TYPE_ENUM, INTERACTION_TYPE_LABELS, INTERACTION_TYPE_OPTIONS, SECTION_SUBJECT_ENUM, SECTION_SUBJECT_LABELS, SECTION_SUBJECT_TO_CATEGORY } from '../examSetEntryConstants';
 import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
 
 import RichTextEditor from './RichTextEditor';
@@ -339,8 +339,8 @@ function ExamSetQuestionStep({
                       >
                         {isDeleted ? '×' : index + 1}
                       </span>
-                      <Tag color={q.interactionType === '选择题' ? 'blue' : 'green'} className="m-0 border-0 text-[9px] font-bold px-1.5 leading-3">
-                        {q.interactionType}
+                      <Tag color={q.interactionType === INTERACTION_TYPE_ENUM.CHOICE ? 'blue' : 'green'} className="m-0 border-0 text-[9px] font-bold px-1.5 leading-3">
+                        {INTERACTION_TYPE_LABELS[q.interactionType] ?? q.interactionType}
                       </Tag>
                     </div>
                     <Tag color={isSectionDeleted ? 'red' : 'purple'} className="m-0 border-0 text-[9px] font-bold px-1 leading-3">
@@ -408,12 +408,13 @@ function ExamSetQuestionStep({
                           value={q.interactionType}
                           onChange={v => {
                             onUpdateQuestion(q.id, 'interactionType', v);
-                            onUpdateQuestion(q.id, 'correctAnswer', v === '选择题' ? 'A' : '');
+                            onUpdateQuestion(q.id, 'correctAnswer', v === INTERACTION_TYPE_ENUM.CHOICE ? 'A' : '');
                           }}
                           className="w-full rounded-md"
                         >
-                          <Option value="选择题">选择题</Option>
-                          <Option value="填空题">填空题</Option>
+                          {INTERACTION_TYPE_OPTIONS.map(opt => (
+                            <Option key={opt.value} value={opt.value}>{opt.label}</Option>
+                          ))}
                         </Select>
                       </div>
                       <div>
@@ -537,7 +538,7 @@ function ExamSetQuestionStep({
                       />
                     </div>
 
-                    {q.interactionType === '选择题' && (
+                    {q.interactionType === INTERACTION_TYPE_ENUM.CHOICE && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
                         {['A', 'B', 'C', 'D'].map((opt, idx) => (
                           <div key={opt}>
@@ -565,7 +566,7 @@ function ExamSetQuestionStep({
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                       <div className="md:col-span-1">
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">正确答案</label>
-                        {q.interactionType === '选择题' ? (
+                        {q.interactionType === INTERACTION_TYPE_ENUM.CHOICE ? (
                           <Select
                             value={q.correctAnswer}
                             onChange={v => onUpdateQuestion(q.id, 'correctAnswer', v)}
