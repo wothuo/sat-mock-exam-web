@@ -2,7 +2,7 @@
  * 套题录入页工具函数：题目选项解析、提交 payload 构建、格式化、草稿、公式渲染等
  */
 
-import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SUBJECT, DEFAULT_REGION, DEFAULT_DIFFICULTY, DEFAULT_SECTION_DIFFICULTY } from './examSetEntryConstants';
+import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SECTION_SUBJECT, DEFAULT_REGION, DEFAULT_DIFFICULTY, DEFAULT_SECTION_DIFFICULTY, DEFAULT_SECTION_SUBJECT, SECTION_SUBJECT_TO_CATEGORY } from './examSetEntryConstants';
 
 const DEFAULT_OPTIONS = ['', '', '', ''];
 
@@ -187,7 +187,7 @@ export function formatSectionListFromApi(sectionListData) {
   return sectionListData.map(section => ({
     id: section.sectionId,
     name: section.sectionName,
-    subject: section.sectionCategory,
+    subject: section.sectionCategory || DEFAULT_SECTION_SUBJECT,
     difficulty: section.sectionDifficulty || DEFAULT_SECTION_DIFFICULTY,
     duration: section.sectionTiming,
     status: section.status
@@ -206,13 +206,12 @@ export function formatQuestionListFromApi(questionListData, sections) {
     const { question, sectionName } = item;
     const optionsArray = parseQuestionOptions(question.options);
     const section = sections.find(s => s.id === question.sectionId);
-    const subject = section?.subject || CATEGORY_TO_SUBJECT[question.questionCategory] || '阅读语法';
+    const subject = section?.subject || CATEGORY_TO_SECTION_SUBJECT[question.questionCategory] || DEFAULT_SECTION_SUBJECT;
 
     // 设置subjectCategory：如果questionCategory是阅读或语法，直接使用；否则根据subject推断
     let subjectCategory = question.questionCategory;
     if (!['阅读', '语法', '数学'].includes(question.questionCategory)) {
-      // 如果questionCategory不是标准值，根据subject推断
-      subjectCategory = subject === '阅读语法' ? '阅读' : subject;
+      subjectCategory = SECTION_SUBJECT_TO_CATEGORY[subject] || '阅读';
     }
 
     return {

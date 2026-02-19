@@ -60,6 +60,35 @@ export const SECTION_DIFFICULTY_OPTIONS = Object.entries(SECTION_DIFFICULTY_LABE
 
 export const DEFAULT_SECTION_DIFFICULTY = SECTION_DIFFICULTY_ENUM.MEDIUM;
 
+/**
+ * Section所属科目枚举 - 用于逻辑判断与提交值，中文仅用于展示
+ * @readonly
+ * @enum {string}
+ * @property {string} SAT_RW - 阅读语法
+ * @property {string} SAT_MATH - 数学
+ */
+export const SECTION_SUBJECT_ENUM = {
+  SAT_RW: 'SAT_RW',
+  SAT_MATH: 'SAT_MATH'
+};
+
+/** 枚举值 -> 中文展示文案 */
+export const SECTION_SUBJECT_LABELS = {
+  [SECTION_SUBJECT_ENUM.SAT_RW]: '阅读语法',
+  [SECTION_SUBJECT_ENUM.SAT_MATH]: '数学'
+};
+
+/** Section所属科目选项：value 用枚举，label 用中文 */
+export const SECTION_SUBJECT_OPTIONS = Object.entries(SECTION_SUBJECT_LABELS).map(([value, label]) => ({ value, label }));
+
+/** Section科目 -> QUESTION_TYPES_MAP 的 key（数学/阅读/语法） */
+export const SECTION_SUBJECT_TO_CATEGORY = {
+  [SECTION_SUBJECT_ENUM.SAT_RW]: '阅读',
+  [SECTION_SUBJECT_ENUM.SAT_MATH]: '数学'
+};
+
+export const DEFAULT_SECTION_SUBJECT = SECTION_SUBJECT_ENUM.SAT_RW;
+
 export const QUESTION_TYPES_MAP = {
   '数学': ['基础运算','进阶运算','一次函数','二次函数','指数函数','多项式函数','几何','圆','三角形','统计','数据分析'],
   '阅读': ['词汇题', '结构目的题', '双篇题', '主旨细节题', '文本证据题', '图表题', '推断题'],
@@ -71,6 +100,13 @@ export const CATEGORY_TO_SUBJECT = {
   READING: '阅读语法',
   WRITING: '阅读语法',
   MATH: '数学'
+};
+
+/** API questionCategory -> Section 科目枚举 */
+export const CATEGORY_TO_SECTION_SUBJECT = {
+  READING: SECTION_SUBJECT_ENUM.SAT_RW,
+  WRITING: SECTION_SUBJECT_ENUM.SAT_RW,
+  MATH: SECTION_SUBJECT_ENUM.SAT_MATH
 };
 
 /**

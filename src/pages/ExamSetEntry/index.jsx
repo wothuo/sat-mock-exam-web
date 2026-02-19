@@ -52,7 +52,9 @@ import {
   FORM_INITIAL_VALUES,
   STEP_ITEMS,
   DEFAULT_SOURCE,
-  DEFAULT_SECTION_DIFFICULTY
+  DEFAULT_SECTION_DIFFICULTY,
+  DEFAULT_SECTION_SUBJECT,
+  SECTION_SUBJECT_TO_CATEGORY
 } from './examSetEntryConstants';
 import {
   clearDraft,
@@ -361,7 +363,7 @@ function ExamSetEntry() {
     setEditingSection(null);
     sectionForm.resetFields();
     // 设置默认难度为中等
-    sectionForm.setFieldsValue({ difficulty: DEFAULT_SECTION_DIFFICULTY });
+    sectionForm.setFieldsValue({ difficulty: DEFAULT_SECTION_DIFFICULTY, subject: DEFAULT_SECTION_SUBJECT });
     setIsSectionModalVisible(true);
   };
 
@@ -495,8 +497,7 @@ function ExamSetEntry() {
     }
     const newId = Date.now() * -1;
     const defaultSection = sections[0];
-    // 根据subject设置默认的subjectCategory
-    const defaultSubjectCategory = defaultSection.subject === '阅读语法' ? '阅读' : defaultSection.subject;
+    const defaultSubjectCategory = SECTION_SUBJECT_TO_CATEGORY[defaultSection.subject] || '阅读';
     const questionTypes = QUESTION_TYPES_MAP[defaultSubjectCategory] || [];
     const newQuestion = {
       id: newId,
@@ -535,7 +536,7 @@ function ExamSetEntry() {
           if (targetSection) {
             updated.subject = targetSection.subject;
             updated.sectionName = targetSection.name;
-            const defaultSubjectCategory = targetSection.subject === '阅读语法' ? '阅读' : targetSection.subject;
+            const defaultSubjectCategory = SECTION_SUBJECT_TO_CATEGORY[targetSection.subject] || '阅读';
             updated.subjectCategory = defaultSubjectCategory;
             const questionTypes = QUESTION_TYPES_MAP[defaultSubjectCategory] || [];
             updated.type = questionTypes.length > 0 ? questionTypes[0] : '未分类';
@@ -808,7 +809,7 @@ function ExamSetEntry() {
 
   if (fetchLoading && editId) {
     return (
-        <div className="max-w-5xl mx-auto padding-bottom-1 flex items-center justify-center min-h-[400px]">
+        <div className="max-w-6xl mx-auto padding-bottom-1 flex items-center justify-center min-h-[400px]">
           <Spin size="large" tip="加载套题数据中..." />
         </div>
     );
@@ -816,7 +817,7 @@ function ExamSetEntry() {
 
   if (fetchExamError && editId) {
     return (
-        <div className="max-w-5xl mx-auto padding-bottom-1 flex items-center justify-center min-h-[400px]">
+        <div className="max-w-6xl mx-auto padding-bottom-1 flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center justify-center py-16 px-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100">
             <i className="fas fa-exclamation-circle text-5xl text-amber-500 mb-4"></i>
             <p className="text-gray-600 mb-6">获取套题数据失败，请稍后重试</p>
@@ -833,7 +834,7 @@ function ExamSetEntry() {
   }
 
   return (
-      <div className="max-w-5xl mx-auto padding-bottom-1">
+      <div className="max-w-6xl mx-auto padding-bottom-1">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl font-black text-gray-900 m-0">
             {isEditMode ? '编辑套题' : '录入新套题'}
