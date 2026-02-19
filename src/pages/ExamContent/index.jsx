@@ -692,11 +692,14 @@ function ExamContent() {
         <div className="max-w-full mx-auto p-3 sm:p-6">
           <div className={`grid gap-4 sm:gap-6 min-h-[calc(100vh-220px)] ${showNotesPanel ? 'grid-cols-1 lg:grid-cols-12' : 'grid-cols-1 lg:grid-cols-8'}`}>
             <QuestionStemPanel
-              currentQuestion={currentQuestion}
-              totalQuestions={examDataToUse.totalQuestions}
-              question={currentQ ? { ...currentQ, id: currentQuestion } : null}
-              renderFormattedText={renderFormattedText}
-              onTextSelect={handleTextSelection}
+                currentQuestion={currentQuestion}
+                totalQuestions={examDataToUse.totalQuestions}
+                question={currentQ ? { ...currentQ, id: currentQuestion } : null}
+                renderFormattedText={renderFormattedText}
+                onTextSelect={handleTextSelection}
+                notes={notes}
+                showNotesPanel={showNotesPanel}
+                setShowNotesPanel={setShowNotesPanel}
             />
 
             {showNotesPanel && (
