@@ -19,9 +19,8 @@ function QuestionStemPanel({
         <div className="space-y-6 flex-1">
           <div
             className="text-lg font-medium text-gray-900 selectable-text"
-            onMouseUp={onTextSelect}
           >
-            {renderFormattedText(question.question, question.id)}
+            {renderFormattedText(question.question, question.id, 'question')}
           </div>
 
           {/*{question.description && (*/}
@@ -39,7 +38,7 @@ function QuestionStemPanel({
           {question.type === 'reading-passage' && question.passage && (
             <div className="p-4 bg-gray-50 rounded-lg border-l-4 border-red-500">
               <div className="prose max-w-none text-gray-700 leading-relaxed text-sm">
-                {renderFormattedText(question.passage, question.id)}
+                {renderFormattedText(question.passage, question.id, 'passage')}
               </div>
             </div>
           )}
@@ -75,7 +74,7 @@ function QuestionStemPanel({
             <div className="overflow-x-auto">
               {question.table.title && (
                 <div className="mb-4 text-center font-semibold text-gray-900 text-sm">
-                  {renderFormattedText(question.table.title, question.id)}
+                  {renderFormattedText(question.table.title, question.id, 'tableTitle')}
                 </div>
               )}
 
@@ -87,7 +86,7 @@ function QuestionStemPanel({
                         key={index}
                         className="border border-gray-300 px-2 py-1 text-left font-medium text-gray-900"
                       >
-                        {renderFormattedText(header, question.id)}
+                        {renderFormattedText(header, question.id, 'tableHeader')}
                       </th>
                     ))}
                   </tr>
@@ -100,7 +99,7 @@ function QuestionStemPanel({
                           key={cellIndex}
                           className="border border-gray-300 px-2 py-1 text-gray-700"
                         >
-                          {renderFormattedText(cell, question.id)}
+                          {renderFormattedText(cell, question.id, 'tableCell')}
                         </td>
                       ))}
                     </tr>

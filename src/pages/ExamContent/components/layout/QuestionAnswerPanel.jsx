@@ -20,8 +20,8 @@ function QuestionAnswerPanel({
       {question.type === 'reading-passage' && question.followUpQuestion && (
         <div className="mb-6 p-4 bg-red-50 rounded-lg">
           <div className="font-medium text-gray-900 mb-4">
-            {renderFormattedText(question.followUpQuestion, question.id)}
-          </div>
+              {renderFormattedText(question.followUpQuestion, question.id, 'followUpQuestion')}
+            </div>
         </div>
       )}
 
@@ -43,9 +43,8 @@ function QuestionAnswerPanel({
             </div>
             <div
               className="radio-text flex-1 selectable-text"
-              onMouseUp={handleTextSelection}
             >
-              {renderFormattedText(option, question.id)}
+              {renderFormattedText(option, question.id, 'option')}
             </div>
           </label>
         )
@@ -56,8 +55,8 @@ function QuestionAnswerPanel({
   const renderStudentProduced = () => (
     <div className="space-y-6">
       <div className="text-gray-700">
-        {renderFormattedText(question.answerFormat, question.id)}
-      </div>
+          {renderFormattedText(question.answerFormat, question.id, 'answerFormat')}
+        </div>
       <div>
           <input
               type="text"
@@ -130,8 +129,8 @@ function QuestionAnswerPanel({
             <div className="modern-radio-circle" />
           </div>
           <div className="radio-text flex-1">
-            {renderFormattedText(option, question.id)}
-          </div>
+              {renderFormattedText(option, question.id, 'tableOption')}
+            </div>
         </label>
       ))}
     </div>
@@ -143,7 +142,7 @@ function QuestionAnswerPanel({
         {question.description && (
           <div className="mb-6">
             <div className="text-base text-gray-900 leading-relaxed">
-              {renderFormattedText(question.description, question.id)}
+              {renderFormattedText(question.description, question.id, 'description')}
             </div>
           </div>
         )}

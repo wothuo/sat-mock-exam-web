@@ -301,9 +301,9 @@ function ExamContent() {
             
             // 根据题目类型确定题型
             let questionType = 'multiple-choice';
-            if (questionObj?.questionType?.toUpperCase() === 'BLANK' || questionObj?.questionType === '填空题') {
+            if (questionObj?.questionType === '填空题') {
               questionType = 'fill-in-blanks';
-            } else if (questionObj?.questionType?.toUpperCase() === 'CHOICE' || questionObj?.questionType === '选择题') {
+            } else if (questionObj?.questionType === '选择题') {
               questionType = 'multiple-choice';
             }
             
@@ -468,7 +468,11 @@ function ExamContent() {
     toggleNoteExpansion,
     deleteNote,
     handleTextSelection,
-    renderFormattedText
+    renderFormattedText,
+    addHighlight,
+    addUnderline,
+    addNote,
+    removeHighlight
   } = highlightNotes;
 
   // 准备阶段依赖 answer/exam/start 接口加载完成（通过 loading 状态体现）
@@ -753,6 +757,59 @@ function ExamContent() {
           if (window.getSelection()) window.getSelection().removeAllRanges();
         }}
       />
+
+      {/* 高亮菜单 */}
+      <div
+          id="highlight-menu"
+          className="fixed bg-white border border-gray-200 rounded-lg shadow-xl p-3 z-[9999]"
+          style={{ display: 'none' }}
+      >
+        <div className="flex items-center space-x-2">
+          <button
+              onClick={() => addHighlight('yellow')}
+              className="w-8 h-8 bg-yellow-200 rounded hover:bg-yellow-300 transition-colors border border-yellow-300"
+              title="黄色高亮"
+          ></button>
+          <button
+              onClick={() => addHighlight('green')}
+              className="w-8 h-8 bg-green-200 rounded hover:bg-green-300 transition-colors border border-green-300"
+              title="绿色高亮"
+          ></button>
+          <button
+              onClick={() => addHighlight('blue')}
+              className="w-8 h-8 bg-blue-200 rounded hover:bg-blue-300 transition-colors border border-blue-300"
+              title="蓝色高亮"
+          ></button>
+          <button
+              onClick={() => addHighlight('pink')}
+              className="w-8 h-8 bg-pink-200 rounded hover:bg-pink-300 transition-colors border border-pink-300"
+              title="粉色高亮"
+          ></button>
+          <div className="w-px h-6 bg-gray-300 mx-1"></div>
+          <button
+              onClick={addUnderline}
+              className="px-2 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+              title="添加下划线"
+          >
+            <i className="fas fa-underline"></i>
+          </button>
+          <button
+              onClick={removeHighlight}
+              className="px-2 py-1 text-sm bg-orange-600 text-white rounded hover:bg-orange-700 transition-colors"
+              title="删除高亮"
+          >
+            <i className="fas fa-eraser"></i>
+          </button>
+          <div className="w-px h-6 bg-gray-300 mx-1"></div>
+          <button
+              onClick={addNote}
+              className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              title="添加备注"
+          >
+            <i className="fas fa-sticky-note mr-1"></i>备注
+          </button>
+        </div>
+      </div>
 
       <ReferenceDrawer
         open={showReference}
