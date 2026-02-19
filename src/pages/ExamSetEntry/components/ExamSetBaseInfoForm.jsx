@@ -2,13 +2,12 @@ import React from 'react';
 
 import { Button, Card, Form, Input, Select } from 'antd';
 
-import { SOURCE_ENUM, SOURCE_OPTIONS } from '../examSetEntryConstants';
+import { SOURCE_ENUM, SOURCE_OPTIONS, REGION_OPTIONS } from '../examSetEntryConstants';
 
 const { Option } = Select;
 const { TextArea } = Input;
 
 const DIFFICULTIES = ['简单', '中等', '困难'];
-const REGIONS = ['亚洲-中国北京', '亚洲-中国深圳', '亚洲-中国香港', '亚洲-新加坡', '美洲-美国', '美洲-加拿大', '欧洲-英国', '大洋洲-澳大利亚', '非洲与中东-阿联酋'];
 const EXAM_TYPES = ['SAT', 'IELTS', 'TOEFL', 'GRE'];
 const YEARS = [2026, 2025, 2024, 2023];
 
@@ -61,8 +60,8 @@ function ExamSetBaseInfoForm({ form, loading, isEditMode, onNext }) {
           rules={[{ required: true, message: '请选择地区' }]}
         >
           <Select placeholder="选择地区" className="h-11 rounded-xl">
-            {REGIONS.map(r => (
-              <Option key={r} value={r}>{r}</Option>
+            {REGION_OPTIONS.map(opt => (
+              <Option key={opt.value} value={opt.value}>{opt.label}</Option>
             ))}
           </Select>
         </Form.Item>

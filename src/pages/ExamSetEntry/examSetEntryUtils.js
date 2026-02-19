@@ -2,7 +2,7 @@
  * 套题录入页工具函数：题目选项解析、提交 payload 构建、格式化、草稿、公式渲染等
  */
 
-import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SUBJECT } from './examSetEntryConstants';
+import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SUBJECT, DEFAULT_REGION } from './examSetEntryConstants';
 
 const DEFAULT_OPTIONS = ['', '', '', ''];
 
@@ -168,7 +168,7 @@ export function transformExamSetFromList(examSet) {
     title: examSet.examName,
     year: examSet.examYear,
     type: examSet.examType,
-    region: examSet.examRegion,
+    region: examSet.examRegion || DEFAULT_REGION,
     difficulty: examSet.difficulty || 'Medium',
     description: examSet.examDescription || '',
     source,

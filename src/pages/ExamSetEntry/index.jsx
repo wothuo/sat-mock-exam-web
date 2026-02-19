@@ -850,7 +850,7 @@ function ExamSetEntry() {
             form={form}
             layout="vertical"
             className="space-y-6"
-            initialValues={editId ? { ...FORM_INITIAL_VALUES, source: undefined } : FORM_INITIAL_VALUES}
+            initialValues={editId ? { ...FORM_INITIAL_VALUES, source: undefined, region: undefined } : FORM_INITIAL_VALUES}
         >
           <div className={currentStep === 0 ? 'block' : 'hidden'}>
             <ExamSetBaseInfoForm
