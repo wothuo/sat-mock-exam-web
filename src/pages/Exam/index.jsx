@@ -94,7 +94,9 @@ function MockExam() {
           source: item.examSummary.source,
           duration: `${item.sectionTiming}分钟`,
           questions: item.questionCount,
-          difficulty: item.examSummary.difficulty,
+          // 为什么要取examSummary.difficulty？而不是item.sectionDifficulty？
+          // difficulty: item.examSummary.difficulty,
+          difficulty: item.sectionDifficulty,
           // description: item.examSummary.examDescription || `${item.examSummary.examYear}年${item.examSummary.examType}${item.examSummary.examRegion}地区${item.sectionCategory}部分`,
           description: `${item.examSummary.examYear}年${item.examSummary.examType} ${item.examSummary.examRegion}地区 ${SUBJECT_LABELS[item.sectionCategory] ?? item.sectionCategory}部分`,
           year: parseInt(item.examSummary.examYear) || 2025
@@ -153,22 +155,20 @@ function MockExam() {
           <div className="flex space-x-1 bg-white/80 backdrop-blur-xl p-1 rounded-2xl w-fit shadow-lg border border-white/20">
             <button
               onClick={() => setActiveTab(SOURCE_ENUM.PAST_YEAR)}
-              className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
-                activeTab === SOURCE_ENUM.PAST_YEAR
+              className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${activeTab === SOURCE_ENUM.PAST_YEAR
                   ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <i className="fas fa-history mr-2"></i>
               {SOURCE_LABELS[SOURCE_ENUM.PAST_YEAR]}
             </button>
             <button
               onClick={() => setActiveTab(SOURCE_ENUM.OFFICIAL_SAMPLE)}
-              className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
-                activeTab === SOURCE_ENUM.OFFICIAL_SAMPLE
+              className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${activeTab === SOURCE_ENUM.OFFICIAL_SAMPLE
                   ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <i className="fas fa-file-alt mr-2"></i>
               {SOURCE_LABELS[SOURCE_ENUM.OFFICIAL_SAMPLE]}
@@ -190,18 +190,16 @@ function MockExam() {
                   <button
                     key={value}
                     onClick={() => setSelectedSubject(value)}
-                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                      selectedSubject === value
+                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${selectedSubject === value
                         ? 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-lg'
                         : 'bg-gradient-to-br from-white to-gray-50 text-gray-700 border border-gray-200 hover:shadow-lg'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        selectedSubject === value 
-                          ? 'bg-white/20 backdrop-blur-sm' 
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${selectedSubject === value
+                          ? 'bg-white/20 backdrop-blur-sm'
                           : 'bg-gray-100 group-hover:bg-blue-100'
-                      }`}>
+                        }`}>
                         {selectedSubject === value ? (
                           <i className="fas fa-check text-white text-xs"></i>
                         ) : (
@@ -232,18 +230,16 @@ function MockExam() {
                   <button
                     key={value}
                     onClick={() => setSelectedDifficulty(value)}
-                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                      selectedDifficulty === value
+                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${selectedDifficulty === value
                         ? 'bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg'
                         : 'bg-gradient-to-br from-white to-gray-50 text-gray-700 border border-gray-200 hover:shadow-lg'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        selectedDifficulty === value 
-                          ? 'bg-white/20 backdrop-blur-sm' 
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${selectedDifficulty === value
+                          ? 'bg-white/20 backdrop-blur-sm'
                           : 'bg-gray-100 group-hover:bg-orange-100'
-                      }`}>
+                        }`}>
                         {selectedDifficulty === value ? (
                           <i className="fas fa-check text-white text-xs"></i>
                         ) : (
@@ -274,18 +270,16 @@ function MockExam() {
                   <button
                     key={year}
                     onClick={() => setSelectedYear(year)}
-                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                      selectedYear === year
+                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${selectedYear === year
                         ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg'
                         : 'bg-gradient-to-br from-white to-gray-50 text-gray-700 border border-gray-200 hover:shadow-lg'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        selectedYear === year 
-                          ? 'bg-white/20 backdrop-blur-sm' 
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${selectedYear === year
+                          ? 'bg-white/20 backdrop-blur-sm'
                           : 'bg-gray-100 group-hover:bg-purple-100'
-                      }`}>
+                        }`}>
                         {selectedYear === year ? (
                           <i className="fas fa-check text-white text-xs"></i>
                         ) : (
@@ -328,105 +322,106 @@ function MockExam() {
             </div>
           ) : (
             <Row gutter={[12, 12]} className="mb-8">
-              {paginatedExams.map((exam) => (
-                <Col xs={24} sm={12} lg={8} key={exam.id}>
-              <Card
-                hoverable
-                className="h-full"
-                styles={{
-                  body: { padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }
-                }}
-              >
-                <div className="relative bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4 mb-3">
-                  <Space direction="vertical" size="small" className="w-full">
-                    <div className="mb-2">
-                      <Space className="w-full justify-between items-center">
-                        <div className="flex items-center space-x-2">
-                        <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
-                          {SOURCE_LABELS[exam.source] ?? exam.source}
-                        </span>
-                          <div className="flex items-center text-xs text-purple-600 font-medium">
-                            <i className="fas fa-book mr-1"></i>
-                            {SUBJECT_LABELS[exam.subject] ?? exam.subject}
-                          </div>
-                        </div>
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-md ${
-                            exam.difficulty === DIFFICULTY_ENUM.EASY ? 'text-green-700 bg-green-100' :
-                                exam.difficulty === DIFFICULTY_ENUM.MEDIUM ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100'}`}>
-                        {DIFFICULTY_LABELS[exam.difficulty] ?? exam.difficulty}
-                      </span>
-                      </Space>
-                    </div>
-
-                    {exam.title && (
-                        <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
-                          <i className="fas fa-cube mr-1"></i>
-                          {exam.title}
-                        </div>
-                    )}
-                    {exam.sectionName && (
-                        <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
-                          <i className="fas fa-layer-group text-xs"></i>
-                          {/*<span className="text-gray-600">{exam.sectionName}</span>*/}
-                          <span className="text-gray-500">{exam.sectionName}</span>
-                          {/*<span className="text-gray-700/80">{exam.sectionName}</span>*/}
-                          {/*<span className="text-blue-600/70">{exam.sectionName}</span>*/}
-                        </div>
-                    )}
-                  </Space>
-                </div>
-
-                <div className="p-4 flex-1 flex flex-col">
-                  {/*<p className="text-sm text-gray-600 mb-6 flex-1">*/}
-                  {/*  {exam.description}*/}
-                  {/*  {exam.sectionName && (*/}
-                  {/*      <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">*/}
-                  {/*        <i className="fas fa-layer-group text-xs"></i>*/}
-                  {/*        {exam.sectionName}*/}
-                  {/*      </div>*/}
-                  {/*  )}*/}
-                  {/*</p>*/}
-
-                  <Row gutter={8} className="mb-5">
-                    <Col span={12}>
-                      <div className="flex items-center justify-center bg-blue-50 rounded-lg p-3 h-full">
-                        <ClockCircleOutlined className="text-blue-500 text-lg mr-2" />
-                        <div>
-                          <div className="text-xs font-bold">考试时长: {exam.duration}</div>
-                        </div>
-                      </div>
-                    </Col>
-                    <Col span={12}>
-                      <div className="flex items-center justify-center bg-purple-50 rounded-lg p-3 h-full">
-                        <QuestionCircleOutlined className="text-purple-500 text-lg mr-2" />
-                        <div>
-                          <div className="text-xs font-bold">题目数量: {exam.questions}题</div>
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>
-
-                  <div className="mt-2">
-                    <Link
-                        to={`/exam/${exam.id}`}
-                        state={{
-                          sectionId: exam.id,
-                          examTitle: exam.title,
-                          sectionName: exam.sectionName,
-                          examDuration: exam.duration,
-                          totalQuestions: exam.questions
-                        }}
+              {paginatedExams.map((exam) => {
+                return (
+                  <Col xs={24} sm={12} lg={8} key={exam.id}>
+                    <Card
+                      hoverable
+                      className="h-full"
+                      styles={{
+                        body: { padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }
+                      }}
                     >
-                      <Button type="primary" block size="large" className="bg-gradient-to-r from-indigo-500 to-purple-500">
-                        <i className="fas fa-rocket mr-2"></i>
-                        开始模考
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </Card>
-                </Col>
-              ))}
+                      <div className="relative bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4 mb-3">
+                        <Space direction="vertical" size="small" className="w-full">
+                          <div className="mb-2">
+                            <Space className="w-full justify-between items-center">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
+                                  {SOURCE_LABELS[exam.source] ?? exam.source}
+                                </span>
+                                <div className="flex items-center text-xs text-purple-600 font-medium">
+                                  <i className="fas fa-book mr-1"></i>
+                                  {SUBJECT_LABELS[exam.subject] ?? exam.subject}
+                                </div>
+                              </div>
+                              <span className={`text-xs font-semibold px-2 py-1 rounded-md ${exam.difficulty === DIFFICULTY_ENUM.EASY ? 'text-green-700 bg-green-100' :
+                                  exam.difficulty === DIFFICULTY_ENUM.MEDIUM ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100'}`}>
+                                {DIFFICULTY_LABELS[exam.difficulty] ?? exam.difficulty}
+                              </span>
+                            </Space>
+                          </div>
+
+                          {exam.title && (
+                            <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
+                              <i className="fas fa-cube mr-1"></i>
+                              {exam.title}
+                            </div>
+                          )}
+                          {exam.sectionName && (
+                            <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
+                              <i className="fas fa-layer-group text-xs"></i>
+                              {/*<span className="text-gray-600">{exam.sectionName}</span>*/}
+                              <span className="text-gray-500">{exam.sectionName}</span>
+                              {/*<span className="text-gray-700/80">{exam.sectionName}</span>*/}
+                              {/*<span className="text-blue-600/70">{exam.sectionName}</span>*/}
+                            </div>
+                          )}
+                        </Space>
+                      </div>
+
+                      <div className="p-4 flex-1 flex flex-col">
+                        {/*<p className="text-sm text-gray-600 mb-6 flex-1">*/}
+                        {/*  {exam.description}*/}
+                        {/*  {exam.sectionName && (*/}
+                        {/*      <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">*/}
+                        {/*        <i className="fas fa-layer-group text-xs"></i>*/}
+                        {/*        {exam.sectionName}*/}
+                        {/*      </div>*/}
+                        {/*  )}*/}
+                        {/*</p>*/}
+
+                        <Row gutter={8} className="mb-5">
+                          <Col span={12}>
+                            <div className="flex items-center justify-center bg-blue-50 rounded-lg p-3 h-full">
+                              <ClockCircleOutlined className="text-blue-500 text-lg mr-2" />
+                              <div>
+                                <div className="text-xs font-bold">考试时长: {exam.duration}</div>
+                              </div>
+                            </div>
+                          </Col>
+                          <Col span={12}>
+                            <div className="flex items-center justify-center bg-purple-50 rounded-lg p-3 h-full">
+                              <QuestionCircleOutlined className="text-purple-500 text-lg mr-2" />
+                              <div>
+                                <div className="text-xs font-bold">题目数量: {exam.questions}题</div>
+                              </div>
+                            </div>
+                          </Col>
+                        </Row>
+
+                        <div className="mt-2">
+                          <Link
+                            to={`/exam/${exam.id}`}
+                            state={{
+                              sectionId: exam.id,
+                              examTitle: exam.title,
+                              sectionName: exam.sectionName,
+                              examDuration: exam.duration,
+                              totalQuestions: exam.questions
+                            }}
+                          >
+                            <Button type="primary" block size="large" className="bg-gradient-to-r from-indigo-500 to-purple-500">
+                              <i className="fas fa-rocket mr-2"></i>
+                              开始模考
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  </Col>
+                )
+              })}
             </Row>
           )}
         </Spin>
