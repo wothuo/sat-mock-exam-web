@@ -8,9 +8,29 @@ import { ClockCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 import { queryExamSectionList, answerOfSection } from '../../services/exam';
 
+/** 套题所属科目枚举 */
+const SUBJECT_ENUM = {
+  ALL: 'ALL',
+  SAT_MATH: 'SAT_MATH',
+  SAT_RW: 'SAT_RW'
+};
+
+/** 枚举值 -> 中文展示 */
+const SUBJECT_LABELS = {
+  [SUBJECT_ENUM.ALL]: '全部',
+  [SUBJECT_ENUM.SAT_MATH]: '数学',
+  [SUBJECT_ENUM.SAT_RW]: '阅读语法'
+};
+
+const SUBJECT_OPTIONS = [
+  { value: SUBJECT_ENUM.ALL, label: SUBJECT_LABELS[SUBJECT_ENUM.ALL] },
+  { value: SUBJECT_ENUM.SAT_MATH, label: SUBJECT_LABELS[SUBJECT_ENUM.SAT_MATH] },
+  { value: SUBJECT_ENUM.SAT_RW, label: SUBJECT_LABELS[SUBJECT_ENUM.SAT_RW] }
+];
+
 function MockExam() {
   const [activeTab, setActiveTab] = useState('历年真题');
-  const [selectedSubject, setSelectedSubject] = useState('全部');
+  const [selectedSubject, setSelectedSubject] = useState(SUBJECT_ENUM.ALL);
   const [selectedDifficulty, setSelectedDifficulty] = useState('全部');
   const [selectedYear, setSelectedYear] = useState('全部');
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,7 +40,6 @@ function MockExam() {
   const [examError, setExamError] = useState(null);
   const [total, setTotal] = useState(0);
 
-  const subjects = ['全部', '数学', '阅读语法'];
   const difficulties = ['全部', '简单', '中等', '困难'];
   const years = ['全部', '2026', '2025', '2024', '2023'];
 
@@ -37,7 +56,7 @@ function MockExam() {
         examYear: selectedYear === '全部' ? 'ALL' : selectedYear,
         source: activeTab === '历年真题' ? '历年真题' : '官方样题',
         examName: 'ALL',
-        sectionCategory: selectedSubject === '全部' ? 'ALL' : selectedSubject
+        sectionCategory: selectedSubject
       };
 
       const response = await queryExamSectionList(params, { signal, showError: false });
@@ -54,7 +73,7 @@ function MockExam() {
           questions: item.questionCount,
           difficulty: item.examSummary.difficulty,
           // description: item.examSummary.examDescription || `${item.examSummary.examYear}年${item.examSummary.examType}${item.examSummary.examRegion}地区${item.sectionCategory}部分`,
-          description: `${item.examSummary.examYear}年${item.examSummary.examType} ${item.examSummary.examRegion}地区 ${item.sectionCategory}部分`,
+          description: `${item.examSummary.examYear}年${item.examSummary.examType} ${item.examSummary.examRegion}地区 ${SUBJECT_LABELS[item.sectionCategory] ?? item.sectionCategory}部分`,
           year: parseInt(item.examSummary.examYear) || 2025
         }));
 
@@ -87,7 +106,7 @@ function MockExam() {
     const matchDifficulty = selectedDifficulty === '全部' || exam.difficulty === selectedDifficulty;
     const matchYear = selectedYear === '全部' || exam.year.toString() === selectedYear;
 
-    let matchSubject = selectedSubject === '全部';
+    let matchSubject = selectedSubject === SUBJECT_ENUM.ALL;
     if (!matchSubject) {
       matchSubject = exam.subject === selectedSubject;
     }
@@ -144,31 +163,31 @@ function MockExam() {
                 <h3 className="text-lg font-semibold text-gray-900">所属科目</h3>
               </div>
               <div className="flex flex-wrap gap-3">
-                {subjects.map((subject) => (
+                {SUBJECT_OPTIONS.map(({ value, label }) => (
                   <button
-                    key={subject}
-                    onClick={() => setSelectedSubject(subject)}
+                    key={value}
+                    onClick={() => setSelectedSubject(value)}
                     className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                      selectedSubject === subject
+                      selectedSubject === value
                         ? 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-lg'
                         : 'bg-gradient-to-br from-white to-gray-50 text-gray-700 border border-gray-200 hover:shadow-lg'
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        selectedSubject === subject 
+                        selectedSubject === value 
                           ? 'bg-white/20 backdrop-blur-sm' 
                           : 'bg-gray-100 group-hover:bg-blue-100'
                       }`}>
-                        {selectedSubject === subject ? (
+                        {selectedSubject === value ? (
                           <i className="fas fa-check text-white text-xs"></i>
                         ) : (
                           <i className="far fa-circle text-gray-400 group-hover:text-blue-500 text-xs"></i>
                         )}
                       </div>
                       <span className="relative">
-                        {subject}
-                        {selectedSubject === subject && (
+                        {label}
+                        {selectedSubject === value && (
                           <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-white/30 rounded-full"></div>
                         )}
                       </span>
@@ -305,7 +324,7 @@ function MockExam() {
                         </span>
                           <div className="flex items-center text-xs text-purple-600 font-medium">
                             <i className="fas fa-book mr-1"></i>
-                            {exam.subject}
+                            {SUBJECT_LABELS[exam.subject] ?? exam.subject}
                           </div>
                         </div>
                         <span className={`text-xs font-semibold px-2 py-1 rounded-md ${
