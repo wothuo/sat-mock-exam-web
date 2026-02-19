@@ -4,7 +4,7 @@ import { Alert, Button, Empty, Input, Select, Space, Tag } from 'antd';
 
 import { CheckCircleOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 
-import { INTERACTION_TYPE_ENUM, INTERACTION_TYPE_LABELS, INTERACTION_TYPE_OPTIONS, SECTION_SUBJECT_ENUM, SECTION_SUBJECT_LABELS, SECTION_SUBJECT_TO_CATEGORY } from '../examSetEntryConstants';
+import { INTERACTION_TYPE_ENUM, INTERACTION_TYPE_LABELS, INTERACTION_TYPE_OPTIONS, SECTION_DIFFICULTY_OPTIONS, SECTION_SUBJECT_ENUM, SECTION_SUBJECT_LABELS, SECTION_SUBJECT_TO_CATEGORY } from '../examSetEntryConstants';
 import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
 
 import RichTextEditor from './RichTextEditor';
@@ -59,7 +59,6 @@ function ExamSetQuestionStep({
   selectedQuestionId,
   activeEditorId,
   questionTypesMap,
-  difficulties,
   isEditMode,
   questionListRef,
   questionValidationErrors = [],
@@ -97,6 +96,7 @@ function ExamSetQuestionStep({
 
   const invalidQuestionIds = new Set(questionValidationErrors.map(e => e.questionId));
 
+  console.log('lxl  questions', questions);
   return (
     <>
       {questionValidationErrors.length > 0 && (
@@ -502,8 +502,8 @@ function ExamSetQuestionStep({
                             onChange={v => onUpdateQuestion(q.id, 'difficulty', v)}
                             className="w-full rounded-md"
                         >
-                          {difficulties.map(d => (
-                              <Option key={d} value={d}>{d}</Option>
+                          {SECTION_DIFFICULTY_OPTIONS.map(opt => (
+                              <Option key={opt.value} value={opt.value}>{opt.label}</Option>
                           ))}
                         </Select>
                       </div>

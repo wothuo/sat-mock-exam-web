@@ -47,7 +47,6 @@ import ExamSetSectionStep from './components/ExamSetSectionStep';
 import ExamSetSummaryModal from './components/ExamSetSummaryModal';
 import SectionFormModal from './components/SectionFormModal';
 import {
-  DIFFICULTIES,
   QUESTION_TYPES_MAP,
   FORM_INITIAL_VALUES,
   STEP_ITEMS,
@@ -55,7 +54,8 @@ import {
   DEFAULT_SECTION_DIFFICULTY,
   DEFAULT_SECTION_SUBJECT,
   DEFAULT_INTERACTION_TYPE,
-  SECTION_SUBJECT_TO_CATEGORY
+  SECTION_SUBJECT_TO_CATEGORY,
+  SECTION_DIFFICULTY_ENUM
 } from './examSetEntryConstants';
 import {
   clearDraft,
@@ -161,8 +161,8 @@ function ExamSetEntry() {
               sectionName: section.name,
               subject: section.subject,
               interactionType: DEFAULT_INTERACTION_TYPE,
-              type: QUESTION_TYPES_MAP[section.subject] ? QUESTION_TYPES_MAP[section.subject][0] : '未分类',
-              difficulty: '中等',
+              type: (QUESTION_TYPES_MAP[SECTION_SUBJECT_TO_CATEGORY[section.subject]] || [])[0] || '未分类',
+              difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
               content: `题目 ${qId} 的内容`,
               options: ['选项A', '选项B', '选项C', '选项D'],
               correctAnswer: 'A',
@@ -204,8 +204,8 @@ function ExamSetEntry() {
               sectionName: section.name,
               subject: section.subject,
               interactionType: DEFAULT_INTERACTION_TYPE,
-              type: QUESTION_TYPES_MAP[section.subject] ? QUESTION_TYPES_MAP[section.subject][0] : '未分类',
-              difficulty: '中等',
+              type: (QUESTION_TYPES_MAP[SECTION_SUBJECT_TO_CATEGORY[section.subject]] || [])[0] || '未分类',
+              difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
               content: `题目 ${qId} 的内容`,
               options: ['选项A', '选项B', '选项C', '选项D'],
               correctAnswer: 'A',
@@ -508,7 +508,7 @@ function ExamSetEntry() {
       subjectCategory: defaultSubjectCategory,
       interactionType: DEFAULT_INTERACTION_TYPE,
       type: questionTypes.length > 0 ? questionTypes[0] : '未分类',
-      difficulty: '中等',
+      difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
       content: '',
       description: '',
       options: ['', '', '', ''],
@@ -884,7 +884,6 @@ function ExamSetEntry() {
                 selectedQuestionId={selectedQuestionId}
                 activeEditorId={activeEditorId}
                 questionTypesMap={QUESTION_TYPES_MAP}
-                difficulties={DIFFICULTIES}
                 isEditMode={isEditMode}
                 questionListRef={questionListRef}
                 questionValidationErrors={questionValidationErrors}

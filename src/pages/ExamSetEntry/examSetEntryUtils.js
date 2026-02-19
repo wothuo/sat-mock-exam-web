@@ -222,7 +222,7 @@ export function formatQuestionListFromApi(questionListData, sections) {
       subjectCategory, // 新增字段
       questionCategory: question.questionCategory,
       questionSubCategory: question.questionSubCategory,
-      difficulty: question.difficulty,
+      difficulty: question.difficulty || DEFAULT_SECTION_DIFFICULTY,
       type: question.questionSubCategory || '',
       interactionType: question.questionType === 'CHOICE' ? INTERACTION_TYPE_ENUM.CHOICE : question.questionType === 'BLANK' ? INTERACTION_TYPE_ENUM.BLANK : (question.questionType || INTERACTION_TYPE_ENUM.CHOICE),
       content: question.questionContent,
@@ -298,7 +298,7 @@ export function buildQuestionsPayload(questions, isEditMode) {
       questionType: question.interactionType,
       questionCategory: question.subjectCategory || question.subject || '',
       questionSubCategory: question.type,
-      difficulty: question.difficulty || '',
+      difficulty: question.difficulty || DEFAULT_SECTION_DIFFICULTY,
       questionContent: question.content === '已录入' ? '' : (question.content || ''),
       questionDescription: question.description || '',
       optionA,
