@@ -273,9 +273,18 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
               const selectedText = containerText.substring(startOffset, endOffset);
               const afterText = containerText.substring(endOffset);
 
+              // 对选中文本进行HTML转义
+              const escapedSelectedText = selectedText
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/"/g, '&quot;')
+                  .replace(/'/g, '&#39;');
+
               // 构建精确的高亮文本
               const highlightedText = beforeText +
-                  `<span class="${cls}" data-highlight-id="${id}">${selectedText}</span>` +
+                  // `<span class="${cls}" data-highlight-id="${id}">${selectedText}</span>` +
+                  `<span class="${cls}" data-highlight-id="${id}">${escapedSelectedText}</span>` +
                   afterText;
 
               // 如果当前处理的文本包含原始容器文本，则进行替换
