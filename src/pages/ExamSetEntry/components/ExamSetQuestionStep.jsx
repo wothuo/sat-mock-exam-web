@@ -4,7 +4,21 @@ import { Alert, Button, Empty, Input, Select, Space, Tag } from 'antd';
 
 import { CheckCircleOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 
-import { INTERACTION_TYPE_ENUM, INTERACTION_TYPE_LABELS, INTERACTION_TYPE_OPTIONS, SECTION_DIFFICULTY_OPTIONS, SECTION_SUBJECT_ENUM, SECTION_SUBJECT_LABELS, SECTION_SUBJECT_TO_CATEGORY } from '../examSetEntryConstants';
+import {
+  INTERACTION_TYPE_ENUM,
+  INTERACTION_TYPE_LABELS,
+  INTERACTION_TYPE_OPTIONS,
+  SECTION_DIFFICULTY_OPTIONS,
+  SECTION_SUBJECT_ENUM,
+  SECTION_SUBJECT_LABELS,
+  SECTION_SUBJECT_CATEGORY_OPTIONS,
+  SECTION_SUBJECT_TO_DEFAULT_CATEGORY,
+  SUBJECT_CATEGORY_ENUM,
+  SUBJECT_CATEGORY_LABELS,
+  QUESTION_TYPES_BY_CATEGORY,
+  QUESTION_TYPE_LABELS,
+  DEFAULT_SUBJECT_CATEGORY
+} from '../examSetEntryConstants';
 import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
 
 import RichTextEditor from './RichTextEditor';
@@ -58,7 +72,6 @@ function ExamSetQuestionStep({
   sections,
   selectedQuestionId,
   activeEditorId,
-  questionTypesMap,
   isEditMode,
   questionListRef,
   questionValidationErrors = [],
@@ -440,25 +453,19 @@ function ExamSetQuestionStep({
                       <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">科目分类</label>
                         <Select
-                            value={q.subjectCategory || SECTION_SUBJECT_TO_CATEGORY[q.subject] || '阅读'}
+                            value={q.subjectCategory || SECTION_SUBJECT_TO_DEFAULT_CATEGORY[q.subject] || DEFAULT_SUBJECT_CATEGORY}
                             onChange={v => {
                               onUpdateQuestion(q.id, 'subjectCategory', v);
-                              // 切换科目分类时，重置知识点为第一个选项
-                              const types = questionTypesMap[v] || [];
+                              const types = QUESTION_TYPES_BY_CATEGORY[v] || [];
                               if (types.length > 0) {
                                 onUpdateQuestion(q.id, 'type', types[0]);
                               }
                             }}
                             className="w-full rounded-md"
                         >
-                          {q.subject === SECTION_SUBJECT_ENUM.SAT_RW ? (
-                            <>
-                              <Option key="阅读" value="阅读">阅读</Option>
-                              <Option key="语法" value="语法">语法</Option>
-                            </>
-                          ) : (
-                            <Option key={q.subject} value={SECTION_SUBJECT_TO_CATEGORY[q.subject]}>{SECTION_SUBJECT_LABELS[q.subject] ?? q.subject}</Option>
-                          )}
+                          {(SECTION_SUBJECT_CATEGORY_OPTIONS[q.subject] || []).map(cat => (
+                            <Option key={cat} value={cat}>{SUBJECT_CATEGORY_LABELS[cat]}</Option>
+                          ))}
                         </Select>
                       </div>
                       <div>
@@ -468,31 +475,9 @@ function ExamSetQuestionStep({
                             onChange={v => onUpdateQuestion(q.id, 'type', v)}
                             className="w-full rounded-md"
                         >
-                          {(() => {
-                            // 安全的获取知识点列表，优先处理阅读语法的情况
-                            let types = [];
-
-                            // 1. 如果subject是SAT_RW，但没有subjectCategory，默认使用阅读
-                            if (q.subject === SECTION_SUBJECT_ENUM.SAT_RW && !q.subjectCategory) {
-                              types = questionTypesMap['阅读'] || [];
-                            }
-                            // 2. 优先使用subjectCategory
-                            else if (q.subjectCategory && questionTypesMap[q.subjectCategory]) {
-                              types = questionTypesMap[q.subjectCategory];
-                            }
-                            // 3. 使用 SECTION_SUBJECT_TO_CATEGORY 映射
-                            else if (q.subject && SECTION_SUBJECT_TO_CATEGORY[q.subject] && questionTypesMap[SECTION_SUBJECT_TO_CATEGORY[q.subject]]) {
-                              types = questionTypesMap[SECTION_SUBJECT_TO_CATEGORY[q.subject]];
-                            }
-                            // 5. 最后使用空数组作为后备
-                            else {
-                              types = [];
-                            }
-
-                            return types.map(t => (
-                                <Option key={t} value={t}>{t}</Option>
-                            ));
-                          })()}
+                          {(QUESTION_TYPES_BY_CATEGORY[q.subjectCategory || SECTION_SUBJECT_TO_DEFAULT_CATEGORY[q.subject]] || []).map(t => (
+                            <Option key={t} value={t}>{QUESTION_TYPE_LABELS[t] ?? t}</Option>
+                          ))}
                         </Select>
                       </div>
                       <div>

@@ -47,15 +47,15 @@ import ExamSetSectionStep from './components/ExamSetSectionStep';
 import ExamSetSummaryModal from './components/ExamSetSummaryModal';
 import SectionFormModal from './components/SectionFormModal';
 import {
-  QUESTION_TYPES_MAP,
   FORM_INITIAL_VALUES,
   STEP_ITEMS,
   DEFAULT_SOURCE,
   DEFAULT_SECTION_DIFFICULTY,
   DEFAULT_SECTION_SUBJECT,
   DEFAULT_INTERACTION_TYPE,
-  SECTION_SUBJECT_TO_CATEGORY,
-  SECTION_DIFFICULTY_ENUM
+  SECTION_SUBJECT_TO_DEFAULT_CATEGORY,
+  SECTION_DIFFICULTY_ENUM,
+  QUESTION_TYPES_BY_CATEGORY
 } from './examSetEntryConstants';
 import {
   clearDraft,
@@ -155,19 +155,24 @@ function ExamSetEntry() {
         setExamId(data.id);
 
         const mockQuestions = (data.sections || []).flatMap(section =>
-            (section.selectedQuestions || []).map(qId => ({
+          (section.selectedQuestions || []).map(qId => {
+            const defaultCat = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[section.subject] || 'READING';
+            const types = QUESTION_TYPES_BY_CATEGORY[defaultCat] || [];
+            return {
               id: qId,
               sectionId: section.id,
               sectionName: section.name,
               subject: section.subject,
+              subjectCategory: defaultCat,
               interactionType: DEFAULT_INTERACTION_TYPE,
-              type: (QUESTION_TYPES_MAP[SECTION_SUBJECT_TO_CATEGORY[section.subject]] || [])[0] || '未分类',
+              type: types[0],
               difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
               content: `题目 ${qId} 的内容`,
               options: ['选项A', '选项B', '选项C', '选项D'],
               correctAnswer: 'A',
               explanation: '解析内容'
-            }))
+            };
+          })
         );
         setQuestions(mockQuestions);
       }
@@ -198,19 +203,24 @@ function ExamSetEntry() {
         setSections(data.sections || []);
         setExamId(data.id);
         const mockQuestions = (data.sections || []).flatMap(section =>
-            (section.selectedQuestions || []).map(qId => ({
+          (section.selectedQuestions || []).map(qId => {
+            const defaultCat = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[section.subject] || 'READING';
+            const types = QUESTION_TYPES_BY_CATEGORY[defaultCat] || [];
+            return {
               id: qId,
               sectionId: section.id,
               sectionName: section.name,
               subject: section.subject,
+              subjectCategory: defaultCat,
               interactionType: DEFAULT_INTERACTION_TYPE,
-              type: (QUESTION_TYPES_MAP[SECTION_SUBJECT_TO_CATEGORY[section.subject]] || [])[0] || '未分类',
+              type: types[0],
               difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
               content: `题目 ${qId} 的内容`,
               options: ['选项A', '选项B', '选项C', '选项D'],
               correctAnswer: 'A',
               explanation: '解析内容'
-            }))
+            };
+          })
         );
         setQuestions(mockQuestions);
       }
@@ -498,8 +508,8 @@ function ExamSetEntry() {
     }
     const newId = Date.now() * -1;
     const defaultSection = sections[0];
-    const defaultSubjectCategory = SECTION_SUBJECT_TO_CATEGORY[defaultSection.subject] || '阅读';
-    const questionTypes = QUESTION_TYPES_MAP[defaultSubjectCategory] || [];
+    const defaultSubjectCategory = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[defaultSection.subject] || 'READING';
+    const questionTypes = QUESTION_TYPES_BY_CATEGORY[defaultSubjectCategory] || [];
     const newQuestion = {
       id: newId,
       sectionId: defaultSection.id,
@@ -507,7 +517,7 @@ function ExamSetEntry() {
       subject: defaultSection.subject,
       subjectCategory: defaultSubjectCategory,
       interactionType: DEFAULT_INTERACTION_TYPE,
-      type: questionTypes.length > 0 ? questionTypes[0] : '未分类',
+      type: questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0],
       difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
       content: '',
       description: '',
@@ -537,10 +547,10 @@ function ExamSetEntry() {
           if (targetSection) {
             updated.subject = targetSection.subject;
             updated.sectionName = targetSection.name;
-            const defaultSubjectCategory = SECTION_SUBJECT_TO_CATEGORY[targetSection.subject] || '阅读';
+            const defaultSubjectCategory = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[targetSection.subject] || 'READING';
             updated.subjectCategory = defaultSubjectCategory;
-            const questionTypes = QUESTION_TYPES_MAP[defaultSubjectCategory] || [];
-            updated.type = questionTypes.length > 0 ? questionTypes[0] : '未分类';
+            const questionTypes = QUESTION_TYPES_BY_CATEGORY[defaultSubjectCategory] || [];
+            updated.type = questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0];
           }
         }
         return updated;
@@ -883,7 +893,6 @@ function ExamSetEntry() {
                 sections={sections}
                 selectedQuestionId={selectedQuestionId}
                 activeEditorId={activeEditorId}
-                questionTypesMap={QUESTION_TYPES_MAP}
                 isEditMode={isEditMode}
                 questionListRef={questionListRef}
                 questionValidationErrors={questionValidationErrors}

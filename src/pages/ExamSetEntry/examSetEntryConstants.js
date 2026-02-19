@@ -81,13 +81,83 @@ export const SECTION_SUBJECT_LABELS = {
 /** Section所属科目选项：value 用枚举，label 用中文 */
 export const SECTION_SUBJECT_OPTIONS = Object.entries(SECTION_SUBJECT_LABELS).map(([value, label]) => ({ value, label }));
 
-/** Section科目 -> QUESTION_TYPES_MAP 的 key（数学/阅读/语法） */
-export const SECTION_SUBJECT_TO_CATEGORY = {
-  [SECTION_SUBJECT_ENUM.SAT_RW]: '阅读',
-  [SECTION_SUBJECT_ENUM.SAT_MATH]: '数学'
+/** Section科目 -> 默认科目分类（用于新建题目） */
+export const SECTION_SUBJECT_TO_DEFAULT_CATEGORY = {
+  [SECTION_SUBJECT_ENUM.SAT_RW]: 'READING',
+  [SECTION_SUBJECT_ENUM.SAT_MATH]: 'MATH'
 };
 
 export const DEFAULT_SECTION_SUBJECT = SECTION_SUBJECT_ENUM.SAT_RW;
+
+/**
+ * 科目分类枚举 - 用于题目科目分类
+ * @readonly
+ * @enum {string}
+ * @property {string} READING - 阅读
+ * @property {string} WRITING - 语法
+ * @property {string} MATH - 数学
+ */
+export const SUBJECT_CATEGORY_ENUM = {
+  READING: 'READING',
+  WRITING: 'WRITING',
+  MATH: 'MATH'
+};
+
+/** 科目分类 -> 中文 */
+export const SUBJECT_CATEGORY_LABELS = {
+  [SUBJECT_CATEGORY_ENUM.READING]: '阅读',
+  [SUBJECT_CATEGORY_ENUM.WRITING]: '语法',
+  [SUBJECT_CATEGORY_ENUM.MATH]: '数学'
+};
+
+/** Section科目 -> 可选的科目分类列表 */
+export const SECTION_SUBJECT_CATEGORY_OPTIONS = {
+  [SECTION_SUBJECT_ENUM.SAT_RW]: [SUBJECT_CATEGORY_ENUM.READING, SUBJECT_CATEGORY_ENUM.WRITING],
+  [SECTION_SUBJECT_ENUM.SAT_MATH]: [SUBJECT_CATEGORY_ENUM.MATH]
+};
+
+export const DEFAULT_SUBJECT_CATEGORY = SUBJECT_CATEGORY_ENUM.READING;
+
+/** 知识点枚举 -> 中文（按科目分组） */
+export const QUESTION_TYPE_LABELS = {
+  READING_VOCAB: '词汇题',
+  READING_STRUCT: '结构目的题',
+  READING_DOUBLE: '双篇题',
+  READING_MAIN: '主旨细节题',
+  READING_EVIDENCE: '文本证据题',
+  READING_GRAPH: '图表题',
+  READING_INFER: '推断题',
+  WRITING_PUNCT: '标点符号',
+  WRITING_COMBINE: '句子连接',
+  WRITING_VERB: '动词专项',
+  WRITING_NPA: '名词、代词、形容词',
+  WRITING_ADJADV: '定语、状语、同位语',
+  WRITING_LOGIC: '逻辑词',
+  WRITING_SYNTAX: '语法错误',
+  WRITING_SENT: '句子结构',
+  WRITING_PARA: '段落组织',
+  WRITING_LOGERR: '逻辑错误',
+  MATH_BASIC: '基础运算',
+  MATH_ADVANCED: '进阶运算',
+  MATH_LINEAR: '一次函数',
+  MATH_QUAD: '二次函数',
+  MATH_EXP: '指数函数',
+  MATH_POLY: '多项式函数',
+  MATH_GEOM: '几何',
+  MATH_TRIANGLE: '三角形',
+  MATH_STAT: '统计',
+  MATH_DATA: '数据分析'
+};
+
+/** 科目分类 -> 知识点枚举列表 */
+export const QUESTION_TYPES_BY_CATEGORY = {
+  [SUBJECT_CATEGORY_ENUM.READING]: ['READING_VOCAB', 'READING_STRUCT', 'READING_DOUBLE', 'READING_MAIN', 'READING_EVIDENCE', 'READING_GRAPH', 'READING_INFER'],
+  [SUBJECT_CATEGORY_ENUM.WRITING]: ['WRITING_PUNCT', 'WRITING_COMBINE', 'WRITING_VERB', 'WRITING_NPA', 'WRITING_ADJADV', 'WRITING_LOGIC', 'WRITING_SYNTAX', 'WRITING_SENT', 'WRITING_PARA', 'WRITING_LOGERR'],
+  [SUBJECT_CATEGORY_ENUM.MATH]: ['MATH_BASIC', 'MATH_ADVANCED', 'MATH_LINEAR', 'MATH_QUAD', 'MATH_EXP', 'MATH_POLY', 'MATH_GEOM', 'MATH_TRIANGLE', 'MATH_STAT', 'MATH_DATA']
+};
+
+/** 兼容旧代码：QUESTION_TYPES_MAP 保留，key 为科目分类枚举 */
+export const QUESTION_TYPES_MAP = QUESTION_TYPES_BY_CATEGORY;
 
 /**
  * 题目交互类型枚举 - 用于逻辑判断与提交值，中文仅用于展示
@@ -112,12 +182,6 @@ export const INTERACTION_TYPE_OPTIONS = Object.entries(INTERACTION_TYPE_LABELS).
 
 export const DEFAULT_INTERACTION_TYPE = INTERACTION_TYPE_ENUM.CHOICE;
 
-export const QUESTION_TYPES_MAP = {
-  '数学': ['基础运算','进阶运算','一次函数','二次函数','指数函数','多项式函数','几何','圆','三角形','统计','数据分析'],
-  '阅读': ['词汇题', '结构目的题', '双篇题', '主旨细节题', '文本证据题', '图表题', '推断题'],
-  '语法': ['标点符号', '句子连接', '动词专项', '名词、代词、形容词', '定语、状语、同位语', '逻辑词', 'notes题']
-};
-
 /** 题目分类枚举到前端 subject 的映射 */
 export const CATEGORY_TO_SUBJECT = {
   READING: '阅读语法',
@@ -125,11 +189,11 @@ export const CATEGORY_TO_SUBJECT = {
   MATH: '数学'
 };
 
-/** API questionCategory -> Section 科目枚举 */
+/** API questionCategory(READING/WRITING/MATH) -> Section 科目枚举 */
 export const CATEGORY_TO_SECTION_SUBJECT = {
-  READING: SECTION_SUBJECT_ENUM.SAT_RW,
-  WRITING: SECTION_SUBJECT_ENUM.SAT_RW,
-  MATH: SECTION_SUBJECT_ENUM.SAT_MATH
+  [SUBJECT_CATEGORY_ENUM.READING]: SECTION_SUBJECT_ENUM.SAT_RW,
+  [SUBJECT_CATEGORY_ENUM.WRITING]: SECTION_SUBJECT_ENUM.SAT_RW,
+  [SUBJECT_CATEGORY_ENUM.MATH]: SECTION_SUBJECT_ENUM.SAT_MATH
 };
 
 /**

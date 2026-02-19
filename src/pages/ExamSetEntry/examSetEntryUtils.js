@@ -2,7 +2,7 @@
  * 套题录入页工具函数：题目选项解析、提交 payload 构建、格式化、草稿、公式渲染等
  */
 
-import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SECTION_SUBJECT, DEFAULT_REGION, DEFAULT_DIFFICULTY, DEFAULT_SECTION_DIFFICULTY, DEFAULT_SECTION_SUBJECT, SECTION_SUBJECT_TO_CATEGORY, INTERACTION_TYPE_ENUM } from './examSetEntryConstants';
+import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SECTION_SUBJECT, DEFAULT_REGION, DEFAULT_DIFFICULTY, DEFAULT_SECTION_DIFFICULTY, DEFAULT_SECTION_SUBJECT, SECTION_SUBJECT_TO_DEFAULT_CATEGORY, INTERACTION_TYPE_ENUM, SUBJECT_CATEGORY_ENUM, QUESTION_TYPES_BY_CATEGORY } from './examSetEntryConstants';
 
 const DEFAULT_OPTIONS = ['', '', '', ''];
 
@@ -196,6 +196,9 @@ export function formatSectionListFromApi(sectionListData) {
 
 /**
  * 将题目列表接口数据格式化为前端 question 结构
+ * 数据来源：question/exam/list 接口
+ * - 科目分类：questionCategory (READING/WRITING/MATH)
+ * - 知识点：questionSubCategory (如 READING_VOCAB、MATH_BASIC 等)
  * @param {Array} questionListData
  * @param {Array} sections 当前 sections 列表，用于解析 subject
  * @returns {Array}
@@ -208,10 +211,10 @@ export function formatQuestionListFromApi(questionListData, sections) {
     const section = sections.find(s => s.id === question.sectionId);
     const subject = section?.subject || CATEGORY_TO_SECTION_SUBJECT[question.questionCategory] || DEFAULT_SECTION_SUBJECT;
 
-    // 设置subjectCategory：如果questionCategory是阅读或语法，直接使用；否则根据subject推断
+    // 科目分类：来自 question/exam/list 的 questionCategory
     let subjectCategory = question.questionCategory;
-    if (!['阅读', '语法', '数学'].includes(question.questionCategory)) {
-      subjectCategory = SECTION_SUBJECT_TO_CATEGORY[subject] || '阅读';
+    if (![SUBJECT_CATEGORY_ENUM.READING, SUBJECT_CATEGORY_ENUM.WRITING, SUBJECT_CATEGORY_ENUM.MATH].includes(question.questionCategory)) {
+      subjectCategory = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[subject] || SUBJECT_CATEGORY_ENUM.READING;
     }
 
     return {
@@ -219,11 +222,11 @@ export function formatQuestionListFromApi(questionListData, sections) {
       sectionId: question.sectionId,
       sectionName,
       subject,
-      subjectCategory, // 新增字段
+      subjectCategory,
       questionCategory: question.questionCategory,
       questionSubCategory: question.questionSubCategory,
       difficulty: question.difficulty || DEFAULT_SECTION_DIFFICULTY,
-      type: question.questionSubCategory || '',
+      type: question.questionSubCategory || (QUESTION_TYPES_BY_CATEGORY[subjectCategory] || [])[0] || '', // 知识点：来自 question/exam/list 的 questionSubCategory
       interactionType: question.questionType === 'CHOICE' ? INTERACTION_TYPE_ENUM.CHOICE : question.questionType === 'BLANK' ? INTERACTION_TYPE_ENUM.BLANK : (question.questionType || INTERACTION_TYPE_ENUM.CHOICE),
       content: question.questionContent,
       description: question.questionDescription,
