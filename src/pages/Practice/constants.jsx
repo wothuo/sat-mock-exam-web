@@ -1,13 +1,27 @@
+/** 科目枚举 */
+export const SUBJECT_ENUM = {
+  READING: 'READING',
+  WRITING: 'WRITING',
+  MATH: 'MATH'
+};
+
+/** 枚举值 -> 中文展示 */
+export const SUBJECT_LABELS = {
+  [SUBJECT_ENUM.READING]: '阅读',
+  [SUBJECT_ENUM.WRITING]: '语法',
+  [SUBJECT_ENUM.MATH]: '数学'
+};
+
 // 科目配置
 export const TRAINING_SUBJECTS = [
-    { id: '阅读', name: '阅读', icon: 'fas fa-book-open' },
-    { id: '语法', name: '语法', icon: 'fas fa-spell-check' },
-    { id: '数学', name: '数学', icon: 'fas fa-calculator' }
-  ];
-  
-  // 题目类型配置
-  export const QUESTION_TYPES = {
-    '阅读': [
+  { id: SUBJECT_ENUM.READING, name: SUBJECT_LABELS[SUBJECT_ENUM.READING], icon: 'fas fa-book-open' },
+  { id: SUBJECT_ENUM.WRITING, name: SUBJECT_LABELS[SUBJECT_ENUM.WRITING], icon: 'fas fa-spell-check' },
+  { id: SUBJECT_ENUM.MATH, name: SUBJECT_LABELS[SUBJECT_ENUM.MATH], icon: 'fas fa-calculator' }
+];
+
+// 题目类型配置
+export const QUESTION_TYPES = {
+  [SUBJECT_ENUM.READING]: [
       { id: '全部', name: '全部', icon: 'fas fa-th-large', color: 'bg-gray-100 text-gray-600' },
       { id: '词汇题', name: '词汇题', icon: 'fas fa-font', color: 'bg-blue-100 text-blue-600' },
       { id: '结构目的题', name: '结构目的题', icon: 'fas fa-sitemap', color: 'bg-green-100 text-green-600' },
@@ -17,7 +31,7 @@ export const TRAINING_SUBJECTS = [
       { id: '图表题', name: '图表题', icon: 'fas fa-chart-bar', color: 'bg-indigo-100 text-indigo-600' },
       { id: '推断题', name: '推断题', icon: 'fas fa-lightbulb', color: 'bg-teal-100 text-teal-600' }
     ],
-    '语法': [
+  [SUBJECT_ENUM.WRITING]: [
       { id: '全部', name: '全部', icon: 'fas fa-th-large', color: 'bg-gray-100 text-gray-600' },
       { id: '标点符号', name: '标点符号', icon: 'fas fa-circle', color: 'bg-blue-100 text-blue-600' },
       { id: '句子连接', name: '句子连接', icon: 'fas fa-link', color: 'bg-cyan-100 text-cyan-600' },
@@ -27,7 +41,7 @@ export const TRAINING_SUBJECTS = [
       { id: '逻辑词', name: '逻辑词', icon: 'fas fa-project-diagram', color: 'bg-pink-100 text-pink-600' },
       { id: 'notes题', name: 'notes题', icon: 'fas fa-sticky-note', color: 'bg-yellow-100 text-yellow-600' }
     ],
-    '数学': [
+  [SUBJECT_ENUM.MATH]: [
       { id: '全部', name: '全部', icon: 'fas fa-th-large', color: 'bg-gray-100 text-gray-600' },
       { id: '基础运算', name: '基础运算', icon: 'fas fa-calculator', color: 'bg-blue-100 text-blue-600' },
       { id: '进阶运算', name: '进阶运算', icon: 'fas fa-square-root-alt', color: 'bg-indigo-100 text-indigo-600' },

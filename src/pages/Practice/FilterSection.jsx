@@ -20,7 +20,7 @@ function FilterSection({
       </div>
       
       <div className="flex flex-wrap gap-3">
-        {options.map((option) => {
+        {(options ?? []).map((option) => {
           const isSelected = value === option.id;
           
           if (showIcons) {
