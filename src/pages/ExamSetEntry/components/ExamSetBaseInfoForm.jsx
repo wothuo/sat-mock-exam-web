@@ -2,12 +2,11 @@ import React from 'react';
 
 import { Button, Card, Form, Input, Select } from 'antd';
 
-import { SOURCE_ENUM, SOURCE_OPTIONS, REGION_OPTIONS } from '../examSetEntryConstants';
+import { SOURCE_ENUM, SOURCE_OPTIONS, REGION_OPTIONS, DIFFICULTY_OPTIONS } from '../examSetEntryConstants';
 
 const { Option } = Select;
 const { TextArea } = Input;
 
-const DIFFICULTIES = ['简单', '中等', '困难'];
 const EXAM_TYPES = ['SAT', 'IELTS', 'TOEFL', 'GRE'];
 const YEARS = [2026, 2025, 2024, 2023];
 
@@ -72,8 +71,8 @@ function ExamSetBaseInfoForm({ form, loading, isEditMode, onNext }) {
           rules={[{ required: true, message: '请选择难度' }]}
         >
           <Select placeholder="选择难度" className="h-11 rounded-xl">
-            {DIFFICULTIES.map(d => (
-              <Option key={d} value={d}>{d}</Option>
+            {DIFFICULTY_OPTIONS.map(opt => (
+              <Option key={opt.value} value={opt.value}>{opt.label}</Option>
             ))}
           </Select>
         </Form.Item>
