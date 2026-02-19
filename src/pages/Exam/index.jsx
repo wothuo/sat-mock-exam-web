@@ -85,29 +85,26 @@ function MockExam() {
       const response = await queryExamSectionList(params, { signal, showError: false });
 
       if (signal.aborted) return;
-      if (response && response.list) {
-        const transformedData = response.list.map(item => ({
-          id: item.sectionId,
-          title: item.examSummary.examName,
-          sectionName: item.sectionName,
-          subject: item.sectionCategory,
-          source: item.examSummary.source,
-          duration: `${item.sectionTiming}分钟`,
-          questions: item.questionCount,
-          // 为什么要取examSummary.difficulty？而不是item.sectionDifficulty？
-          // difficulty: item.examSummary.difficulty,
-          difficulty: item.sectionDifficulty,
-          // description: item.examSummary.examDescription || `${item.examSummary.examYear}年${item.examSummary.examType}${item.examSummary.examRegion}地区${item.sectionCategory}部分`,
-          description: `${item.examSummary.examYear}年${item.examSummary.examType} ${item.examSummary.examRegion}地区 ${SUBJECT_LABELS[item.sectionCategory] ?? item.sectionCategory}部分`,
-          year: parseInt(item.examSummary.examYear) || 2025
-        }));
-
-        setExamSets(transformedData);
-        setTotal(response.total || 0);
-      }
+      const rawList = response?.list ?? [];
+      const transformedData = rawList.map(item => ({
+        id: item.sectionId,
+        title: item.examSummary.examName,
+        sectionName: item.sectionName,
+        subject: item.sectionCategory,
+        source: item.examSummary.source,
+        duration: `${item.sectionTiming}分钟`,
+        questions: item.questionCount,
+        difficulty: item.sectionDifficulty,
+        description: `${item.examSummary.examYear}年${item.examSummary.examType} ${item.examSummary.examRegion}地区 ${SUBJECT_LABELS[item.sectionCategory] ?? item.sectionCategory}部分`,
+        year: parseInt(item.examSummary.examYear) || 2025
+      }));
+      setExamSets(transformedData);
+      setTotal(response?.total ?? 0);
     } catch (error) {
       if (signal.aborted || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
       console.error('获取套题数据失败:', error);
+      setExamSets([]);
+      setTotal(0);
       setExamError(error);
     } finally {
       if (!signal.aborted) setLoading(false);
