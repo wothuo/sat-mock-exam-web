@@ -50,7 +50,8 @@ import {
   DIFFICULTIES,
   QUESTION_TYPES_MAP,
   FORM_INITIAL_VALUES,
-  STEP_ITEMS
+  STEP_ITEMS,
+  DEFAULT_SOURCE
 } from './examSetEntryConstants';
 import {
   clearDraft,
@@ -142,6 +143,7 @@ function ExamSetEntry() {
           type: data.type,
           region: data.region,
           difficulty: data.difficulty,
+          source: data.source,
           description: data.description
         });
 
@@ -186,6 +188,7 @@ function ExamSetEntry() {
           type: data.type,
           region: data.region,
           difficulty: data.difficulty,
+          source: data.source,
           description: data.description
         });
         setSections(data.sections || []);
@@ -230,7 +233,7 @@ function ExamSetEntry() {
             examRegion: baseInfo.region,
             difficulty: baseInfo.difficulty,
             examDescription: baseInfo.description,
-            source: baseInfo.source || '历年真题',
+            source: baseInfo.source || DEFAULT_SOURCE,
             status: 0
           };
 
@@ -271,7 +274,7 @@ function ExamSetEntry() {
               examRegion: baseInfo.region,
               difficulty: baseInfo.difficulty,
               examDescription: baseInfo.description,
-              source: baseInfo.source || '官方样题',
+              source: baseInfo.source || DEFAULT_SOURCE,
               status: 0
             };
 
@@ -294,7 +297,7 @@ function ExamSetEntry() {
               examRegion: baseInfo.region,
               difficulty: baseInfo.difficulty, // 使用中文难度
               examDescription: baseInfo.description,
-              source: baseInfo.source || '官方样题', // 默认值，后续可从登录信息获取
+              source: baseInfo.source || DEFAULT_SOURCE, // 默认值，后续可从登录信息获取
               creatorId: 1 // 假设当前用户ID为1，后续可从登录信息获取
             };
 
@@ -847,7 +850,7 @@ function ExamSetEntry() {
             form={form}
             layout="vertical"
             className="space-y-6"
-            initialValues={FORM_INITIAL_VALUES}
+            initialValues={editId ? { ...FORM_INITIAL_VALUES, source: undefined } : FORM_INITIAL_VALUES}
         >
           <div className={currentStep === 0 ? 'block' : 'hidden'}>
             <ExamSetBaseInfoForm

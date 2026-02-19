@@ -21,7 +21,40 @@ export const CATEGORY_TO_SUBJECT = {
   MATH: '数学'
 };
 
-export const DEFAULT_SOURCE = '官方样题';
+/**
+ * 套题来源枚举 - 用于逻辑判断与提交值，中文仅用于展示
+ * @readonly
+ * @enum {string}
+ * @property {string} PAST_YEAR - 历年真题
+ * @property {string} OFFICIAL_SAMPLE - 官方样题
+ * @property {string} MOCK_EXAM - 模拟试题
+ * @property {string} ORG_BANK - 机构题库
+ * @property {string} TEACHER_MADE - 教师自编
+ * @property {string} OTHER - 其他
+ */
+export const SOURCE_ENUM = {
+  PAST_YEAR: 'PAST_YEAR',
+  OFFICIAL_SAMPLE: 'OFFICIAL_SAMPLE',
+  MOCK_EXAM: 'MOCK_EXAM',
+  ORG_BANK: 'ORG_BANK',
+  TEACHER_MADE: 'TEACHER_MADE',
+  OTHER: 'OTHER'
+};
+
+/** 枚举值 -> 中文展示文案 */
+export const SOURCE_LABELS = {
+  [SOURCE_ENUM.PAST_YEAR]: '历年真题',
+  [SOURCE_ENUM.OFFICIAL_SAMPLE]: '官方样题',
+  [SOURCE_ENUM.MOCK_EXAM]: '模拟试题',
+  [SOURCE_ENUM.ORG_BANK]: '机构题库',
+  [SOURCE_ENUM.TEACHER_MADE]: '教师自编',
+  [SOURCE_ENUM.OTHER]: '其他'
+};
+
+/** 套题来源选项：value 用枚举，label 用中文 */
+export const SOURCE_OPTIONS = Object.entries(SOURCE_LABELS).map(([value, label]) => ({ value, label }));
+
+export const DEFAULT_SOURCE = SOURCE_ENUM.PAST_YEAR;
 
 export const DEFAULT_CREATOR_ID = 1;
 
@@ -30,7 +63,8 @@ export const FORM_INITIAL_VALUES = {
   type: 'SAT',
   region: '亚洲-北京',
   difficulty: '困难',
-  year: 2026
+  year: 2026,
+  source: DEFAULT_SOURCE
 };
 
 /** 步骤项配置 */

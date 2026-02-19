@@ -160,7 +160,9 @@ export function clearDraft() {
  * @returns {object} 详情对象
  */
 export function transformExamSetFromList(examSet) {
+  console.log('examSet', examSet);
   if (!examSet) return null;
+  const source = examSet.source || DEFAULT_SOURCE;
   return {
     id: examSet.examId,
     title: examSet.examName,
@@ -169,6 +171,7 @@ export function transformExamSetFromList(examSet) {
     region: examSet.examRegion,
     difficulty: examSet.difficulty || 'Medium',
     description: examSet.examDescription || '',
+    source,
     sections: examSet.sections || []
   };
 }
