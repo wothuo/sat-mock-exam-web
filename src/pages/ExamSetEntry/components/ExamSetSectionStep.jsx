@@ -3,6 +3,8 @@ import React from 'react';
 import { Button, Card, Empty, Modal, Space, Tag } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 
+import { SECTION_DIFFICULTY_ENUM, SECTION_DIFFICULTY_LABELS } from '../examSetEntryConstants';
+
 /**
  * 套题录入 - Section 结构规划（步骤 1）
  * 仅负责展示与事件转发，Section 新增/编辑 Modal 及 sections 状态保留在父组件
@@ -104,9 +106,9 @@ function ExamSetSectionStep({
                 <div className="text-right">
                   <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Difficulty</div>
                   <div className="flex items-center justify-end">
-                    <i className={`fas fa-star ${section.difficulty === '简单' ? 'text-green-500' : section.difficulty === '困难' ? 'text-red-500' : 'text-yellow-500'} text-sm`} />
+                    <i className={`fas fa-star ${section.difficulty === SECTION_DIFFICULTY_ENUM.EASY ? 'text-green-500' : section.difficulty === SECTION_DIFFICULTY_ENUM.HARD ? 'text-red-500' : 'text-yellow-500'} text-sm`} />
                     <span className="text-xs font-medium ml-1 text-gray-600">
-                      {section.difficulty}
+                      {SECTION_DIFFICULTY_LABELS[section.difficulty] ?? section.difficulty}
                     </span>
                   </div>
                 </div>

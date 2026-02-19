@@ -2,7 +2,7 @@
  * 套题录入页工具函数：题目选项解析、提交 payload 构建、格式化、草稿、公式渲染等
  */
 
-import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SUBJECT, DEFAULT_REGION, DEFAULT_DIFFICULTY } from './examSetEntryConstants';
+import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SUBJECT, DEFAULT_REGION, DEFAULT_DIFFICULTY, DEFAULT_SECTION_DIFFICULTY } from './examSetEntryConstants';
 
 const DEFAULT_OPTIONS = ['', '', '', ''];
 
@@ -160,7 +160,6 @@ export function clearDraft() {
  * @returns {object} 详情对象
  */
 export function transformExamSetFromList(examSet) {
-  console.log('examSet', examSet);
   if (!examSet) return null;
   const source = examSet.source || DEFAULT_SOURCE;
   return {
@@ -172,7 +171,9 @@ export function transformExamSetFromList(examSet) {
     difficulty: examSet.difficulty || DEFAULT_DIFFICULTY,
     description: examSet.examDescription || '',
     source,
-    sections: examSet.sections || []
+    sections: (examSet.sections && examSet.sections.length)
+      ? formatSectionListFromApi(examSet.sections)
+      : []
   };
 }
 
@@ -187,7 +188,7 @@ export function formatSectionListFromApi(sectionListData) {
     id: section.sectionId,
     name: section.sectionName,
     subject: section.sectionCategory,
-    difficulty: section.sectionDifficulty,
+    difficulty: section.sectionDifficulty || DEFAULT_SECTION_DIFFICULTY,
     duration: section.sectionTiming,
     status: section.status
   }));
@@ -275,7 +276,7 @@ export function buildExamSectionsPayload(sections, isEditMode, editId) {
     ...(isEditMode && { sectionId: section.id }),
     sectionName: section.name,
     sectionCategory: section.subject,
-    sectionDifficulty: section.difficulty || '',
+    sectionDifficulty: section.difficulty || DEFAULT_SECTION_DIFFICULTY,
     sectionTiming: section.duration,
     status: 0,
     delFlag: section.delFlag || '0'

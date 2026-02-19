@@ -34,6 +34,32 @@ export const DIFFICULTY_OPTIONS = Object.entries(DIFFICULTY_LABELS).map(([value,
 
 export const DEFAULT_DIFFICULTY = DIFFICULTY_ENUM.HARD;
 
+/**
+ * Section难度枚举 - 用于逻辑判断与提交值，中文仅用于展示（与整体难度枚举值相同，独立常量便于后续扩展）
+ * @readonly
+ * @enum {string}
+ * @property {string} EASY - 简单
+ * @property {string} MEDIUM - 中等
+ * @property {string} HARD - 困难
+ */
+export const SECTION_DIFFICULTY_ENUM = {
+  EASY: 'EASY',
+  MEDIUM: 'MEDIUM',
+  HARD: 'HARD'
+};
+
+/** 枚举值 -> 中文展示文案 */
+export const SECTION_DIFFICULTY_LABELS = {
+  [SECTION_DIFFICULTY_ENUM.EASY]: '简单',
+  [SECTION_DIFFICULTY_ENUM.MEDIUM]: '中等',
+  [SECTION_DIFFICULTY_ENUM.HARD]: '困难'
+};
+
+/** Section难度选项：value 用枚举，label 用中文 */
+export const SECTION_DIFFICULTY_OPTIONS = Object.entries(SECTION_DIFFICULTY_LABELS).map(([value, label]) => ({ value, label }));
+
+export const DEFAULT_SECTION_DIFFICULTY = SECTION_DIFFICULTY_ENUM.MEDIUM;
+
 export const QUESTION_TYPES_MAP = {
   '数学': ['基础运算','进阶运算','一次函数','二次函数','指数函数','多项式函数','几何','圆','三角形','统计','数据分析'],
   '阅读': ['词汇题', '结构目的题', '双篇题', '主旨细节题', '文本证据题', '图表题', '推断题'],

@@ -2,7 +2,15 @@ import React from 'react';
 
 import { Form, InputNumber, Modal, Select } from 'antd';
 
+import { SECTION_DIFFICULTY_ENUM, SECTION_DIFFICULTY_OPTIONS } from '../examSetEntryConstants';
+
 const { Option } = Select;
+
+const DIFFICULTY_STAR_CLASS = {
+  [SECTION_DIFFICULTY_ENUM.EASY]: 'text-green-500',
+  [SECTION_DIFFICULTY_ENUM.MEDIUM]: 'text-yellow-500',
+  [SECTION_DIFFICULTY_ENUM.HARD]: 'text-red-500'
+};
 
 /**
  * 添加/编辑 Section 弹窗
@@ -125,24 +133,14 @@ function SectionFormModal({ open, onCancel, onOk, loading, form, editingSection 
                 className="h-12 rounded-xl"
                 suffixIcon={<i className="fas fa-chevron-down text-gray-400"></i>}
               >
-                <Option value="简单">
-                  <div className="flex items-center space-x-2 py-1">
-                    <i className="fas fa-star text-green-500"></i>
-                    <span>简单</span>
-                  </div>
-                </Option>
-                <Option value="中等">
-                  <div className="flex items-center space-x-2 py-1">
-                    <i className="fas fa-star text-yellow-500"></i>
-                    <span>中等</span>
-                  </div>
-                </Option>
-                <Option value="困难">
-                  <div className="flex items-center space-x-2 py-1">
-                    <i className="fas fa-star text-red-500"></i>
-                    <span>困难</span>
-                  </div>
-                </Option>
+                {SECTION_DIFFICULTY_OPTIONS.map(opt => (
+                  <Option key={opt.value} value={opt.value}>
+                    <div className="flex items-center space-x-2 py-1">
+                      <i className={`fas fa-star ${DIFFICULTY_STAR_CLASS[opt.value] || ''}`}></i>
+                      <span>{opt.label}</span>
+                    </div>
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
 

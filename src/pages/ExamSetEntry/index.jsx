@@ -51,7 +51,8 @@ import {
   QUESTION_TYPES_MAP,
   FORM_INITIAL_VALUES,
   STEP_ITEMS,
-  DEFAULT_SOURCE
+  DEFAULT_SOURCE,
+  DEFAULT_SECTION_DIFFICULTY
 } from './examSetEntryConstants';
 import {
   clearDraft,
@@ -360,7 +361,7 @@ function ExamSetEntry() {
     setEditingSection(null);
     sectionForm.resetFields();
     // 设置默认难度为中等
-    sectionForm.setFieldsValue({ difficulty: '中等' });
+    sectionForm.setFieldsValue({ difficulty: DEFAULT_SECTION_DIFFICULTY });
     setIsSectionModalVisible(true);
   };
 
