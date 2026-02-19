@@ -7,6 +7,7 @@ import { Button, Card, Col, Empty, Pagination, Row, Space, Spin, Tag, message } 
 import { ClockCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 import { queryExamSectionList, answerOfSection } from '../../services/exam';
+import { SOURCE_ENUM, SOURCE_LABELS } from '../ExamSetEntry/examSetEntryConstants';
 
 /** 套题所属科目枚举 */
 const SUBJECT_ENUM = {
@@ -28,10 +29,33 @@ const SUBJECT_OPTIONS = [
   { value: SUBJECT_ENUM.SAT_RW, label: SUBJECT_LABELS[SUBJECT_ENUM.SAT_RW] }
 ];
 
+/** 套题难度枚举 */
+const DIFFICULTY_ENUM = {
+  ALL: 'ALL',
+  EASY: 'EASY',
+  MEDIUM: 'MEDIUM',
+  HARD: 'HARD'
+};
+
+/** 枚举值 -> 中文展示 */
+const DIFFICULTY_LABELS = {
+  [DIFFICULTY_ENUM.ALL]: '全部',
+  [DIFFICULTY_ENUM.EASY]: '简单',
+  [DIFFICULTY_ENUM.MEDIUM]: '中等',
+  [DIFFICULTY_ENUM.HARD]: '困难'
+};
+
+const DIFFICULTY_OPTIONS = [
+  { value: DIFFICULTY_ENUM.ALL, label: DIFFICULTY_LABELS[DIFFICULTY_ENUM.ALL] },
+  { value: DIFFICULTY_ENUM.EASY, label: DIFFICULTY_LABELS[DIFFICULTY_ENUM.EASY] },
+  { value: DIFFICULTY_ENUM.MEDIUM, label: DIFFICULTY_LABELS[DIFFICULTY_ENUM.MEDIUM] },
+  { value: DIFFICULTY_ENUM.HARD, label: DIFFICULTY_LABELS[DIFFICULTY_ENUM.HARD] }
+];
+
 function MockExam() {
-  const [activeTab, setActiveTab] = useState('历年真题');
+  const [activeTab, setActiveTab] = useState(SOURCE_ENUM.PAST_YEAR);
   const [selectedSubject, setSelectedSubject] = useState(SUBJECT_ENUM.ALL);
-  const [selectedDifficulty, setSelectedDifficulty] = useState('全部');
+  const [selectedDifficulty, setSelectedDifficulty] = useState(DIFFICULTY_ENUM.ALL);
   const [selectedYear, setSelectedYear] = useState('全部');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
@@ -40,7 +64,6 @@ function MockExam() {
   const [examError, setExamError] = useState(null);
   const [total, setTotal] = useState(0);
 
-  const difficulties = ['全部', '简单', '中等', '困难'];
   const years = ['全部', '2026', '2025', '2024', '2023'];
 
   const fetchExamData = useCallback(async (signal) => {
@@ -51,10 +74,10 @@ function MockExam() {
         pageNum: currentPage,
         pageSize: pageSize,
         examType: 'ALL',
-        difficulty: selectedDifficulty === '全部' ? 'ALL' : selectedDifficulty,
+        difficulty: selectedDifficulty,
         examRegion: 'ALL',
         examYear: selectedYear === '全部' ? 'ALL' : selectedYear,
-        source: activeTab === '历年真题' ? '历年真题' : '官方样题',
+        source: activeTab,
         examName: 'ALL',
         sectionCategory: selectedSubject
       };
@@ -103,7 +126,7 @@ function MockExam() {
 
   const filteredExams = examSets.filter(exam => {
     const matchSource = exam.source === activeTab;
-    const matchDifficulty = selectedDifficulty === '全部' || exam.difficulty === selectedDifficulty;
+    const matchDifficulty = selectedDifficulty === DIFFICULTY_ENUM.ALL || exam.difficulty === selectedDifficulty;
     const matchYear = selectedYear === '全部' || exam.year.toString() === selectedYear;
 
     let matchSubject = selectedSubject === SUBJECT_ENUM.ALL;
@@ -129,26 +152,26 @@ function MockExam() {
         <div className="mb-8">
           <div className="flex space-x-1 bg-white/80 backdrop-blur-xl p-1 rounded-2xl w-fit shadow-lg border border-white/20">
             <button
-              onClick={() => setActiveTab('历年真题')}
+              onClick={() => setActiveTab(SOURCE_ENUM.PAST_YEAR)}
               className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
-                activeTab === '历年真题'
+                activeTab === SOURCE_ENUM.PAST_YEAR
                   ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               <i className="fas fa-history mr-2"></i>
-              历年真题
+              {SOURCE_LABELS[SOURCE_ENUM.PAST_YEAR]}
             </button>
             <button
-              onClick={() => setActiveTab('官方样题')}
+              onClick={() => setActiveTab(SOURCE_ENUM.OFFICIAL_SAMPLE)}
               className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
-                activeTab === '官方样题'
+                activeTab === SOURCE_ENUM.OFFICIAL_SAMPLE
                   ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               <i className="fas fa-file-alt mr-2"></i>
-              官方样题
+              {SOURCE_LABELS[SOURCE_ENUM.OFFICIAL_SAMPLE]}
             </button>
           </div>
         </div>
@@ -205,31 +228,31 @@ function MockExam() {
                 <h3 className="text-lg font-semibold text-gray-900">套题难度</h3>
               </div>
               <div className="flex flex-wrap gap-3">
-                {difficulties.map((difficulty) => (
+                {DIFFICULTY_OPTIONS.map(({ value, label }) => (
                   <button
-                    key={difficulty}
-                    onClick={() => setSelectedDifficulty(difficulty)}
+                    key={value}
+                    onClick={() => setSelectedDifficulty(value)}
                     className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                      selectedDifficulty === difficulty
+                      selectedDifficulty === value
                         ? 'bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg'
                         : 'bg-gradient-to-br from-white to-gray-50 text-gray-700 border border-gray-200 hover:shadow-lg'
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        selectedDifficulty === difficulty 
+                        selectedDifficulty === value 
                           ? 'bg-white/20 backdrop-blur-sm' 
                           : 'bg-gray-100 group-hover:bg-orange-100'
                       }`}>
-                        {selectedDifficulty === difficulty ? (
+                        {selectedDifficulty === value ? (
                           <i className="fas fa-check text-white text-xs"></i>
                         ) : (
                           <i className="far fa-circle text-gray-400 group-hover:text-orange-500 text-xs"></i>
                         )}
                       </div>
                       <span className="relative">
-                        {difficulty}
-                        {selectedDifficulty === difficulty && (
+                        {label}
+                        {selectedDifficulty === value && (
                           <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-white/30 rounded-full"></div>
                         )}
                       </span>
@@ -320,7 +343,7 @@ function MockExam() {
                       <Space className="w-full justify-between items-center">
                         <div className="flex items-center space-x-2">
                         <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
-                          {exam.source}
+                          {SOURCE_LABELS[exam.source] ?? exam.source}
                         </span>
                           <div className="flex items-center text-xs text-purple-600 font-medium">
                             <i className="fas fa-book mr-1"></i>
@@ -328,9 +351,9 @@ function MockExam() {
                           </div>
                         </div>
                         <span className={`text-xs font-semibold px-2 py-1 rounded-md ${
-                            exam.difficulty === '简单' ? 'text-green-700 bg-green-100' :
-                                exam.difficulty === '中等' ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100'}`}>
-                        {exam.difficulty}
+                            exam.difficulty === DIFFICULTY_ENUM.EASY ? 'text-green-700 bg-green-100' :
+                                exam.difficulty === DIFFICULTY_ENUM.MEDIUM ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100'}`}>
+                        {DIFFICULTY_LABELS[exam.difficulty] ?? exam.difficulty}
                       </span>
                       </Space>
                     </div>
