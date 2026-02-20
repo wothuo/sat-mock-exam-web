@@ -676,7 +676,7 @@ function ExamContent() {
         directionsOpen={showDirections}
         onToggleDirections={() => setShowDirections(prev => !prev)}
         directionsContent={renderFormattedText(examDataToUse?.directions?.content, 'directions')}
-        showReference={examDataToUse?.sectionCategory === '数学'}
+        showReference={examDataToUse?.sectionCategory === 'SAT_MATH'}
         onOpenReference={() => setShowReference(true)}
         onShowTimeAsIcon={() => setShowTimeAsIcon(true)}
         onShowTimeAsText={() => setShowTimeAsIcon(false)}
