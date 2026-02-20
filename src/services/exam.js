@@ -32,7 +32,7 @@ export const getExamSetList = async (params, config = {}) => {
  * @param {number} data.creatorId - 创建人ID
  * @returns {Promise} 新增的套题数据
  */
-export const createExamSet = async (data) => {
+export const createExam = async (data) => {
   const response = await post('/exam/create', data);
   return response.data;
 };
@@ -69,7 +69,7 @@ export const checkExamExists = async (params) => {
  * @param {number} [data.status] - 状态（0-正常/1-禁用，默认0）
  * @returns {Promise} 更新后的套题数据
  */
-export const updateExamSet = async (data) => {
+export const updateExam = async (data) => {
   const response = await post('/exam/update', data);
   return response.data;
 };

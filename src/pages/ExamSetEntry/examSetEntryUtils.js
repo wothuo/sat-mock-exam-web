@@ -261,7 +261,8 @@ export function buildExamPoolPayload(baseInfo, isEditMode, editId) {
     examDescription: baseInfo.description,
     source: baseInfo.source || DEFAULT_SOURCE,
     creatorId: DEFAULT_CREATOR_ID,
-    status: 0
+    status: baseInfo.status,
+    delFlag: baseInfo.delFlag
   };
 }
 
@@ -280,8 +281,8 @@ export function buildExamSectionsPayload(sections, isEditMode, editId) {
     sectionCategory: section.subject,
     sectionDifficulty: section.difficulty || DEFAULT_SECTION_DIFFICULTY,
     sectionTiming: section.duration,
-    status: 0,
-    delFlag: section.delFlag || '0'
+    status: section.status,
+    delFlag: section.delFlag
   }));
 }
 

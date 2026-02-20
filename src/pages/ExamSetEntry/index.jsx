@@ -33,8 +33,8 @@ import {
   getSectionListByExamId,
   getQuestionListByExamId,
   updateExamSectionAndQuestion,
-  createExamSet,
-  updateExamSet,
+  createExam,
+  updateExam,
   createExamSection,
   updateExamSection,
   deleteExamSection
@@ -248,7 +248,7 @@ function ExamSetEntry() {
             difficulty: baseInfo.difficulty,
             examDescription: baseInfo.description,
             source: baseInfo.source || DEFAULT_SOURCE,
-            status: 0
+            status: baseInfo.status
           };
 
           const examExists = await checkExamExists(payload);
@@ -257,7 +257,7 @@ function ExamSetEntry() {
             return;
           }
           // 更新套题基础信息
-          await updateExamSet(payload);
+          await updateExam(payload);
           setExamData(payload);
           setExamId(editExamId);
 
@@ -289,13 +289,13 @@ function ExamSetEntry() {
               difficulty: baseInfo.difficulty,
               examDescription: baseInfo.description,
               source: baseInfo.source || DEFAULT_SOURCE,
-              status: 0
+              status: baseInfo.status
             };
 
             console.log('【测试日志】更新数据:', updateData);
 
             // 调用更新套题接口
-            await updateExamSet(updateData);
+            await updateExam(updateData);
             console.log('【测试日志】更新套题接口调用成功');
             message.success('套题基础信息已更新');
             setExamData(updateData);
@@ -324,7 +324,7 @@ function ExamSetEntry() {
             // 如果套题不存在，则新增套题
             if (!result) {
               // 调用新增套题接口
-              const newExamId = await createExamSet(examData);
+              const newExamId = await createExam(examData);
               console.log('【测试日志】新增套题成功，返回examId:', newExamId);
               // 记录examId并暂存套题信息
               setExamId(newExamId);
@@ -397,7 +397,7 @@ function ExamSetEntry() {
         sectionDifficulty: values.difficulty,
         sectionTiming: values.duration,
         creatorId: 1, // 假设当前用户ID为1，后续可从登录信息获取
-        status: 0
+        status: values.status
       };
 
       // 统一处理逻辑：根据sectionId正负值决定调用哪个API
@@ -455,7 +455,7 @@ function ExamSetEntry() {
             subject: values.subject,
             difficulty: values.difficulty,
             duration: values.duration,
-            status: 0
+            status: values.status
           };
           setSections(prev => [...prev, newSection]);
           message.success('Section 已添加');
@@ -524,7 +524,7 @@ function ExamSetEntry() {
       options: ['', '', '', ''],
       correctAnswer: 'A',
       explanation: '',
-      status: 0
+      status: 1
     };
 
     setQuestions([...questions, newQuestion]);
