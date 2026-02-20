@@ -12,11 +12,26 @@ const DIFFICULTY_STAR_CLASS = {
   [SECTION_DIFFICULTY_ENUM.HARD]: 'text-red-500'
 };
 
+/** 根据 Section 名称筛选可选的所属科目（阅读语法类剔除数学，数学类剔除阅读语法，便于扩展） */
+function getSubjectOptionsBySectionName(sectionName) {
+  if (!sectionName) return SECTION_SUBJECT_OPTIONS;
+  if (sectionName.includes('Reading and Writing')) {
+    return SECTION_SUBJECT_OPTIONS.filter(opt => opt.value === SECTION_SUBJECT_ENUM.SAT_RW);
+  }
+  if (sectionName.includes('Math')) {
+    return SECTION_SUBJECT_OPTIONS.filter(opt => opt.value === SECTION_SUBJECT_ENUM.SAT_MATH);
+  }
+  return SECTION_SUBJECT_OPTIONS;
+}
+
 /**
  * 添加/编辑 Section 弹窗
  * 表单由父组件传入，校验与保存逻辑在父组件 onOk 中处理
  */
 function SectionFormModal({ open, onCancel, onOk, loading, form, editingSection }) {
+  const sectionName = form ? Form.useWatch('name', form) : undefined;
+  const subjectOptions = getSubjectOptionsBySectionName(sectionName);
+
   const handleNameChange = (value) => {
     if (!form) return;
     if (value && value.includes('Reading and Writing')) {
@@ -106,7 +121,7 @@ function SectionFormModal({ open, onCancel, onOk, loading, form, editingSection 
                 className="h-12 rounded-xl"
                 suffixIcon={<i className="fas fa-chevron-down text-gray-400"></i>}
               >
-                {SECTION_SUBJECT_OPTIONS.map(opt => (
+                {subjectOptions.map(opt => (
                   <Option key={opt.value} value={opt.value}>
                     <div className="flex items-center space-x-2 py-1">
                       <i className={`fas ${opt.value === SECTION_SUBJECT_ENUM.SAT_RW ? 'fa-book-open text-purple-500' : 'fa-calculator text-blue-500'}`}></i>
