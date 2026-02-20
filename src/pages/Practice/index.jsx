@@ -4,13 +4,13 @@ import { useNavigate } from 'react-router-dom';
 
 import { startPractice } from '../../services/training.js';
 
-import { TRAINING_SUBJECTS } from './constants';
+import { TRAINING_SUBJECTS, SUBJECT_ENUM } from './constants';
 import TrainingConfig from './TrainingConfig';
 
 
 function SpecialTraining() {
   const navigate = useNavigate();
-  const [activeSubject, setActiveSubject] = useState('阅读');
+  const [activeSubject, setActiveSubject] = useState(SUBJECT_ENUM.READING);
   const [trainingConfig, setTrainingConfig] = useState({
     questionType: '全部',
     source: '全部',

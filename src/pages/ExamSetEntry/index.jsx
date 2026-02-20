@@ -47,10 +47,15 @@ import ExamSetSectionStep from './components/ExamSetSectionStep';
 import ExamSetSummaryModal from './components/ExamSetSummaryModal';
 import SectionFormModal from './components/SectionFormModal';
 import {
-  DIFFICULTIES,
-  QUESTION_TYPES_MAP,
   FORM_INITIAL_VALUES,
-  STEP_ITEMS
+  STEP_ITEMS,
+  DEFAULT_SOURCE,
+  DEFAULT_SECTION_DIFFICULTY,
+  DEFAULT_SECTION_SUBJECT,
+  DEFAULT_INTERACTION_TYPE,
+  SECTION_SUBJECT_TO_DEFAULT_CATEGORY,
+  SECTION_DIFFICULTY_ENUM,
+  QUESTION_TYPES_BY_CATEGORY
 } from './examSetEntryConstants';
 import {
   clearDraft,
@@ -142,6 +147,7 @@ function ExamSetEntry() {
           type: data.type,
           region: data.region,
           difficulty: data.difficulty,
+          source: data.source,
           description: data.description
         });
 
@@ -149,19 +155,24 @@ function ExamSetEntry() {
         setExamId(data.id);
 
         const mockQuestions = (data.sections || []).flatMap(section =>
-            (section.selectedQuestions || []).map(qId => ({
+          (section.selectedQuestions || []).map(qId => {
+            const defaultCat = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[section.subject] || 'READING';
+            const types = QUESTION_TYPES_BY_CATEGORY[defaultCat] || [];
+            return {
               id: qId,
               sectionId: section.id,
               sectionName: section.name,
               subject: section.subject,
-              interactionType: '选择题',
-              type: QUESTION_TYPES_MAP[section.subject] ? QUESTION_TYPES_MAP[section.subject][0] : '未分类',
-              difficulty: '中等',
+              subjectCategory: defaultCat,
+              interactionType: DEFAULT_INTERACTION_TYPE,
+              type: types[0],
+              difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
               content: `题目 ${qId} 的内容`,
               options: ['选项A', '选项B', '选项C', '选项D'],
               correctAnswer: 'A',
               explanation: '解析内容'
-            }))
+            };
+          })
         );
         setQuestions(mockQuestions);
       }
@@ -186,24 +197,30 @@ function ExamSetEntry() {
           type: data.type,
           region: data.region,
           difficulty: data.difficulty,
+          source: data.source,
           description: data.description
         });
         setSections(data.sections || []);
         setExamId(data.id);
         const mockQuestions = (data.sections || []).flatMap(section =>
-            (section.selectedQuestions || []).map(qId => ({
+          (section.selectedQuestions || []).map(qId => {
+            const defaultCat = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[section.subject] || 'READING';
+            const types = QUESTION_TYPES_BY_CATEGORY[defaultCat] || [];
+            return {
               id: qId,
               sectionId: section.id,
               sectionName: section.name,
               subject: section.subject,
-              interactionType: '选择题',
-              type: QUESTION_TYPES_MAP[section.subject] ? QUESTION_TYPES_MAP[section.subject][0] : '未分类',
-              difficulty: '中等',
+              subjectCategory: defaultCat,
+              interactionType: DEFAULT_INTERACTION_TYPE,
+              type: types[0],
+              difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
               content: `题目 ${qId} 的内容`,
               options: ['选项A', '选项B', '选项C', '选项D'],
               correctAnswer: 'A',
               explanation: '解析内容'
-            }))
+            };
+          })
         );
         setQuestions(mockQuestions);
       }
@@ -230,7 +247,7 @@ function ExamSetEntry() {
             examRegion: baseInfo.region,
             difficulty: baseInfo.difficulty,
             examDescription: baseInfo.description,
-            source: baseInfo.source || '历年真题',
+            source: baseInfo.source || DEFAULT_SOURCE,
             status: 0
           };
 
@@ -271,7 +288,7 @@ function ExamSetEntry() {
               examRegion: baseInfo.region,
               difficulty: baseInfo.difficulty,
               examDescription: baseInfo.description,
-              source: baseInfo.source || '官方样题',
+              source: baseInfo.source || DEFAULT_SOURCE,
               status: 0
             };
 
@@ -294,7 +311,7 @@ function ExamSetEntry() {
               examRegion: baseInfo.region,
               difficulty: baseInfo.difficulty, // 使用中文难度
               examDescription: baseInfo.description,
-              source: baseInfo.source || '官方样题', // 默认值，后续可从登录信息获取
+              source: baseInfo.source || DEFAULT_SOURCE, // 默认值，后续可从登录信息获取
               creatorId: 1 // 假设当前用户ID为1，后续可从登录信息获取
             };
 
@@ -357,7 +374,7 @@ function ExamSetEntry() {
     setEditingSection(null);
     sectionForm.resetFields();
     // 设置默认难度为中等
-    sectionForm.setFieldsValue({ difficulty: '中等' });
+    sectionForm.setFieldsValue({ difficulty: DEFAULT_SECTION_DIFFICULTY, subject: DEFAULT_SECTION_SUBJECT });
     setIsSectionModalVisible(true);
   };
 
@@ -491,18 +508,17 @@ function ExamSetEntry() {
     }
     const newId = Date.now() * -1;
     const defaultSection = sections[0];
-    // 根据subject设置默认的subjectCategory
-    const defaultSubjectCategory = defaultSection.subject === '阅读语法' ? '阅读' : defaultSection.subject;
-    const questionTypes = QUESTION_TYPES_MAP[defaultSubjectCategory] || [];
+    const defaultSubjectCategory = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[defaultSection.subject] || 'READING';
+    const questionTypes = QUESTION_TYPES_BY_CATEGORY[defaultSubjectCategory] || [];
     const newQuestion = {
       id: newId,
       sectionId: defaultSection.id,
       sectionName: defaultSection.name,
       subject: defaultSection.subject,
       subjectCategory: defaultSubjectCategory,
-      interactionType: '选择题',
-      type: questionTypes.length > 0 ? questionTypes[0] : '未分类',
-      difficulty: '中等',
+      interactionType: DEFAULT_INTERACTION_TYPE,
+      type: questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0],
+      difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
       content: '',
       description: '',
       options: ['', '', '', ''],
@@ -531,10 +547,10 @@ function ExamSetEntry() {
           if (targetSection) {
             updated.subject = targetSection.subject;
             updated.sectionName = targetSection.name;
-            const defaultSubjectCategory = targetSection.subject === '阅读语法' ? '阅读' : targetSection.subject;
+            const defaultSubjectCategory = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[targetSection.subject] || 'READING';
             updated.subjectCategory = defaultSubjectCategory;
-            const questionTypes = QUESTION_TYPES_MAP[defaultSubjectCategory] || [];
-            updated.type = questionTypes.length > 0 ? questionTypes[0] : '未分类';
+            const questionTypes = QUESTION_TYPES_BY_CATEGORY[defaultSubjectCategory] || [];
+            updated.type = questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0];
           }
         }
         return updated;
@@ -804,7 +820,7 @@ function ExamSetEntry() {
 
   if (fetchLoading && editId) {
     return (
-        <div className="max-w-5xl mx-auto padding-bottom-1 flex items-center justify-center min-h-[400px]">
+        <div className="max-w-6xl mx-auto padding-bottom-1 flex items-center justify-center min-h-[400px]">
           <Spin size="large" tip="加载套题数据中..." />
         </div>
     );
@@ -812,7 +828,7 @@ function ExamSetEntry() {
 
   if (fetchExamError && editId) {
     return (
-        <div className="max-w-5xl mx-auto padding-bottom-1 flex items-center justify-center min-h-[400px]">
+        <div className="max-w-6xl mx-auto padding-bottom-1 flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center justify-center py-16 px-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-100">
             <i className="fas fa-exclamation-circle text-5xl text-amber-500 mb-4"></i>
             <p className="text-gray-600 mb-6">获取套题数据失败，请稍后重试</p>
@@ -829,7 +845,7 @@ function ExamSetEntry() {
   }
 
   return (
-      <div className="max-w-5xl mx-auto padding-bottom-1">
+      <div className="max-w-6xl mx-auto padding-bottom-1">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl font-black text-gray-900 m-0">
             {isEditMode ? '编辑套题' : '录入新套题'}
@@ -847,7 +863,7 @@ function ExamSetEntry() {
             form={form}
             layout="vertical"
             className="space-y-6"
-            initialValues={FORM_INITIAL_VALUES}
+            initialValues={editId ? { ...FORM_INITIAL_VALUES, source: undefined, region: undefined, difficulty: undefined } : FORM_INITIAL_VALUES}
         >
           <div className={currentStep === 0 ? 'block' : 'hidden'}>
             <ExamSetBaseInfoForm
@@ -877,8 +893,6 @@ function ExamSetEntry() {
                 sections={sections}
                 selectedQuestionId={selectedQuestionId}
                 activeEditorId={activeEditorId}
-                questionTypesMap={QUESTION_TYPES_MAP}
-                difficulties={DIFFICULTIES}
                 isEditMode={isEditMode}
                 questionListRef={questionListRef}
                 questionValidationErrors={questionValidationErrors}

@@ -2,7 +2,15 @@ import React from 'react';
 
 import { Form, InputNumber, Modal, Select } from 'antd';
 
+import { SECTION_DIFFICULTY_ENUM, SECTION_DIFFICULTY_OPTIONS, SECTION_SUBJECT_ENUM, SECTION_SUBJECT_OPTIONS } from '../examSetEntryConstants';
+
 const { Option } = Select;
+
+const DIFFICULTY_STAR_CLASS = {
+  [SECTION_DIFFICULTY_ENUM.EASY]: 'text-green-500',
+  [SECTION_DIFFICULTY_ENUM.MEDIUM]: 'text-yellow-500',
+  [SECTION_DIFFICULTY_ENUM.HARD]: 'text-red-500'
+};
 
 /**
  * 添加/编辑 Section 弹窗
@@ -12,9 +20,9 @@ function SectionFormModal({ open, onCancel, onOk, loading, form, editingSection 
   const handleNameChange = (value) => {
     if (!form) return;
     if (value && value.includes('Reading and Writing')) {
-      form.setFieldsValue({ subject: '阅读语法', duration: 32 });
+      form.setFieldsValue({ subject: SECTION_SUBJECT_ENUM.SAT_RW, duration: 32 });
     } else if (value && value.includes('Math')) {
-      form.setFieldsValue({ subject: '数学', duration: 35 });
+      form.setFieldsValue({ subject: SECTION_SUBJECT_ENUM.SAT_MATH, duration: 35 });
     }
   };
 
@@ -98,18 +106,14 @@ function SectionFormModal({ open, onCancel, onOk, loading, form, editingSection 
                 className="h-12 rounded-xl"
                 suffixIcon={<i className="fas fa-chevron-down text-gray-400"></i>}
               >
-                <Option value="阅读语法">
-                  <div className="flex items-center space-x-2 py-1">
-                    <i className="fas fa-book-open text-purple-500"></i>
-                    <span>阅读语法</span>
-                  </div>
-                </Option>
-                <Option value="数学">
-                  <div className="flex items-center space-x-2 py-1">
-                    <i className="fas fa-calculator text-blue-500"></i>
-                    <span>数学</span>
-                  </div>
-                </Option>
+                {SECTION_SUBJECT_OPTIONS.map(opt => (
+                  <Option key={opt.value} value={opt.value}>
+                    <div className="flex items-center space-x-2 py-1">
+                      <i className={`fas ${opt.value === SECTION_SUBJECT_ENUM.SAT_RW ? 'fa-book-open text-purple-500' : 'fa-calculator text-blue-500'}`}></i>
+                      <span>{opt.label}</span>
+                    </div>
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
           </div>
@@ -125,24 +129,14 @@ function SectionFormModal({ open, onCancel, onOk, loading, form, editingSection 
                 className="h-12 rounded-xl"
                 suffixIcon={<i className="fas fa-chevron-down text-gray-400"></i>}
               >
-                <Option value="简单">
-                  <div className="flex items-center space-x-2 py-1">
-                    <i className="fas fa-star text-green-500"></i>
-                    <span>简单</span>
-                  </div>
-                </Option>
-                <Option value="中等">
-                  <div className="flex items-center space-x-2 py-1">
-                    <i className="fas fa-star text-yellow-500"></i>
-                    <span>中等</span>
-                  </div>
-                </Option>
-                <Option value="困难">
-                  <div className="flex items-center space-x-2 py-1">
-                    <i className="fas fa-star text-red-500"></i>
-                    <span>困难</span>
-                  </div>
-                </Option>
+                {SECTION_DIFFICULTY_OPTIONS.map(opt => (
+                  <Option key={opt.value} value={opt.value}>
+                    <div className="flex items-center space-x-2 py-1">
+                      <i className={`fas fa-star ${DIFFICULTY_STAR_CLASS[opt.value] || ''}`}></i>
+                      <span>{opt.label}</span>
+                    </div>
+                  </Option>
+                ))}
               </Select>
             </Form.Item>
 

@@ -17,7 +17,7 @@ function TrainingConfig({ subject, config, onConfigChange }) {
       title: '题目类型',
       icon: 'fas fa-list-ul',
       color: 'from-blue-500 to-cyan-600',
-      options: QUESTION_TYPES[subject],
+      options: QUESTION_TYPES[subject] ?? [],
       value: config.questionType,
       showIcons: true
     },

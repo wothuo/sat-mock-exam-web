@@ -2,7 +2,7 @@
  * 套题录入页工具函数：题目选项解析、提交 payload 构建、格式化、草稿、公式渲染等
  */
 
-import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SUBJECT } from './examSetEntryConstants';
+import { DRAFT_STORAGE_KEY, DEFAULT_SOURCE, DEFAULT_CREATOR_ID, CATEGORY_TO_SECTION_SUBJECT, DEFAULT_REGION, DEFAULT_DIFFICULTY, DEFAULT_SECTION_DIFFICULTY, DEFAULT_SECTION_SUBJECT, SECTION_SUBJECT_TO_DEFAULT_CATEGORY, INTERACTION_TYPE_ENUM, SUBJECT_CATEGORY_ENUM, QUESTION_TYPES_BY_CATEGORY } from './examSetEntryConstants';
 
 const DEFAULT_OPTIONS = ['', '', '', ''];
 
@@ -84,7 +84,7 @@ export function validateQuestions(questions, sections = []) {
       });
     }
 
-    if (q.interactionType === '选择题') {
+    if (q.interactionType === INTERACTION_TYPE_ENUM.CHOICE) {
       const opts = Array.isArray(q.options) ? q.options : ['', '', '', ''];
       const optLabels = ['A', 'B', 'C', 'D'];
       const hasEmptyOption = opts.some((opt, i) => !stripHtmlToText(opt ?? '').trim());
@@ -161,15 +161,19 @@ export function clearDraft() {
  */
 export function transformExamSetFromList(examSet) {
   if (!examSet) return null;
+  const source = examSet.source || DEFAULT_SOURCE;
   return {
     id: examSet.examId,
     title: examSet.examName,
     year: examSet.examYear,
     type: examSet.examType,
-    region: examSet.examRegion,
-    difficulty: examSet.difficulty || 'Medium',
+    region: examSet.examRegion || DEFAULT_REGION,
+    difficulty: examSet.difficulty || DEFAULT_DIFFICULTY,
     description: examSet.examDescription || '',
-    sections: examSet.sections || []
+    source,
+    sections: (examSet.sections && examSet.sections.length)
+      ? formatSectionListFromApi(examSet.sections)
+      : []
   };
 }
 
@@ -183,8 +187,8 @@ export function formatSectionListFromApi(sectionListData) {
   return sectionListData.map(section => ({
     id: section.sectionId,
     name: section.sectionName,
-    subject: section.sectionCategory,
-    difficulty: section.sectionDifficulty,
+    subject: section.sectionCategory || DEFAULT_SECTION_SUBJECT,
+    difficulty: section.sectionDifficulty || DEFAULT_SECTION_DIFFICULTY,
     duration: section.sectionTiming,
     status: section.status
   }));
@@ -192,6 +196,9 @@ export function formatSectionListFromApi(sectionListData) {
 
 /**
  * 将题目列表接口数据格式化为前端 question 结构
+ * 数据来源：question/exam/list 接口
+ * - 科目分类：questionCategory (READING/WRITING/MATH)
+ * - 知识点：questionSubCategory (如 READING_VOCAB、MATH_BASIC 等)
  * @param {Array} questionListData
  * @param {Array} sections 当前 sections 列表，用于解析 subject
  * @returns {Array}
@@ -202,13 +209,12 @@ export function formatQuestionListFromApi(questionListData, sections) {
     const { question, sectionName } = item;
     const optionsArray = parseQuestionOptions(question.options);
     const section = sections.find(s => s.id === question.sectionId);
-    const subject = section?.subject || CATEGORY_TO_SUBJECT[question.questionCategory] || '阅读语法';
+    const subject = section?.subject || CATEGORY_TO_SECTION_SUBJECT[question.questionCategory] || DEFAULT_SECTION_SUBJECT;
 
-    // 设置subjectCategory：如果questionCategory是阅读或语法，直接使用；否则根据subject推断
+    // 科目分类：来自 question/exam/list 的 questionCategory
     let subjectCategory = question.questionCategory;
-    if (!['阅读', '语法', '数学'].includes(question.questionCategory)) {
-      // 如果questionCategory不是标准值，根据subject推断
-      subjectCategory = subject === '阅读语法' ? '阅读' : subject;
+    if (![SUBJECT_CATEGORY_ENUM.READING, SUBJECT_CATEGORY_ENUM.WRITING, SUBJECT_CATEGORY_ENUM.MATH].includes(question.questionCategory)) {
+      subjectCategory = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[subject] || SUBJECT_CATEGORY_ENUM.READING;
     }
 
     return {
@@ -216,12 +222,12 @@ export function formatQuestionListFromApi(questionListData, sections) {
       sectionId: question.sectionId,
       sectionName,
       subject,
-      subjectCategory, // 新增字段
+      subjectCategory,
       questionCategory: question.questionCategory,
       questionSubCategory: question.questionSubCategory,
-      difficulty: question.difficulty,
-      type: question.questionSubCategory || '',
-      interactionType: question.questionType === 'CHOICE' ? '选择题' : question.questionType === 'BLANK' ? '填空题' : question.questionType,
+      difficulty: question.difficulty || DEFAULT_SECTION_DIFFICULTY,
+      type: question.questionSubCategory || (QUESTION_TYPES_BY_CATEGORY[subjectCategory] || [])[0] || '', // 知识点：来自 question/exam/list 的 questionSubCategory
+      interactionType: question.questionType === 'CHOICE' ? INTERACTION_TYPE_ENUM.CHOICE : question.questionType === 'BLANK' ? INTERACTION_TYPE_ENUM.BLANK : (question.questionType || INTERACTION_TYPE_ENUM.CHOICE),
       content: question.questionContent,
       description: question.questionDescription,
       options: optionsArray,
@@ -251,7 +257,7 @@ export function buildExamPoolPayload(baseInfo, isEditMode, editId) {
     examType: baseInfo.type,
     examYear: baseInfo.year?.toString(),
     examRegion: baseInfo.region,
-    difficulty: baseInfo.difficulty || '',
+    difficulty: baseInfo.difficulty || DEFAULT_DIFFICULTY,
     examDescription: baseInfo.description,
     source: baseInfo.source || DEFAULT_SOURCE,
     creatorId: DEFAULT_CREATOR_ID,
@@ -272,7 +278,7 @@ export function buildExamSectionsPayload(sections, isEditMode, editId) {
     ...(isEditMode && { sectionId: section.id }),
     sectionName: section.name,
     sectionCategory: section.subject,
-    sectionDifficulty: section.difficulty || '',
+    sectionDifficulty: section.difficulty || DEFAULT_SECTION_DIFFICULTY,
     sectionTiming: section.duration,
     status: 0,
     delFlag: section.delFlag || '0'
@@ -295,7 +301,7 @@ export function buildQuestionsPayload(questions, isEditMode) {
       questionType: question.interactionType,
       questionCategory: question.subjectCategory || question.subject || '',
       questionSubCategory: question.type,
-      difficulty: question.difficulty || '',
+      difficulty: question.difficulty || DEFAULT_SECTION_DIFFICULTY,
       questionContent: question.content === '已录入' ? '' : (question.content || ''),
       questionDescription: question.description || '',
       optionA,
