@@ -158,7 +158,7 @@ function QuestionDetailModal({ question, onClose }) {
                             </button>
                         )}
                       </div>
-                      <div className={`p-6 transition-all duration-300 ${isQuestionContentExpanded || questionText.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
+                      <div className={`p-6 transition-all duration-300 min-h-40 ${isQuestionContentExpanded || questionText.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
                         <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm font-medium max-h-96 overflow-y-auto break-all">{questionText}</div>
                         {!isQuestionContentExpanded && questionText.length > 200 && (
                             <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
@@ -192,7 +192,7 @@ function QuestionDetailModal({ question, onClose }) {
                             </button>
                         )}
                       </div>
-                      <div className={`p-6 transition-all duration-300 relative ${isQuestionDescriptionExpanded || question.questionDescription.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
+                      <div className={`p-6 transition-all duration-300 relative min-h-40 ${isQuestionDescriptionExpanded || question.questionDescription.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
                         <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm font-medium max-h-96 overflow-y-auto break-all">{question.questionDescription}</div>
                         {!isQuestionDescriptionExpanded && question.questionDescription.length > 200 && (
                             <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
@@ -327,7 +327,7 @@ function QuestionDetailModal({ question, onClose }) {
                       <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Correct Answer</span>
                       <div className="text-sm font-black text-gray-900 break-words">{question.correctAnswer ?? '—'}</div>
                     </div>
-                    <div className={`transition-all duration-300 relative ${isAnalysisExpanded || !explanationText || explanationText.length <= 200 ? 'max-h-none' : 'max-h-32 overflow-hidden'}`}>
+                    <div className={`transition-all duration-300 relative ${isAnalysisExpanded || !explanationText || explanationText.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
                       <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">解析</span>
                       <div className="mt-2 text-gray-700 text-sm leading-relaxed break-all" dangerouslySetInnerHTML={{ __html: formatText(explanationText) || '<span class="text-gray-400">暂无解析</span>' }}></div>
                       {!isAnalysisExpanded && explanationText && explanationText.length > 200 && (
