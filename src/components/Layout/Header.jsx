@@ -191,6 +191,7 @@ function Header() {
         open={mobileMenuVisible}
         width={280}
         className="responsive-drawer"
+        zIndex={99999}
       >
         <nav className="flex flex-col space-y-1">
           {navItems.map((item) => (
