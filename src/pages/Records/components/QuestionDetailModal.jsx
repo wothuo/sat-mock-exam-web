@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { SUBJECT_CATEGORY_LABELS, DIFFICULTY_LABELS } from '../../ExamSetEntry/examSetEntryConstants';
 
 function QuestionDetailModal({ question, onClose }) {
   const [isQuestionContentExpanded, setIsQuestionContentExpanded] = useState(false);
@@ -33,6 +34,17 @@ function QuestionDetailModal({ question, onClose }) {
   const formatText = (text) => {
     if (!text) return text;
 
+    // 0. 处理长连续字符串（如哈希值）
+    if (text.length > 50 && !text.includes(' ') && !text.includes('\n')) {
+      // 如果是长连续字符串，添加换行符
+      const chunkSize = 64;
+      let processed = '';
+      for (let i = 0; i < text.length; i += chunkSize) {
+        processed += text.slice(i, i + chunkSize) + '\n';
+      }
+      text = processed.trim();
+    }
+
     // 1. 保护数学公式
     const mathBlocks = [];
     let processed = text.replace(/\$([\s\S]*?)\$/g, (match) => {
@@ -63,6 +75,17 @@ function QuestionDetailModal({ question, onClose }) {
   const isCorrect = question.userAnswer === question.correctAnswer;
   const explanationText = question.explanation ?? question.analysis ?? '';
 
+  // 映射英文值为中文显示
+  const getDisplaySubject = (subject) => SUBJECT_CATEGORY_LABELS[subject] || subject;
+  const getDisplayDifficulty = (difficulty) => DIFFICULTY_LABELS[difficulty] || difficulty;
+  const getDisplayQuestionType = (questionType) => {
+    const typeMap = {
+      'CHOICE': '选择题',
+      'BLANK': '填空题'
+    };
+    return typeMap[questionType] || questionType;
+  };
+
   return (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
         <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300">
@@ -71,13 +94,13 @@ function QuestionDetailModal({ question, onClose }) {
             <div className="flex flex-wrap items-center gap-3">
               <span className="bg-red-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Analysis</span>
               {question.subject && (
-                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">{question.subject}</span>
+                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">{getDisplaySubject(question.subject)}</span>
               )}
               {question.difficulty && (
-                  <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-medium">{question.difficulty}</span>
+                  <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-medium">{getDisplayDifficulty(question.difficulty)}</span>
               )}
               {question.questionType && (
-                  <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">{question.questionType}</span>
+                  <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">{getDisplayQuestionType(question.questionType)}</span>
               )}
               {/*{question.score != null && question.score !== '' && (*/}
               {/*  <span className="text-gray-500 text-xs font-medium">分值 {question.score}</span>*/}
@@ -135,8 +158,8 @@ function QuestionDetailModal({ question, onClose }) {
                             </button>
                         )}
                       </div>
-                      <div className={`p-6 transition-all duration-300 min-h-40 ${isQuestionContentExpanded || questionText.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
-                        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm font-medium">{questionText}</div>
+                      <div className={`p-6 transition-all duration-300 ${isQuestionContentExpanded || questionText.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
+                        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm font-medium max-h-96 overflow-y-auto break-all">{questionText}</div>
                         {!isQuestionContentExpanded && questionText.length > 200 && (
                             <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                         )}
@@ -169,8 +192,8 @@ function QuestionDetailModal({ question, onClose }) {
                             </button>
                         )}
                       </div>
-                      <div className={`p-6 transition-all duration-300 relative min-h-40 ${isQuestionDescriptionExpanded || question.questionDescription.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
-                        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm font-medium">{question.questionDescription}</div>
+                      <div className={`p-6 transition-all duration-300 relative ${isQuestionDescriptionExpanded || question.questionDescription.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
+                        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm font-medium max-h-96 overflow-y-auto break-all">{question.questionDescription}</div>
                         {!isQuestionDescriptionExpanded && question.questionDescription.length > 200 && (
                             <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                         )}
@@ -180,7 +203,7 @@ function QuestionDetailModal({ question, onClose }) {
                 {question.passage && (
                     <div>
                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">阅读段落</span>
-                      <div className="mt-1 p-6 bg-gray-50 rounded-2xl border-l-4 border-red-500 text-gray-700 italic text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: formatText(question.passage) }}></div>
+                      <div className="mt-1 p-6 bg-gray-50 rounded-2xl border-l-4 border-red-500 text-gray-700 italic text-sm leading-relaxed max-h-64 overflow-y-auto break-all" dangerouslySetInnerHTML={{ __html: formatText(question.passage) }}></div>
                     </div>
                 )}
               </div>
@@ -260,14 +283,14 @@ function QuestionDetailModal({ question, onClose }) {
                         <i className="fas fa-clipboard-check text-gray-500 mr-2"></i>
                         <span className="font-bold text-gray-700 text-sm">作答结果</span>
                       </div>
-                      <div className="p-6 grid grid-cols-2 gap-4 min-h-40">
+                      <div className="p-6 grid grid-cols-2 gap-4">
                         <div className={`p-4 rounded-xl border-2 ${isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">你的答案</span>
-                          <div className="mt-1 text-sm font-black text-gray-900">{question.userAnswer ?? '—'}</div>
+                          <div className="mt-1 text-sm font-black text-gray-900 break-all">{question.userAnswer ?? '—'}</div>
                         </div>
                         <div className="p-4 rounded-xl border-2 border-blue-500 bg-blue-50">
                           <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">正确答案</span>
-                          <div className="mt-1 text-sm font-black text-gray-900">{question.correctAnswer ?? '—'}</div>
+                          <div className="mt-1 text-sm font-black text-gray-900 break-all">{question.correctAnswer ?? '—'}</div>
                         </div>
                       </div>
                     </div>
@@ -302,11 +325,11 @@ function QuestionDetailModal({ question, onClose }) {
                   <div className="p-6 space-y-4">
                     <div>
                       <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Correct Answer</span>
-                      <div className="text-sm font-black text-gray-900">{question.correctAnswer ?? '—'}</div>
+                      <div className="text-sm font-black text-gray-900 break-words">{question.correctAnswer ?? '—'}</div>
                     </div>
                     <div className={`transition-all duration-300 relative ${isAnalysisExpanded || !explanationText || explanationText.length <= 200 ? 'max-h-none' : 'max-h-32 overflow-hidden'}`}>
                       <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">解析</span>
-                      <div className="mt-2 text-gray-700 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: formatText(explanationText) || '<span class="text-gray-400">暂无解析</span>' }}></div>
+                      <div className="mt-2 text-gray-700 text-sm leading-relaxed break-all" dangerouslySetInnerHTML={{ __html: formatText(explanationText) || '<span class="text-gray-400">暂无解析</span>' }}></div>
                       {!isAnalysisExpanded && explanationText && explanationText.length > 200 && (
                           <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                       )}

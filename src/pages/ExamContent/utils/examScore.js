@@ -1,13 +1,7 @@
 /**
  * 根据题目与答案计算成绩（模拟 SAT 400-1600）
  */
-const SCORABLE_TYPES = [
-  'multiple-choice',
-  'reading-passage',
-  'table-question',
-  'complex-table',
-  'multiple-choice-with-image'
-];
+const SCORABLE_TYPES = ['CHOICE'];
 
 export function calculateScore(examData, answers) {
   const total = examData.totalQuestions;

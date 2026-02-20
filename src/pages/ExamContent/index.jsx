@@ -167,25 +167,31 @@ function ExamContent() {
             }
           }
           
-          // 根据题目类型确定题型
-          let questionType = 'multiple-choice';
-          if (questionObj?.questionType?.toUpperCase() === 'BLANK' || questionObj?.questionType === '填空题') {
-            questionType = 'fill-in-blanks';
-          } else if (questionObj?.questionType?.toUpperCase() === 'CHOICE' || questionObj?.questionType === '选择题') {
-            questionType = 'multiple-choice';
+          // 根据题目类型确定题型，统一为BLANK和CHOICE两种类型
+          let questionType = 'CHOICE'; // 默认设为选择题
+          const originalQuestionType = questionObj?.questionType?.toUpperCase();
+          
+          if (originalQuestionType === 'BLANK' || questionObj?.questionType === '填空题') {
+            questionType = 'BLANK';
+          } else if (originalQuestionType === 'CHOICE' || questionObj?.questionType === '选择题') {
+            questionType = 'CHOICE';
           }
+          // 保留原始questionType用于调试
+          console.log(`题目 ${index + 1} 原始questionType:`, originalQuestionType, '转换后type:', questionType);
           
           const questionContent = questionObj?.questionContent || 
                                 questionObj?.question || 
                                 questionObj?.content || 
                                 `题目 ${index + 1} 内容加载中...`;
           
-          const blanks = questionType === 'fill-in-blanks' ? [{ id: 'blank1' }] : [];
+          const blanks = questionType === 'BLANK' ? [{ id: 'blank1' }] : [];
 
           return {
             id: index + 1,
             originalId: questionObj?.questionId,
             type: questionType,
+            hasImage: false, // 通过属性区分带图片的题目
+            questionType: originalQuestionType, // 保留原始questionType用于调试和后续处理
             question: questionContent,
             content: questionContent,
             description: questionObj?.questionDescription || '',
@@ -300,19 +306,14 @@ function ExamContent() {
             }
             
             // 根据题目类型确定题型
-            let questionType = 'multiple-choice';
-            if (questionObj?.questionType === '填空题') {
-              questionType = 'fill-in-blanks';
-            } else if (questionObj?.questionType === '选择题') {
-              questionType = 'multiple-choice';
-            }
-            
+            let questionType = questionObj?.questionType.toUpperCase();
+
             const questionContent = questionObj?.questionContent || 
                                   questionObj?.question || 
                                   questionObj?.content || 
                                   `题目 ${index + 1} 内容加载中...`;
             
-            const blanks = questionType === 'fill-in-blanks' ? [{ id: 'blank1' }] : [];
+            const blanks = questionType === 'BLANK' ? [{ id: 'blank1' }] : [];
             
             // 提取图片URL - 检查questionContent中是否包含图片URL
             let imageUrls = [];
@@ -350,21 +351,15 @@ function ExamContent() {
               }
             }
             
-            // 如果存在图片URL，调整题目类型为带图片的类型
+            // 统一使用BLANK和CHOICE类型，通过hasImage属性区分带图片的题目
             let finalQuestionType = questionType;
-            
-            if (imageUrls.length > 0 && questionType === 'multiple-choice') {
-              finalQuestionType = 'multiple-choice-with-image';
-            } else if (imageUrls.length > 0 && questionType === 'student-produced') {
-              finalQuestionType = 'student-produced-with-image';
-            } else if (imageUrls.length > 0 && questionType === 'fill-in-blanks') {
-              finalQuestionType = 'image-with-blanks';
-            }
             
             return {
               id: index + 1, // 使用索引作为ID，确保与currentQuestion匹配
               originalId: questionObj?.questionId, // 保存原始ID用于后续处理
               type: finalQuestionType,
+              hasImage: imageUrls.length > 0, // 通过属性区分带图片的题目
+              hasTable: false, // 暂时设为false，后续可根据内容判断
               question: processedQuestionContent,
               content: processedQuestionContent,
               images: imageUrls,

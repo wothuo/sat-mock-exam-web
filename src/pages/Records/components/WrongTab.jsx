@@ -4,6 +4,8 @@ import { Button, Card, Pagination, Select, Space, Spin, Tag } from 'antd';
 
 import { ClockCircleOutlined, EyeOutlined } from '@ant-design/icons';
 
+import { SUBJECT_CATEGORY_LABELS, DIFFICULTY_LABELS } from '../../ExamSetEntry/examSetEntryConstants';
+
 const { Option } = Select;
 
 function WrongTab({
@@ -11,9 +13,9 @@ function WrongTab({
   total = 0,
   pageNum = 1,
   pageSize = 10,
-  subject = 'all',
-  difficulty = 'all',
-  period = 'all',
+  subject = 'ALL',
+  difficulty = 'ALL',
+  period = 'ALL',
   onFilterChange,
   onPageChange,
   onShowDetail,
@@ -39,19 +41,18 @@ function WrongTab({
 
   const getDifficultyColor = (d) => {
     const colors = {
-      简单: 'green',
-      中等: 'orange',
-      困难: 'red'
+      EASY: 'green',
+      MEDIUM: 'orange',
+      HARD: 'red'
     };
     return colors[d] || 'geekblue';
   };
 
   const getSubjectColor = (s) => {
     const colors = {
-      数学: 'blue',
-      阅读: 'purple',
-      语法: 'orange',
-      阅读语法: 'magenta'
+      MATH: 'blue',
+      READING: 'purple',
+      WRITING: 'magenta',
     };
     return colors[s] || 'cyan';
   };
@@ -68,10 +69,10 @@ function WrongTab({
             style={{ width: 150 }}
             placeholder="选择科目"
           >
-            <Option value="all">📚 全部科目</Option>
-            <Option value="数学">🔢 数学</Option>
-            <Option value="阅读">📖 阅读</Option>
-            <Option value="语法">✏️ 语法</Option>
+            <Option value="ALL">📚 全部科目</Option>
+            <Option value="MATH">🔢 数学</Option>
+            <Option value="READING">📖 阅读</Option>
+            <Option value="WRITING">✏️ 语法</Option>
           </Select>
           <Select
             value={difficulty}
@@ -79,10 +80,10 @@ function WrongTab({
             style={{ width: 150 }}
             placeholder="选择难度"
           >
-            <Option value="all">📊 全部难度</Option>
-            <Option value="简单">🎯 简单</Option>
-            <Option value="中等">⚡ 中等</Option>
-            <Option value="困难">🔥 困难</Option>
+            <Option value="ALL">📊 全部难度</Option>
+            <Option value="EASY">🎯 简单</Option>
+            <Option value="MEDIUM">⚡ 中等</Option>
+            <Option value="HARD">🔥 困难</Option>
           </Select>
           <Select
             value={period}
@@ -90,10 +91,10 @@ function WrongTab({
             style={{ width: 150 }}
             placeholder="选择时间"
           >
-            <Option value="all">📅 全部时间</Option>
-            <Option value="最近一周">📅 最近一周</Option>
-            <Option value="最近一个月">📅 最近一个月</Option>
-            <Option value="最近三个月">📆 最近三个月</Option>
+            <Option value="ALL">📅 全部时间</Option>
+            <Option value="RECENT_WEEK">📅 最近一周</Option>
+            <Option value="RECENT_MONTH">📅 最近一个月</Option>
+            <Option value="RECENT_THREE_MONTHS">📆 最近三个月</Option>
           </Select>
         </Space>
       </div>
@@ -110,8 +111,8 @@ function WrongTab({
               <div className="flex flex-col lg:flex-row lg:items-center gap-6">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center flex-wrap gap-3 mb-3">
-                    <Tag color={getSubjectColor(q.subject)} className="m-0 px-3 rounded-lg font-bold border-0">{q.subject}</Tag>
-                    <Tag color={getDifficultyColor(q.difficulty)} className="m-0 px-3 rounded-lg font-bold border-0">{q.difficulty}</Tag>
+                    <Tag color={getSubjectColor(q.subject)} className="m-0 px-3 rounded-lg font-bold border-0">{SUBJECT_CATEGORY_LABELS[q.subject] || q.subject}</Tag>
+                    <Tag color={getDifficultyColor(q.difficulty)} className="m-0 px-3 rounded-lg font-bold border-0">{DIFFICULTY_LABELS[q.difficulty] || q.difficulty}</Tag>
                     <span className="text-xs text-gray-400 font-bold flex items-center ml-1">
                       <i className="far fa-calendar-alt mr-1.5"></i>
                       {q.date}

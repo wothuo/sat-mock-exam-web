@@ -43,10 +43,7 @@ function QuestionStemPanel({
             </div>
           )}
 
-          {(question.type === 'multiple-choice-with-image' ||
-            question.type === 'student-produced-with-image' ||
-            question.type === 'image-with-blanks') &&
-            question.images && question.images.length > 0 && (
+          {question.hasImage && question.images && question.images.length > 0 && (
               <div className="space-y-4">
                 {question.images.map((img, imgIndex) => (
                   <div key={imgIndex} className="flex justify-center">
@@ -70,7 +67,7 @@ function QuestionStemPanel({
               </div>
             )}
 
-          {(question.type === 'table-question' || question.type === 'complex-table') && question.table && (
+          {question.hasTable && question.table && (
             <div className="overflow-x-auto">
               {question.table.title && (
                 <div className="mb-4 text-center font-semibold text-gray-900 text-sm">

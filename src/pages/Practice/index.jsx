@@ -4,7 +4,16 @@ import { useNavigate } from 'react-router-dom';
 
 import { startPractice } from '../../services/training.js';
 
-import { TRAINING_SUBJECTS, SUBJECT_ENUM } from './constants';
+import { 
+  TRAINING_SUBJECTS, 
+  SUBJECT_ENUM,
+  QUESTION_SOURCE_ENUM,
+  QUESTION_SOURCE_LABELS,
+  QUESTION_DIMENSION_ENUM,
+  QUESTION_DIMENSION_LABELS,
+  QUESTION_DIFFICULTY_ENUM,
+  QUESTION_DIFFICULTY_LABELS
+} from './constants';
 import TrainingConfig from './TrainingConfig';
 
 
@@ -13,9 +22,9 @@ function SpecialTraining() {
   const [activeSubject, setActiveSubject] = useState(SUBJECT_ENUM.READING);
   const [trainingConfig, setTrainingConfig] = useState({
     questionType: '全部',
-    source: '全部',
-    dimension: '全部',
-    difficulty: '随机',
+    source: QUESTION_SOURCE_ENUM.ALL,
+    dimension: QUESTION_DIMENSION_ENUM.ALL,
+    difficulty: QUESTION_DIFFICULTY_ENUM.RANDOM,
     count: '5题'
     // viewMode: '随时查看答案和解析'
   });
@@ -27,14 +36,20 @@ function SpecialTraining() {
     }));
   };
 
+  // 根据中文标签获取对应的英文枚举值
+  const getEnumValueFromLabel = (labels, label) => {
+    const entry = Object.entries(labels).find(([key, value]) => value === label);
+    return entry ? entry[0] : label; // 如果找不到对应的枚举值，返回原值
+  };
+
   const handleStartTraining = async () => {
-    // 转换参数格式
+    // 将中文选项值转换为英文枚举值
     const practiceParams = {
       questionCategory: activeSubject,
-      questionSubCategory: trainingConfig.questionType,
-      difficulty: trainingConfig.difficulty,
-      source: trainingConfig.source,
-      records: trainingConfig.dimension,
+      questionSubCategory: trainingConfig.questionType === '全部' ? undefined : trainingConfig.questionType,
+      difficulty: getEnumValueFromLabel(QUESTION_DIFFICULTY_LABELS, trainingConfig.difficulty),
+      source: getEnumValueFromLabel(QUESTION_SOURCE_LABELS, trainingConfig.source),
+      records: getEnumValueFromLabel(QUESTION_DIMENSION_LABELS, trainingConfig.dimension),
       size: parseInt(trainingConfig.count) || 5
     };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FILL_IN_BLANKS_TYPES = ['fill-in-blanks', 'image-with-blanks'];
+const FILL_IN_BLANKS_TYPES = ['BLANK'];
 
 function QuestionAnswerPanel({
   question,
@@ -17,7 +17,7 @@ function QuestionAnswerPanel({
 
   const renderOptions = () => (
     <div className="space-y-4">
-      {question.type === 'reading-passage' && question.followUpQuestion && (
+      {question.followUpQuestion && (
         <div className="mb-6 p-4 bg-red-50 rounded-lg">
           <div className="font-medium text-gray-900 mb-4">
               {renderFormattedText(question.followUpQuestion, question.id, 'followUpQuestion')}
@@ -25,7 +25,7 @@ function QuestionAnswerPanel({
         </div>
       )}
 
-      {(question.options || (question.type === 'reading-passage' && question.options))?.map(
+      {question.options?.map(
         (option, index) => (
           <label
             key={index}
@@ -42,7 +42,7 @@ function QuestionAnswerPanel({
               <div className="modern-radio-circle" />
             </div>
             <div
-              className="radio-text flex-1 selectable-text"
+              className="radio-text flex-1 selectable-text break-all"
             >
               {renderFormattedText(option, question.id, 'option')}
             </div>
@@ -141,30 +141,20 @@ function QuestionAnswerPanel({
       <div className="space-y-6">
         {question.description && (
           <div className="mb-6">
-            <div className="text-base text-gray-900 leading-relaxed">
+            <div className="text-base text-gray-900 leading-relaxed max-h-48 overflow-y-auto break-all">
               {renderFormattedText(question.description, question.id, 'description')}
             </div>
           </div>
         )}
 
-        {(question.type === 'multiple-choice' ||
-          question.type === 'multiple-choice-with-image' ||
-          question.type === 'reading-passage') &&
-          renderOptions()}
+        {question.type === 'CHOICE' && renderOptions()}
 
-        {(question.type === 'student-produced' ||
-          question.type === 'student-produced-with-image') &&
-          renderStudentProduced()}
-
-        {FILL_IN_BLANKS_TYPES.includes(question.type) && renderFillInBlanks()}
-
-        {(question.type === 'table-question' || question.type === 'complex-table') &&
-          renderTableOptions()}
+        {question.type === 'BLANK' && renderFillInBlanks()}
 
         <div className="mt-8 p-4 bg-gray-50 rounded-lg">
           <div className="text-sm text-gray-600 mb-2">Answer Preview:</div>
           <div className="text-base font-medium text-gray-900">
-            {FILL_IN_BLANKS_TYPES.includes(question.type) ? (
+            {FILL_IN_BLANKS_TYPES.includes(question.questionType) ? (
               <div className="space-y-2">
                 {(question.blanks || []).map((blank) => (
                   <span key={blank.id} className="font-mono">
