@@ -398,25 +398,9 @@ function ExamSetEntry() {
 
       // 统一处理逻辑：根据sectionId正负值决定调用哪个API
 
-      // 检查Section名称、分类、难度、限时是否与其他Section重复
-      const isDuplicate = sections.some(section => {
-        // 如果是编辑模式，排除当前编辑的Section
-        if (editingSection && section.id === editingSection.id) {
-          return false;
-        }
-        return section.name === values.name &&
-            section.subject === values.subject &&
-            section.difficulty === values.difficulty &&
-            section.duration === values.duration;
-      });
-
-      if (isDuplicate) {
-        message.warning('Section 已存在，请检查Section名称、分类、难度或限时是否重复');
-        return;
-      }
-
-      // 调用检查Section是否存在接口
-      const result = await checkSectionExists(sectionData);
+      // 调用检查Section是否存在接口（编辑时传入 sectionId，供后端排除当前 Section 再校验重复）
+      const checkParams = editingSection ? { ...sectionData, sectionId: editingSection?.id } : sectionData;
+      const result = await checkSectionExists(checkParams);
 
       if (result) {
         // 如果Section已存在，提示用户
