@@ -4,6 +4,17 @@
 import { get, post } from '../utils/request.ts';
 
 /**
+ * 根据套题 ID 列表批量获取套题详情
+ * @param {number[]} examIds - 套题 ID 列表
+ * @param {Object} config - 请求配置（如 signal、showError）
+ * @returns {Promise<Array>} ExamPool 对象数组
+ */
+export const getExamSetDetails = async (examIds, config = {}) => {
+  const response = await post('/exam/details', { examIds }, config);
+  return response.data;
+};
+
+/**
  * 获取套题列表
  * @param {Object} params - 查询参数
  * @param {string} params.examType - 考试类型（必填，如：SAT/IELTS/TOEFL）

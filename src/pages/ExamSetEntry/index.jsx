@@ -26,7 +26,7 @@ import {
 } from '@ant-design/icons';
 
 import {
-  getExamSetList,
+  getExamSetDetails,
   checkExamExists,
   checkSectionExists,
   submitExamSet,
@@ -108,17 +108,13 @@ function ExamSetEntry() {
     setFetchLoading(true);
     setFetchExamError(null);
     try {
-      const params = {
-        examType: 'SAT',
-        pageNum: 1,
-        pageSize: 100
-      };
+      const examIds = [parseInt(id, 10)];
       const requestConfig = signal ? { signal, showError: false } : {};
-      const result = await getExamSetList(params, requestConfig);
+      const result = await getExamSetDetails(examIds, requestConfig);
 
       if (signal?.aborted) return null;
-      if (result && result.list) {
-        const examSet = result.list.find(item => item.examId === parseInt(id, 10));
+      if (result && Array.isArray(result) && result.length > 0) {
+        const examSet = result[0];
         return transformExamSetFromList(examSet);
       }
       return null;
