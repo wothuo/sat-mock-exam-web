@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FILL_IN_BLANKS_TYPES = ['BLANK'];
+const BLANKS_TYPES = ['BLANK'];
 
 function QuestionAnswerPanel({
   question,
@@ -72,24 +72,33 @@ function QuestionAnswerPanel({
   const renderFillInBlanks = () => {
     const blanks = question.blanks || [];
 
-    const renderBlankInput = (blank) => (
-        <input
-            key={blank.id}
-            type="text"
-            value={answers[currentQuestion]?.[blank.id] || ''}
-            onChange={(e) => {
-                const newAnswers = { ...answers };
-                if (!newAnswers[currentQuestion]) {
-                    newAnswers[currentQuestion] = {};
-                }
-                newAnswers[currentQuestion][blank.id] = e.target.value;
-                setAnswers(newAnswers);
-            }}
-            className="w-full px-3 py-2 border-b-2 border-gray-400 focus:outline-none focus:border-red-500 text-base"
-            placeholder={blank.placeholder || 'Enter your answer'}
-            aria-label="Answer"
-        />
-    );
+    const renderBlankInput = (blank) => {
+        // 确保答案值是字符串类型
+        const answerValue = typeof answers[currentQuestion]?.[blank.id] === 'string' 
+            ? answers[currentQuestion][blank.id] 
+            : typeof answers[currentQuestion]?.[blank.id] === 'object'
+                ? JSON.stringify(answers[currentQuestion][blank.id])
+                : '';
+                
+        return (
+            <input
+                key={blank.id}
+                type="text"
+                value={answerValue}
+                onChange={(e) => {
+                    const newAnswers = { ...answers };
+                    if (!newAnswers[currentQuestion]) {
+                        newAnswers[currentQuestion] = {};
+                    }
+                    newAnswers[currentQuestion][blank.id] = e.target.value;
+                    setAnswers(newAnswers);
+                }}
+                className="w-full px-3 py-2 border-b-2 border-gray-400 focus:outline-none focus:border-red-500 text-base"
+                placeholder={blank.placeholder || 'Enter your answer'}
+                aria-label="Answer"
+            />
+        );
+    };
 
     return (
       <div className="space-y-6">
@@ -154,16 +163,22 @@ function QuestionAnswerPanel({
         <div className="mt-8 p-4 bg-gray-50 rounded-lg">
           <div className="text-sm text-gray-600 mb-2">Answer Preview:</div>
           <div className="text-base font-medium text-gray-900">
-            {FILL_IN_BLANKS_TYPES.includes(question.questionType) ? (
+            {BLANKS_TYPES.includes(question.type) ? (
               <div className="space-y-2">
                 {(question.blanks || []).map((blank) => (
-                  <span key={blank.id} className="font-mono">
-                    {answers[currentQuestion]?.[blank.id] ?? '—'}
-                  </span>
+                  <div key={blank.id} className="font-mono">
+                    {typeof answers[currentQuestion]?.[blank.id] === 'string' 
+                      ? answers[currentQuestion][blank.id] 
+                      : typeof answers[currentQuestion]?.[blank.id] === 'object' 
+                        ? Object.values(answers[currentQuestion][blank.id])[0] || ''
+                        : answers[currentQuestion]?.[blank.id] ?? '—'}
+                  </div>
                 ))}
               </div>
             ) : (
-              answers[currentQuestion] || 'No answer selected'
+              typeof answers[currentQuestion] === 'object' 
+                ? JSON.stringify(answers[currentQuestion]) 
+                : answers[currentQuestion] || 'No answer selected'
             )}
           </div>
         </div>

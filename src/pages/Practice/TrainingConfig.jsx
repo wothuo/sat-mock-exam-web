@@ -1,16 +1,25 @@
 import React from 'react';
 
 import {
-    QUESTION_COUNTS,
-    QUESTION_DIFFICULTIES,
-    QUESTION_DIMENSIONS,
-    QUESTION_SOURCES,
-    QUESTION_TYPES
-    // VIEW_MODES
+  QUESTION_COUNTS,
+  QUESTION_DIFFICULTIES, QUESTION_DIFFICULTY_ENUM, QUESTION_DIMENSION_ENUM,
+  QUESTION_DIMENSIONS, QUESTION_SOURCE_ENUM,
+  QUESTION_SOURCES, QUESTION_SUBCATEGORY_ENUM,
+  QUESTION_TYPES
+  // VIEW_MODES
 } from './constants';
 import FilterSection from './FilterSection';
 
 function TrainingConfig({ subject, config, onConfigChange }) {
+  // 确保每个配置都有默认值
+  const safeConfig = {
+    questionType: config.questionType || QUESTION_SUBCATEGORY_ENUM.ALL,
+    source: config.source || QUESTION_SOURCE_ENUM.ALL,
+    dimension: config.dimension || QUESTION_DIMENSION_ENUM.ALL,
+    difficulty: config.difficulty || QUESTION_DIFFICULTY_ENUM.RANDOM,
+    count: config.count || 5
+  };
+
   const filterSections = [
     {
       id: 'questionType',
@@ -18,7 +27,7 @@ function TrainingConfig({ subject, config, onConfigChange }) {
       icon: 'fas fa-list-ul',
       color: 'from-blue-500 to-cyan-600',
       options: QUESTION_TYPES[subject] ?? [],
-      value: config.questionType,
+      value: safeConfig.questionType,
       showIcons: true
     },
     {
@@ -27,7 +36,7 @@ function TrainingConfig({ subject, config, onConfigChange }) {
       icon: 'fas fa-database',
       color: 'from-red-500 to-pink-600',
       options: QUESTION_SOURCES,
-      value: config.source
+      value: safeConfig.source
     },
     {
       id: 'dimension',
@@ -35,7 +44,7 @@ function TrainingConfig({ subject, config, onConfigChange }) {
       icon: 'fas fa-filter',
       color: 'from-purple-500 to-indigo-600',
       options: QUESTION_DIMENSIONS,
-      value: config.dimension
+      value: safeConfig.dimension
     },
     {
       id: 'difficulty',
@@ -43,7 +52,7 @@ function TrainingConfig({ subject, config, onConfigChange }) {
       icon: 'fas fa-chart-line',
       color: 'from-orange-500 to-red-600',
       options: QUESTION_DIFFICULTIES,
-      value: config.difficulty
+      value: safeConfig.difficulty
     },
     {
       id: 'count',
@@ -51,7 +60,7 @@ function TrainingConfig({ subject, config, onConfigChange }) {
       icon: 'fas fa-hashtag',
       color: 'from-green-500 to-teal-600',
       options: QUESTION_COUNTS,
-      value: config.count
+      value: safeConfig.count
     }
     // {
     //   id: 'viewMode',
@@ -59,7 +68,7 @@ function TrainingConfig({ subject, config, onConfigChange }) {
     //   icon: 'fas fa-eye',
     //   color: 'from-cyan-500 to-blue-600',
     //   options: VIEW_MODES,
-    //   value: config.viewMode
+    //   value: safeConfig.viewMode
     // }
   ];
 
@@ -79,4 +88,3 @@ function TrainingConfig({ subject, config, onConfigChange }) {
 }
 
 export default TrainingConfig;
-

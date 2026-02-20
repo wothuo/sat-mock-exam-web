@@ -4,15 +4,16 @@ import { useNavigate } from 'react-router-dom';
 
 import { startPractice } from '../../services/training.js';
 
-import { 
-  TRAINING_SUBJECTS, 
+import {
+  TRAINING_SUBJECTS,
   SUBJECT_ENUM,
   QUESTION_SOURCE_ENUM,
   QUESTION_SOURCE_LABELS,
   QUESTION_DIMENSION_ENUM,
   QUESTION_DIMENSION_LABELS,
   QUESTION_DIFFICULTY_ENUM,
-  QUESTION_DIFFICULTY_LABELS
+  QUESTION_SUBCATEGORY_ENUM,
+  QUESTION_DIFFICULTY_LABELS, QUESTION_SUBCATEGORY_LABELS
 } from './constants';
 import TrainingConfig from './TrainingConfig';
 
@@ -21,7 +22,7 @@ function SpecialTraining() {
   const navigate = useNavigate();
   const [activeSubject, setActiveSubject] = useState(SUBJECT_ENUM.READING);
   const [trainingConfig, setTrainingConfig] = useState({
-    questionType: '全部',
+    questionType: QUESTION_SUBCATEGORY_ENUM.ALL,
     source: QUESTION_SOURCE_ENUM.ALL,
     dimension: QUESTION_DIMENSION_ENUM.ALL,
     difficulty: QUESTION_DIFFICULTY_ENUM.RANDOM,
@@ -43,13 +44,13 @@ function SpecialTraining() {
   };
 
   const handleStartTraining = async () => {
-    // 将中文选项值转换为英文枚举值
+    // 直接使用枚举值，无需转换
     const practiceParams = {
       questionCategory: activeSubject,
-      questionSubCategory: trainingConfig.questionType === '全部' ? undefined : trainingConfig.questionType,
-      difficulty: getEnumValueFromLabel(QUESTION_DIFFICULTY_LABELS, trainingConfig.difficulty),
-      source: getEnumValueFromLabel(QUESTION_SOURCE_LABELS, trainingConfig.source),
-      records: getEnumValueFromLabel(QUESTION_DIMENSION_LABELS, trainingConfig.dimension),
+      questionSubCategory: trainingConfig.questionType,
+      difficulty: trainingConfig.difficulty,
+      source: trainingConfig.source,
+      records: trainingConfig.dimension,
       size: parseInt(trainingConfig.count) || 5
     };
 
@@ -84,10 +85,10 @@ function SpecialTraining() {
                 onClick={() => {
                   setActiveSubject(subject.id);
                   setTrainingConfig({
-                    questionType: '全部',
-                    source: '全部',
-                    dimension: '全部',
-                    difficulty: '随机',
+                    questionType: QUESTION_SUBCATEGORY_ENUM.ALL,
+                    source: QUESTION_SOURCE_ENUM.ALL,
+                    dimension: QUESTION_DIMENSION_ENUM.ALL,
+                    difficulty: QUESTION_DIFFICULTY_ENUM.RANDOM,
                     count: '5题'
                     // viewMode: '随时查看答案和解析'
                   });
