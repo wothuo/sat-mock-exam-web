@@ -17,7 +17,7 @@ import {
   SUBJECT_CATEGORY_LABELS,
   QUESTION_TYPES_BY_CATEGORY,
   QUESTION_TYPE_LABELS,
-  DEFAULT_SUBJECT_CATEGORY
+  DEFAULT_SUBJECT_CATEGORY, SECTION_DIFFICULTY_ENUM
 } from '../examSetEntryConstants';
 import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
 
@@ -414,38 +414,57 @@ function ExamSetQuestionStep({
               <div className="exam-set-question-form flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
                 {questions.filter(q => q.id === selectedQuestionId).map(q => (
                   <div key={q.id} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
+
+                    <div className="flex flex-col md:flex-row gap-3">
+                      {/* 题目类型 - 均等固定宽度 */}
+                      <div className="flex-1 min-w-40">
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">题目类型</label>
                         <Select
-                          value={q.interactionType}
-                          onChange={v => {
-                            onUpdateQuestion(q.id, 'interactionType', v);
-                            onUpdateQuestion(q.id, 'correctAnswer', v === INTERACTION_TYPE_ENUM.CHOICE ? 'A' : '');
-                          }}
-                          className="w-full rounded-md"
+                            value={q.interactionType}
+                            onChange={v => onUpdateQuestion(q.id, 'interactionType', v)}
+                            className="w-full rounded-md"
                         >
-                          {INTERACTION_TYPE_OPTIONS.map(opt => (
-                            <Option key={opt.value} value={opt.value}>{opt.label}</Option>
+                          {Object.entries(INTERACTION_TYPE_LABELS).map(([value, label]) => (
+                              <Option key={value} value={value}>{label}</Option>
                           ))}
                         </Select>
                       </div>
-                      <div>
+
+                      {/* 所属Section - 均等固定宽度 */}
+                      <div className="flex-1 min-w-40">
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">所属 Section</label>
                         <Select
-                          value={q.sectionId ?? undefined}
-                          onChange={v => onUpdateQuestion(q.id, 'sectionId', v)}
-                          className="w-full rounded-md"
-                          dropdownMatchSelectWidth={false}
-                          dropdownStyle={{ minWidth: 320, maxWidth: 'min(90vw, 520px)' }}
-                          placeholder="请选择 Section"
+                            value={q.sectionName}
+                            onChange={v => {
+                              // 找到选中的Section对象
+                              const selectedSection = sections.find(s => s.name === v);
+                              // 更新所属Section
+                              onUpdateQuestion(q.id, 'sectionName', v);
+                              // 同时更新Section难度为选中Section的难度
+                              if (selectedSection) {
+                                onUpdateQuestion(q.id, 'sectionDifficulty', selectedSection.difficulty);
+                                onUpdateQuestion(q.id, 'difficulty', selectedSection.difficulty);
+                                onUpdateQuestion(q.id, 'subject', selectedSection.subject);
+                                onUpdateQuestion(q.id, 'sectionId', selectedSection.id);
+                                // 更新科目分类为对应Section的默认科目分类
+                                const defaultCategory = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[selectedSection.subject] || DEFAULT_SUBJECT_CATEGORY;
+                                onUpdateQuestion(q.id, 'subjectCategory', defaultCategory);
+                              }
+                            }}
+                            className="w-full rounded-md"
                         >
                           {sections.map(s => (
-                            <Option key={s.id} value={s.id}>
-                              <span style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{s.name}</span>
-                            </Option>
+                              <Option key={s.id} value={s.name}>{s.name}</Option>
                           ))}
                         </Select>
+                      </div>
+
+                      {/* Section难度 - 均等固定宽度 */}
+                      <div className="flex-1 min-w-40">
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Section难度</label>
+                        <div className="w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-900 text-xs min-h-[32px] flex items-center">
+                          {SECTION_DIFFICULTY_OPTIONS.find(opt => opt.value === (q.sectionDifficulty || SECTION_DIFFICULTY_ENUM.MEDIUM))?.label || '中等'}
+                        </div>
                       </div>
                     </div>
 
@@ -481,7 +500,7 @@ function ExamSetQuestionStep({
                         </Select>
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">难度</label>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">题目难度</label>
                         <Select
                             value={q.difficulty}
                             onChange={v => onUpdateQuestion(q.id, 'difficulty', v)}
