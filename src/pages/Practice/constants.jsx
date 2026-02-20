@@ -19,43 +19,112 @@ export const TRAINING_SUBJECTS = [
   { id: SUBJECT_ENUM.MATH, name: SUBJECT_LABELS[SUBJECT_ENUM.MATH], icon: 'fas fa-calculator' }
 ];
 
-// 题目类型配置
+/** 题目子类型枚举（题目类型） */
+export const QUESTION_SUBCATEGORY_ENUM = {
+  ALL: 'ALL',
+  // Reading
+  READING_VOCAB: 'READING_VOCAB',
+  READING_STRUCT: 'READING_STRUCT',
+  READING_DOUBLE: 'READING_DOUBLE',
+  READING_MAIN: 'READING_MAIN',
+  READING_EVIDENCE: 'READING_EVIDENCE',
+  READING_GRAPH: 'READING_GRAPH',
+  READING_INFER: 'READING_INFER',
+  // Writing
+  WRITING_PUNCT: 'WRITING_PUNCT',
+  WRITING_COMBINE: 'WRITING_COMBINE',
+  WRITING_VERB: 'WRITING_VERB',
+  WRITING_NPA: 'WRITING_NPA',
+  WRITING_ADJADV: 'WRITING_ADJADV',
+  WRITING_LOGIC: 'WRITING_LOGIC',
+  WRITING_SYNTAX: 'WRITING_SYNTAX',
+  WRITING_SENT: 'WRITING_SENT',
+  WRITING_PARA: 'WRITING_PARA',
+  WRITING_LOGERR: 'WRITING_LOGERR',
+  // Math
+  MATH_BASIC: 'MATH_BASIC',
+  MATH_ADVANCED: 'MATH_ADVANCED',
+  MATH_LINEAR: 'MATH_LINEAR',
+  MATH_QUAD: 'MATH_QUAD',
+  MATH_EXP: 'MATH_EXP',
+  MATH_POLY: 'MATH_POLY',
+  MATH_GEOM: 'MATH_GEOM',
+  MATH_TRIANGLE: 'MATH_TRIANGLE',
+  MATH_STAT: 'MATH_STAT',
+  MATH_DATA: 'MATH_DATA'
+};
+
+/** 枚举值 -> 中文展示 */
+export const QUESTION_SUBCATEGORY_LABELS = {
+  [QUESTION_SUBCATEGORY_ENUM.ALL]: '全部',
+  [QUESTION_SUBCATEGORY_ENUM.READING_VOCAB]: '词汇题',
+  [QUESTION_SUBCATEGORY_ENUM.READING_STRUCT]: '结构目的题',
+  [QUESTION_SUBCATEGORY_ENUM.READING_DOUBLE]: '双篇题',
+  [QUESTION_SUBCATEGORY_ENUM.READING_MAIN]: '主旨细节题',
+  [QUESTION_SUBCATEGORY_ENUM.READING_EVIDENCE]: '文本证据题',
+  [QUESTION_SUBCATEGORY_ENUM.READING_GRAPH]: '图表题',
+  [QUESTION_SUBCATEGORY_ENUM.READING_INFER]: '推断题',
+  [QUESTION_SUBCATEGORY_ENUM.WRITING_PUNCT]: '标点符号',
+  [QUESTION_SUBCATEGORY_ENUM.WRITING_COMBINE]: '句子连接',
+  [QUESTION_SUBCATEGORY_ENUM.WRITING_VERB]: '动词专项',
+  [QUESTION_SUBCATEGORY_ENUM.WRITING_NPA]: '名词、代词、形容词',
+  [QUESTION_SUBCATEGORY_ENUM.WRITING_ADJADV]: '定语、状语、同位语',
+  [QUESTION_SUBCATEGORY_ENUM.WRITING_LOGIC]: '逻辑词',
+  [QUESTION_SUBCATEGORY_ENUM.WRITING_SYNTAX]: '语法错误',
+  [QUESTION_SUBCATEGORY_ENUM.WRITING_SENT]: '句子结构',
+  [QUESTION_SUBCATEGORY_ENUM.WRITING_PARA]: '段落组织',
+  [QUESTION_SUBCATEGORY_ENUM.WRITING_LOGERR]: '逻辑错误',
+  [QUESTION_SUBCATEGORY_ENUM.MATH_BASIC]: '基础运算',
+  [QUESTION_SUBCATEGORY_ENUM.MATH_ADVANCED]: '进阶运算',
+  [QUESTION_SUBCATEGORY_ENUM.MATH_LINEAR]: '一次函数',
+  [QUESTION_SUBCATEGORY_ENUM.MATH_QUAD]: '二次函数',
+  [QUESTION_SUBCATEGORY_ENUM.MATH_EXP]: '指数函数',
+  [QUESTION_SUBCATEGORY_ENUM.MATH_POLY]: '多项式函数',
+  [QUESTION_SUBCATEGORY_ENUM.MATH_GEOM]: '几何',
+  [QUESTION_SUBCATEGORY_ENUM.MATH_TRIANGLE]: '三角形',
+  [QUESTION_SUBCATEGORY_ENUM.MATH_STAT]: '统计',
+  [QUESTION_SUBCATEGORY_ENUM.MATH_DATA]: '数据分析'
+};
+
+// 题目类型配置（按科目）
 export const QUESTION_TYPES = {
   [SUBJECT_ENUM.READING]: [
-      { id: '全部', name: '全部', icon: 'fas fa-th-large', color: 'bg-gray-100 text-gray-600' },
-      { id: '词汇题', name: '词汇题', icon: 'fas fa-font', color: 'bg-blue-100 text-blue-600' },
-      { id: '结构目的题', name: '结构目的题', icon: 'fas fa-sitemap', color: 'bg-green-100 text-green-600' },
-      { id: '双篇题', name: '双篇题', icon: 'fas fa-copy', color: 'bg-purple-100 text-purple-600' },
-      { id: '主旨细节题', name: '主旨细节题', icon: 'fas fa-bullseye', color: 'bg-orange-100 text-orange-600' },
-      { id: '文本证据题', name: '文本证据题', icon: 'fas fa-quote-right', color: 'bg-pink-100 text-pink-600' },
-      { id: '图表题', name: '图表题', icon: 'fas fa-chart-bar', color: 'bg-indigo-100 text-indigo-600' },
-      { id: '推断题', name: '推断题', icon: 'fas fa-lightbulb', color: 'bg-teal-100 text-teal-600' }
-    ],
+    { id: QUESTION_SUBCATEGORY_ENUM.ALL, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.ALL], icon: 'fas fa-th-large', color: 'bg-gray-100 text-gray-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.READING_VOCAB, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.READING_VOCAB], icon: 'fas fa-font', color: 'bg-blue-100 text-blue-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.READING_STRUCT, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.READING_STRUCT], icon: 'fas fa-sitemap', color: 'bg-green-100 text-green-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.READING_DOUBLE, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.READING_DOUBLE], icon: 'fas fa-copy', color: 'bg-purple-100 text-purple-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.READING_MAIN, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.READING_MAIN], icon: 'fas fa-bullseye', color: 'bg-orange-100 text-orange-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.READING_EVIDENCE, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.READING_EVIDENCE], icon: 'fas fa-quote-right', color: 'bg-pink-100 text-pink-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.READING_GRAPH, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.READING_GRAPH], icon: 'fas fa-chart-bar', color: 'bg-indigo-100 text-indigo-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.READING_INFER, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.READING_INFER], icon: 'fas fa-lightbulb', color: 'bg-teal-100 text-teal-600' }
+  ],
   [SUBJECT_ENUM.WRITING]: [
-      { id: '全部', name: '全部', icon: 'fas fa-th-large', color: 'bg-gray-100 text-gray-600' },
-      { id: '标点符号', name: '标点符号', icon: 'fas fa-circle', color: 'bg-blue-100 text-blue-600' },
-      { id: '句子连接', name: '句子连接', icon: 'fas fa-link', color: 'bg-cyan-100 text-cyan-600' },
-      { id: '动词专项', name: '动词专项', icon: 'fas fa-running', color: 'bg-green-100 text-green-600' },
-      { id: '名词、代词、形容词', name: '名词、代词、形容词', icon: 'fas fa-tags', color: 'bg-purple-100 text-purple-600' },
-      { id: '定语、状语、同位语', name: '定语、状语、同位语', icon: 'fas fa-layer-group', color: 'bg-orange-100 text-orange-600' },
-      { id: '逻辑词', name: '逻辑词', icon: 'fas fa-project-diagram', color: 'bg-pink-100 text-pink-600' },
-      { id: 'notes题', name: 'notes题', icon: 'fas fa-sticky-note', color: 'bg-yellow-100 text-yellow-600' }
-    ],
+    { id: QUESTION_SUBCATEGORY_ENUM.ALL, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.ALL], icon: 'fas fa-th-large', color: 'bg-gray-100 text-gray-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.WRITING_PUNCT, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.WRITING_PUNCT], icon: 'fas fa-circle', color: 'bg-blue-100 text-blue-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.WRITING_COMBINE, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.WRITING_COMBINE], icon: 'fas fa-link', color: 'bg-cyan-100 text-cyan-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.WRITING_VERB, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.WRITING_VERB], icon: 'fas fa-running', color: 'bg-green-100 text-green-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.WRITING_NPA, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.WRITING_NPA], icon: 'fas fa-tags', color: 'bg-purple-100 text-purple-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.WRITING_ADJADV, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.WRITING_ADJADV], icon: 'fas fa-layer-group', color: 'bg-orange-100 text-orange-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.WRITING_LOGIC, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.WRITING_LOGIC], icon: 'fas fa-project-diagram', color: 'bg-pink-100 text-pink-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.WRITING_SYNTAX, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.WRITING_SYNTAX], icon: 'fas fa-exclamation-triangle', color: 'bg-red-100 text-red-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.WRITING_SENT, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.WRITING_SENT], icon: 'fas fa-align-left', color: 'bg-indigo-100 text-indigo-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.WRITING_PARA, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.WRITING_PARA], icon: 'fas fa-list-ol', color: 'bg-teal-100 text-teal-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.WRITING_LOGERR, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.WRITING_LOGERR], icon: 'fas fa-times-circle', color: 'bg-amber-100 text-amber-600' }
+  ],
   [SUBJECT_ENUM.MATH]: [
-      { id: '全部', name: '全部', icon: 'fas fa-th-large', color: 'bg-gray-100 text-gray-600' },
-      { id: '基础运算', name: '基础运算', icon: 'fas fa-calculator', color: 'bg-blue-100 text-blue-600' },
-      { id: '进阶运算', name: '进阶运算', icon: 'fas fa-square-root-alt', color: 'bg-indigo-100 text-indigo-600' },
-      { id: '一次函数', name: '一次函数', icon: 'fas fa-chart-line', color: 'bg-purple-100 text-purple-600' },
-      { id: '二次函数', name: '二次函数', icon: 'fas fa-bezier-curve', color: 'bg-pink-100 text-pink-600' },
-      { id: '指数函数', name: '指数函数', icon: 'fas fa-superscript', color: 'bg-teal-100 text-teal-600' },
-      { id: '多项式函数', name: '多项式函数', icon: 'fas fa-superscript', color: 'bg-amber-100 text-amber-600' },
-      { id: '几何', name: '几何', icon: 'fas fa-shapes', color: 'bg-lime-100 text-lime-600' },
-      { id: '圆', name: '圆', icon: 'fas fa-circle', color: 'bg-green-100 text-green-600' },
-      { id: '三角形', name: '三角形', icon: 'fas fa-shapes', color: 'bg-orange-100 text-orange-600' },
-      { id: '统计', name: '统计', icon: 'fas fa-chart-pie', color: 'bg-red-100 text-red-600' },
-      { id: '数据分析', name: '数据分析', icon: 'fas fa-chart-bar', color: 'bg-cyan-100 text-cyan-600' }
-    ]
-  };
+    { id: QUESTION_SUBCATEGORY_ENUM.ALL, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.ALL], icon: 'fas fa-th-large', color: 'bg-gray-100 text-gray-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.MATH_BASIC, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.MATH_BASIC], icon: 'fas fa-calculator', color: 'bg-blue-100 text-blue-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.MATH_ADVANCED, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.MATH_ADVANCED], icon: 'fas fa-square-root-alt', color: 'bg-indigo-100 text-indigo-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.MATH_LINEAR, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.MATH_LINEAR], icon: 'fas fa-chart-line', color: 'bg-purple-100 text-purple-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.MATH_QUAD, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.MATH_QUAD], icon: 'fas fa-bezier-curve', color: 'bg-pink-100 text-pink-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.MATH_EXP, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.MATH_EXP], icon: 'fas fa-superscript', color: 'bg-teal-100 text-teal-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.MATH_POLY, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.MATH_POLY], icon: 'fas fa-superscript', color: 'bg-amber-100 text-amber-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.MATH_GEOM, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.MATH_GEOM], icon: 'fas fa-shapes', color: 'bg-lime-100 text-lime-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.MATH_TRIANGLE, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.MATH_TRIANGLE], icon: 'fas fa-shapes', color: 'bg-orange-100 text-orange-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.MATH_STAT, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.MATH_STAT], icon: 'fas fa-chart-pie', color: 'bg-red-100 text-red-600' },
+    { id: QUESTION_SUBCATEGORY_ENUM.MATH_DATA, name: QUESTION_SUBCATEGORY_LABELS[QUESTION_SUBCATEGORY_ENUM.MATH_DATA], icon: 'fas fa-chart-bar', color: 'bg-cyan-100 text-cyan-600' }
+  ]
+};
   
   // 题目来源
   export const QUESTION_SOURCES = [

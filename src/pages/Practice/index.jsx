@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { startPractice } from '../../services/training.js';
 
-import { TRAINING_SUBJECTS, SUBJECT_ENUM } from './constants';
+import { TRAINING_SUBJECTS, SUBJECT_ENUM, QUESTION_SUBCATEGORY_ENUM } from './constants';
 import TrainingConfig from './TrainingConfig';
 
 
@@ -12,12 +12,11 @@ function SpecialTraining() {
   const navigate = useNavigate();
   const [activeSubject, setActiveSubject] = useState(SUBJECT_ENUM.READING);
   const [trainingConfig, setTrainingConfig] = useState({
-    questionType: '全部',
+    questionType: QUESTION_SUBCATEGORY_ENUM.ALL,
     source: '全部',
     dimension: '全部',
     difficulty: '随机',
     count: '5题'
-    // viewMode: '随时查看答案和解析'
   });
 
   const handleConfigChange = (key, value) => {
@@ -69,12 +68,11 @@ function SpecialTraining() {
                 onClick={() => {
                   setActiveSubject(subject.id);
                   setTrainingConfig({
-                    questionType: '全部',
+                    questionType: QUESTION_SUBCATEGORY_ENUM.ALL,
                     source: '全部',
                     dimension: '全部',
                     difficulty: '随机',
                     count: '5题'
-                    // viewMode: '随时查看答案和解析'
                   });
                 }}
                 className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
