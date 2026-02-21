@@ -118,24 +118,28 @@ function WrongTab({
                       {q.date}
                     </span>
                   </div>
-                  <h3 className="text-gray-800 font-bold text-base mb-2 math-content line-clamp-1">
+                  <h3 className="text-gray-800 font-bold text-base mb-2 math-content line-clamp-1 w-80">
                     {q.question}
                   </h3>
                   <p className="text-xs text-gray-400 italic truncate m-0 opacity-70">Source: {q.title}</p>
                 </div>
                 <div className="flex items-center justify-between lg:justify-end gap-8 border-t lg:border-t-0 pt-4 lg:pt-0">
                   <div className="flex items-center gap-8">
-                    <div className="text-center">
+                    <div className="text-center w-28">
                       <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Your</div>
-                      <div className="text-sm font-black text-red-500 bg-red-50 min-w-10 h-8 flex items-center justify-center rounded-lg mx-auto px-2">{q.userAnswer}</div>
+                      <div className="text-sm font-black text-red-500 bg-red-50 min-w-10 h-8 flex items-center justify-center rounded-lg mx-auto px-2 truncate" title={q.userAnswer}>
+                        {q.userAnswer && q.userAnswer.length > 6 ? q.userAnswer.substring(0, 8) + '...' : q.userAnswer}
+                      </div>
                     </div>
-                    <div className="text-center">
+                    <div className="text-center w-28">
                       <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Correct</div>
-                      <div className="text-sm font-black text-blue-600 bg-blue-50 min-w-10 h-8 flex items-center justify-center rounded-lg mx-auto">{q.correctAnswer}</div>
+                      <div className="text-sm font-black text-blue-600 bg-blue-50 min-w-10 h-8 flex items-center justify-center rounded-lg mx-auto truncate" title={q.correctAnswer}>
+                        {q.correctAnswer && q.correctAnswer.length > 6 ? q.correctAnswer.substring(0, 8) + '...' : q.correctAnswer}
+                      </div>
                     </div>
-                    <div className="text-center hidden sm:block">
+                    <div className="text-center hidden sm:block w-24">
                       <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Time</div>
-                      <div className="text-sm font-black text-purple-600 flex items-center h-8">
+                      <div className="text-sm font-black text-purple-600 flex items-center justify-center h-8 truncate" title={formatQuestionTime(q.timeSpent)}>
                         <ClockCircleOutlined className="mr-1" />
                         {formatQuestionTime(q.timeSpent)}
                       </div>
