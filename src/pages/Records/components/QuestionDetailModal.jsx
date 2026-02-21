@@ -101,7 +101,7 @@ function QuestionDetailModal({ question, onClose }) {
                     {question.date}
               </span>
               )}
-              <h3 className="text-sm font-medium text-gray-500 truncate max-w-md">
+              <h3 className="text-sm font-medium text-gray-500 truncate">
                 <span className="font-semibold">Source: </span>
                 {question.title ?? question.taskName}
               </h3>
