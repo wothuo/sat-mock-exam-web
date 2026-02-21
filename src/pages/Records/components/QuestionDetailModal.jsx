@@ -71,8 +71,8 @@ function QuestionDetailModal({ question, onClose }) {
   };
 
   return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-        <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4" onClick={onClose}>
+        <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-300" onClick={(e) => e.stopPropagation()}>
           {/* 头部：科目、难度、题集名、日期、耗时 */}
           <div className="px-8 py-6 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3 bg-gray-50/50">
             <div className="flex flex-wrap items-center gap-3">
