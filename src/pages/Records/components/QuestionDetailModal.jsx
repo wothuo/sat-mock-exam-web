@@ -7,6 +7,26 @@ function QuestionDetailModal({ question, onClose }) {
   const [isQuestionDescriptionExpanded, setIsQuestionDescriptionExpanded] = useState(false);
   const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
   const [isAnalysisExpanded, setIsAnalysisExpanded] = useState(false);
+
+  useEffect(() => {
+    if (question) {
+      const scrollY = window.scrollY;
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      return () => {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [question]);
+
   useEffect(() => {
     if (question && window.renderMathInElement) {
       const containers = document.querySelectorAll('#modal-math-content .math-content');
