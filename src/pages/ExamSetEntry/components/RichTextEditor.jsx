@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 
 import { Input } from 'antd';
 
-import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
+import FormattedQuestionPreview from '../../../components/common/FormattedQuestionPreview';
 
 const { TextArea } = Input;
 
@@ -53,76 +53,6 @@ function RichTextEditor({
     ro.observe(wrapper);
     return () => ro.disconnect();
   }, []);
-
-  const formatText = (text) => {
-    if (!text) return '';
-    
-    // 1. 保护数学公式 (最高优先级)
-    const mathBlocks = [];
-    let processed = text.replace(/\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$/g, (match) => {
-      const placeholder = `@@@MATHBLOCK${mathBlocks.length}@@@`;
-      mathBlocks.push(match);
-      return placeholder;
-    });
-
-    // 2. 解析图片 (极致稳健平衡扫描版)
-    const imageBlocks = [];
-    const imgStartRegex = /!\[([^\]]*)\]\(/g;
-    const matches = [];
-    let match;
-    
-    while ((match = imgStartRegex.exec(processed)) !== null) {
-      const startIdx = match.index;
-      const alt = match[1];
-      let url = '';
-      let openBrackets = 1;
-      let i = match.index + match[0].length;
-      
-      while (i < processed.length && openBrackets > 0) {
-        if (processed[i] === '(') openBrackets++;
-        else if (processed[i] === ')') openBrackets--;
-        
-        if (openBrackets > 0) {
-          url += processed[i];
-        }
-        i++;
-      }
-      
-      if (openBrackets === 0) {
-        matches.push({
-          startIdx,
-          fullMatch: processed.substring(startIdx, i),
-          alt,
-          url: url.trim()
-        });
-        imgStartRegex.lastIndex = i;
-      }
-    }
-
-    // 使用占位符保护图片标签，防止被后续的 Markdown 解析破坏
-    let processedWithPlaceholders = processed;
-    for (let i = matches.length - 1; i >= 0; i--) {
-      const { startIdx, fullMatch } = matches[i];
-      processedWithPlaceholders = processedWithPlaceholders.substring(0, startIdx) + `@@@IMAGEBLOCK${i}@@@` + processedWithPlaceholders.substring(startIdx + fullMatch.length);
-    }
-
-    // 3. 处理基础 Markdown 标签（使用共享工具，含斜体）
-    let htmlResult = applyMarkdownInlineFormat(processedWithPlaceholders);
-
-    // 4. 还原图片
-    matches.forEach((m, i) => {
-      const encodedUrl = encodeURI(m.url).replace(/\(/g, '%28').replace(/\)/g, '%29');
-      const imgHtml = `<img src="${encodedUrl}" alt="${m.alt}" style="max-width: 100%; max-height: 500px; height: auto; display: block; margin: 12px auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee; background: #f9f9f9; object-fit: contain; width: auto;" onerror="this.style.display='none'; console.warn('图片加载失败:', this.src);" loading="lazy" />`;
-      htmlResult = htmlResult.split(`@@@IMAGEBLOCK${i}@@@`).join(imgHtml);
-    });
-
-    // 5. 最后还原数学公式
-    mathBlocks.forEach((block, index) => {
-      htmlResult = htmlResult.split(`@@@MATHBLOCK${index}@@@`).join(block);
-    });
-
-    return htmlResult;
-  };
 
   const handleToolbarAction = (action, data) => {
     if (onToolbarAction) {
@@ -188,11 +118,10 @@ function RichTextEditor({
                 {previewPlaceholder}
               </div>
             ) : (
-              <div 
-                className="text-gray-900 break-words markdown-body"
-                dangerouslySetInnerHTML={{ 
-                  __html: formatText(value || '')
-                }}
+              <FormattedQuestionPreview
+                content={value}
+                singleLine={false}
+                className="text-gray-900 exam-question-editor-font"
               />
             )}
           </div>
