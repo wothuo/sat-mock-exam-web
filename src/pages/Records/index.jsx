@@ -160,7 +160,7 @@ function PracticeRecord() {
         });
       });
     }
-  }, [activeTab]);
+  }, [activeTab, wrongList]);
 
   // 笔记记录数据
   const tabItems = [

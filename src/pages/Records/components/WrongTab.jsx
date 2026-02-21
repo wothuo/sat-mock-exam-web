@@ -4,6 +4,7 @@ import { Button, Card, Pagination, Select, Space, Spin, Tag } from 'antd';
 
 import { ClockCircleOutlined, EyeOutlined } from '@ant-design/icons';
 
+import FormattedQuestionPreview from '../../../components/common/FormattedQuestionPreview';
 import { SUBJECT_CATEGORY_LABELS, DIFFICULTY_LABELS } from '../../ExamSetEntry/examSetEntryConstants';
 
 const { Option } = Select;
@@ -56,7 +57,6 @@ function WrongTab({
     };
     return colors[s] || 'cyan';
   };
-  console.log(records);
 
   return (
     <div className="space-y-4">
@@ -118,9 +118,9 @@ function WrongTab({
                       {q.date}
                     </span>
                   </div>
-                  <h3 className="text-gray-800 font-bold text-base mb-2 math-content line-clamp-1 w-80">
-                    {q.question}
-                  </h3>
+                  <div className="text-gray-800 font-bold text-base mb-2">
+                    <FormattedQuestionPreview content={q.question} singleLine className="text-inherit font-inherit" />
+                  </div>
                   <p className="text-xs text-gray-400 italic truncate m-0 opacity-70">Source: {q.title}</p>
                 </div>
                 <div className="flex items-center justify-between lg:justify-end gap-8 border-t lg:border-t-0 pt-4 lg:pt-0">

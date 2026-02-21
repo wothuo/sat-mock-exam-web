@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
@@ -24,7 +24,8 @@ import {
 import {
   NoteModal,
   ProgressModal,
-  EndExamModal
+  EndExamModal,
+  SubmitSuccessModal
 } from './components/modals';
 import {
   PreparingScreen,
@@ -410,6 +411,7 @@ function ExamContent() {
   const [showNotesPanel, setShowNotesPanel] = useState(false);
   const [showTimeAsIcon, setShowTimeAsIcon] = useState(false);
   const [showEndExamModal, setShowEndExamModal] = useState(false);
+  const [showSubmitSuccessModal, setShowSubmitSuccessModal] = useState(false);
   const [isPreparing, setIsPreparing] = useState(true);
   const [hideTime, setHideTime] = useState(false);
   const [examFinished, setExamFinished] = useState(false);
@@ -513,6 +515,11 @@ function ExamContent() {
     setShowProgress(false);
   };
 
+  const handleViewReport = useCallback(() => {
+    setShowSubmitSuccessModal(false);
+    setExamFinished(true);
+  }, []);
+
   const startExam = () => {
     setShowTimeMode(false);
     setShowIntro(true);
@@ -524,14 +531,18 @@ function ExamContent() {
     resetOnBeginExam();
   };
 
-  // 使用Ref来追踪最新的questionTimes状态
-  const questionTimesRef = React.useRef(questionTimes);
+  const questionTimesRef = useRef(questionTimes);
+  const hasAutoSubmittedRef = useRef(false);
+  const submittingRef = useRef(false);
+
   useEffect(() => {
     // 当questionTimes更新时，同步更新Ref
     questionTimesRef.current = questionTimes;
   }, [questionTimes]);
 
   const handleFinishExam = async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     try {
       // 先记录最后一道题的耗时
       recordQuestionTime(currentQuestion);
@@ -629,14 +640,32 @@ function ExamContent() {
         console.warn('没有有效的作答数据需要提交');
       }
 
+      setShowSubmitSuccessModal(true);
     } catch (error) {
       console.error('提交作答数据时发生错误:', error);
-    } finally {
       setExamFinished(true);
+    } finally {
       setShowEndExamModal(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
+
+  const handleFinishExamRef = useRef(handleFinishExam);
+  handleFinishExamRef.current = handleFinishExam;
+
+  const shouldAutoSubmit =
+    examStarted &&
+    timeMode === 'timed' &&
+    timeRemaining === 0 &&
+    !examFinished &&
+    !hasAutoSubmittedRef.current;
+
+  useEffect(() => {
+    if (shouldAutoSubmit && !hasAutoSubmittedRef.current) {
+      hasAutoSubmittedRef.current = true;
+      handleFinishExamRef.current();
+    }
+  }, [shouldAutoSubmit]);
 
 
   if (isPreparing) {
@@ -821,6 +850,11 @@ function ExamContent() {
       <ReferenceDrawer
         open={showReference}
         onClose={() => setShowReference(false)}
+      />
+
+      <SubmitSuccessModal
+        open={showSubmitSuccessModal}
+        onViewReport={handleViewReport}
       />
 
       <EndExamModal

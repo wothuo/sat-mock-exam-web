@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import FormattedQuestionPreview from '../../../components/common/FormattedQuestionPreview';
 import { SUBJECT_CATEGORY_LABELS, DIFFICULTY_LABELS } from '../../ExamSetEntry/examSetEntryConstants';
 
 function QuestionDetailModal({ question, onClose }) {
@@ -6,18 +7,38 @@ function QuestionDetailModal({ question, onClose }) {
   const [isQuestionDescriptionExpanded, setIsQuestionDescriptionExpanded] = useState(false);
   const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
   const [isAnalysisExpanded, setIsAnalysisExpanded] = useState(false);
+
   useEffect(() => {
-    if (window.renderMathInElement) {
-      const container = document.getElementById('modal-math-content');
-      if (container) {
+    if (question) {
+      const scrollY = window.scrollY;
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      return () => {
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [question]);
+
+  useEffect(() => {
+    if (question && window.renderMathInElement) {
+      const containers = document.querySelectorAll('#modal-math-content .math-content');
+      containers.forEach((container) => {
         window.renderMathInElement(container, {
           delimiters: [
-            {left: '$', right: '$', display: false},
-            {left: '$$', right: '$$', display: true}
+            { left: '$', right: '$', display: false },
+            { left: '$$', right: '$$', display: true },
           ],
-          throwOnError: false
+          throwOnError: false,
         });
-      }
+      });
     }
   }, [question]);
 
@@ -29,43 +50,6 @@ function QuestionDetailModal({ question, onClose }) {
     const secs = seconds % 60;
     if (mins === 0) return `${secs}秒`;
     return `${mins}分${secs}秒`;
-  };
-
-  const formatText = (text) => {
-    if (!text) return text;
-
-    // 0. 处理长连续字符串（如哈希值）
-    if (text.length > 50 && !text.includes(' ') && !text.includes('\n')) {
-      // 如果是长连续字符串，添加换行符
-      const chunkSize = 64;
-      let processed = '';
-      for (let i = 0; i < text.length; i += chunkSize) {
-        processed += text.slice(i, i + chunkSize) + '\n';
-      }
-      text = processed.trim();
-    }
-
-    // 1. 保护数学公式
-    const mathBlocks = [];
-    let processed = text.replace(/\$([\s\S]*?)\$/g, (match) => {
-      const placeholder = `@@@MATHBLOCK${mathBlocks.length}@@@`;
-      mathBlocks.push(match);
-      return placeholder;
-    });
-
-    // 2. 处理 Markdown 和 HTML 标签
-    processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    processed = processed.replace(/__(.*?)__/g, '<strong>$1</strong>');
-    processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    processed = processed.replace(/_(.*?)_/g, '<em>$1</em>');
-    processed = processed.replace(/\n/g, '<br />');
-
-    // 3. 还原数学公式
-    mathBlocks.forEach((block, index) => {
-      processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
-    });
-
-    return processed;
   };
 
   const questionText = question.question ?? question.questionContent ?? '';
@@ -117,7 +101,7 @@ function QuestionDetailModal({ question, onClose }) {
                     {question.date}
               </span>
               )}
-              <h3 className="text-sm font-medium text-gray-500 truncate max-w-md">
+              <h3 className="text-sm font-medium text-gray-500 truncate">
                 <span className="font-semibold">Source: </span>
                 {question.title ?? question.taskName}
               </h3>
@@ -159,7 +143,7 @@ function QuestionDetailModal({ question, onClose }) {
                         )}
                       </div>
                       <div className={`p-6 transition-all duration-300 min-h-40 ${isQuestionContentExpanded || questionText.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
-                        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm font-medium max-h-96 overflow-y-auto break-all">{questionText}</div>
+                        <FormattedQuestionPreview content={questionText} className="text-gray-800 leading-relaxed text-sm font-medium max-h-96 overflow-y-auto break-all" />
                         {!isQuestionContentExpanded && questionText.length > 200 && (
                             <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                         )}
@@ -193,7 +177,7 @@ function QuestionDetailModal({ question, onClose }) {
                         )}
                       </div>
                       <div className={`p-6 transition-all duration-300 relative min-h-40 ${isQuestionDescriptionExpanded || question.questionDescription.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
-                        <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm font-medium max-h-96 overflow-y-auto break-all">{question.questionDescription}</div>
+                        <FormattedQuestionPreview content={question.questionDescription} className="text-gray-800 leading-relaxed text-sm font-medium max-h-96 overflow-y-auto break-all" />
                         {!isQuestionDescriptionExpanded && question.questionDescription.length > 200 && (
                             <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                         )}
@@ -203,7 +187,9 @@ function QuestionDetailModal({ question, onClose }) {
                 {question.passage && (
                     <div>
                       <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">阅读段落</span>
-                      <div className="mt-1 p-6 bg-gray-50 rounded-2xl border-l-4 border-red-500 text-gray-700 italic text-sm leading-relaxed max-h-64 overflow-y-auto break-all" dangerouslySetInnerHTML={{ __html: formatText(question.passage) }}></div>
+                      <div className="mt-1 p-6 bg-gray-50 rounded-2xl border-l-4 border-red-500 text-gray-700 italic text-sm leading-relaxed max-h-64 overflow-y-auto break-all">
+                      <FormattedQuestionPreview content={question.passage} className="text-inherit" />
+                    </div>
                     </div>
                 )}
               </div>
@@ -257,7 +243,9 @@ function QuestionDetailModal({ question, onClose }) {
                                   }`}>
                                     {optChar}
                                   </div>
-                                  <div className="text-gray-800 flex-1 text-xs leading-relaxed" dangerouslySetInnerHTML={{ __html: formatText(optLabel) }}></div>
+                                  <div className="text-gray-800 flex-1 text-xs leading-relaxed">
+                                    <FormattedQuestionPreview content={optLabel} className="text-inherit" />
+                                  </div>
                                   {isCorrectOpt && (
                                       <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
                                         <i className="fas fa-check text-white text-xs"></i>
@@ -329,7 +317,13 @@ function QuestionDetailModal({ question, onClose }) {
                     </div>
                     <div className={`transition-all duration-300 relative ${isAnalysisExpanded || !explanationText || explanationText.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
                       <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">解析</span>
-                      <div className="mt-2 text-gray-700 text-sm leading-relaxed break-all" dangerouslySetInnerHTML={{ __html: formatText(explanationText) || '<span class="text-gray-400">暂无解析</span>' }}></div>
+                      <div className="mt-2 text-gray-700 text-sm leading-relaxed break-all">
+                      {explanationText ? (
+                        <FormattedQuestionPreview content={explanationText} className="text-inherit" />
+                      ) : (
+                        <span className="text-gray-400">暂无解析</span>
+                      )}
+                    </div>
                       {!isAnalysisExpanded && explanationText && explanationText.length > 200 && (
                           <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                       )}
