@@ -21,7 +21,7 @@ function EndExamModal({
           </div>
           <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-3">Ready to Finish?</h2>
           <p className="text-slate-500 font-medium leading-relaxed">
-            You are about to end this section. Once submitted, you cannot change your answers.
+            Once submitted, you cannot change your answers.
           </p>
         </div>
 
@@ -59,14 +59,14 @@ function EndExamModal({
             onClick={onConfirm}
             className="w-full bg-red-600 text-white py-5 rounded-2xl font-black text-lg hover:bg-red-700 transition-all shadow-xl shadow-red-600/20 active:scale-[0.98]"
           >
-            Yes, Submit Exam
+            Yes, Submit
           </button>
           <button
             type="button"
             onClick={onCancel}
             className="w-full bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold text-base hover:bg-slate-200 transition-all active:scale-[0.98]"
           >
-            No, Continue Testing
+            No, Continue answering
           </button>
           <p className="text-[10px] text-slate-400 text-center font-bold uppercase tracking-widest pt-2">
             Your progress is automatically saved

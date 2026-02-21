@@ -52,14 +52,15 @@ function ExamContent() {
   const location = useLocation();
   
   // 使用useMemo缓存路由状态，避免无限重渲染
-  const { sectionId, examTitle, examDuration, totalQuestions, stateQuestions } = useMemo(() => {
+  const { sectionId, examTitle, examDuration, totalQuestions, stateQuestions, stateTimeMode } = useMemo(() => {
     const state = location.state || {};
     return {
       sectionId: state.sectionId || examId,
       examTitle: state.examTitle || 'Section 1, Module 1: Reading and Writing',
       examDuration: state.examDuration || '35分钟',
       totalQuestions: state.totalQuestions || 27,
-      stateQuestions: state.questions || null // 新增：获取路由状态中的题目数据
+      stateQuestions: state.questions || null, // 新增：获取路由状态中的题目数据
+      stateTimeMode: state.timeMode || 'timed' // 获取时间模式
     };
   }, [location.state, examId]); // 只有当location.state或examId变化时才重新计算
   
@@ -71,6 +72,7 @@ function ExamContent() {
   
   const hasFetchedRef = React.useRef(false);
   const prevSectionIdRef = React.useRef(sectionId);
+  const hasProcessedStateQuestionsRef = React.useRef(false);
 
   // 获取真实题目数据（初始化仅请求一次，ref 防止 StrictMode 双重调用）
   useEffect(() => {
@@ -88,8 +90,8 @@ function ExamContent() {
     }
 
     // 如果路由状态中已有题目数据，直接使用
-    if (stateQuestions) {
-      console.log('使用路由状态中的题目数据:', stateQuestions);
+    if (stateQuestions && !realExamData) {
+
       
       // 适配不同格式的题目数据
       let questionsData = null;
@@ -401,9 +403,9 @@ function ExamContent() {
 
   const [showDirections, setShowDirections] = useState(true);
   const [showProgress, setShowProgress] = useState(false);
-  const [showTimeMode, setShowTimeMode] = useState(true);
-  const [showIntro, setShowIntro] = useState(false);
-  const [timeMode, setTimeMode] = useState('timed');
+  const [showTimeMode, setShowTimeMode] = useState(!stateQuestions); // 如果已有题目数据，不显示时间模式选择
+  const [showIntro, setShowIntro] = useState(!!stateQuestions); // 如果已有题目数据，直接显示IntroScreen
+  const [timeMode, setTimeMode] = useState(stateTimeMode);
   const [examStarted, setExamStarted] = useState(false);
   const [showNotesPanel, setShowNotesPanel] = useState(false);
   const [showTimeAsIcon, setShowTimeAsIcon] = useState(false);
@@ -478,6 +480,14 @@ function ExamContent() {
       // resetOnBeginExam();
     }
   }, [loading]);
+
+  // 如果有题目数据，直接显示IntroScreen
+  useEffect(() => {
+    if (stateQuestions && !showIntro) {
+      setShowIntro(true);
+      setShowTimeMode(false);
+    }
+  }, [stateQuestions]); // 移除showIntro依赖，避免无限循环
 
   const prevQuestionRef = React.useRef(currentQuestion);
   const prevExamFinishedRef = React.useRef(examFinished);
@@ -649,6 +659,8 @@ function ExamContent() {
       />
     );
   }
+
+
 
   if (showTimeMode) {
     return (

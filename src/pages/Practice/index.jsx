@@ -43,7 +43,7 @@ function SpecialTraining() {
     return entry ? entry[0] : label; // 如果找不到对应的枚举值，返回原值
   };
 
-  const handleStartTraining = async () => {
+  const handleStartTraining = () => {
     // 直接使用枚举值，无需转换
     const practiceParams = {
       questionCategory: activeSubject,
@@ -54,21 +54,15 @@ function SpecialTraining() {
       size: parseInt(trainingConfig.count) || 5
     };
 
-    console.log('开始训练，配置参数：', practiceParams);
+    console.log('准备开始训练，配置参数：', practiceParams);
 
-    try {
-      // 调用开始练习API
-      const questions = await startPractice(practiceParams);
-      console.log('获取到题目：', questions);
-
-      // 直接使用返回的题目数组，因为startPractice已经返回了response.data
-      console.log('提取题目数据：', questions);
-
-      navigate('/practicing', { state: { questions } });
-    } catch (error) {
-      console.error('开始训练失败：', error);
-      // 可以添加错误提示
-    }
+    // 导航到时间模式选择页面，传递配置参数
+    navigate('/time-mode', {
+      state: {
+        source: 'practice',
+        config: practiceParams
+      }
+    });
   };
 
 

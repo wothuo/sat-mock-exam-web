@@ -399,13 +399,16 @@ function MockExam() {
 
                         <div className="mt-2">
                           <Link
-                            to={`/exam/${exam.id}`}
+                            to="/time-mode"
                             state={{
-                              sectionId: exam.id,
-                              examTitle: exam.title,
-                              sectionName: exam.sectionName,
-                              examDuration: exam.duration,
-                              totalQuestions: exam.questions
+                              source: 'exam',
+                              config: {
+                                sectionId: exam.id,
+                                examTitle: exam.title,
+                                sectionName: exam.sectionName,
+                                examDuration: exam.duration,
+                                totalQuestions: exam.questions
+                              }
                             }}
                           >
                             <Button type="primary" block size="large" className="bg-gradient-to-r from-indigo-500 to-purple-500">

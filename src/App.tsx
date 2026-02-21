@@ -18,6 +18,7 @@ import TeacherProfile from './pages/Profile/teacherIndex';
 // import QuestionBank from './pages/QuestionBank';
 import SpecialTraining from './pages/Practice';
 import SystemOverview from './pages/SystemOverview';
+import TimeModeScreen from './pages/ExamContent/components/screens/TimeModeScreen';
 import { getRouteNavigateEventName } from './utils/router';
 import { getToken, isTokenExpired, startSessionHeartbeat, addSessionConflictListener, clearSessionConflict, isSessionValid } from './utils/token';
 import { message } from 'antd';
@@ -103,6 +104,7 @@ function AppContent() {
         <Route path="/register" element={<Register />} />
         <Route path="/exam/:examId" element={<ProtectedRoute children={undefined}><ExamContent /></ProtectedRoute>} />
         <Route path="/practicing" element={<ProtectedRoute children={undefined}><ExamContent /></ProtectedRoute>} />
+        <Route path="/time-mode" element={<ProtectedRoute children={undefined}><TimeModeScreen timeMode="timed" setTimeMode={() => {}} /></ProtectedRoute>} />
 
         {/* 公开的主页路由 */}
         <Route path="/" element={<Layout children={undefined}><Home /></Layout>} />
