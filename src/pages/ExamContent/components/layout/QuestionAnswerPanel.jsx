@@ -107,7 +107,7 @@ function QuestionAnswerPanel({
             Enter your answer in the box below.
           </p>
           {blanks.length > 0 && (
-            <div className="space-y-4">
+            <div className="space-y-4 break-all">
               {blanks.map((blank) => (
                 <div key={blank.id}>
                   {renderBlankInput(blank)}
@@ -162,7 +162,7 @@ function QuestionAnswerPanel({
 
         <div className="mt-8 p-4 bg-gray-50 rounded-lg">
           <div className="text-sm text-gray-600 mb-2">Answer Preview:</div>
-          <div className="text-base font-medium text-gray-900">
+          <div className="text-base font-medium text-gray-900 break-all">
             {BLANKS_TYPES.includes(question.type) ? (
               <div className="space-y-2">
                 {(question.blanks || []).map((blank) => (
