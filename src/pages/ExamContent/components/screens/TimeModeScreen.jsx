@@ -157,5 +157,4 @@ function TimeModeScreen({ timeMode, setTimeMode }) {
   );
 }
 
-
 export default TimeModeScreen;
