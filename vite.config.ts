@@ -20,7 +20,7 @@ export default defineConfig({
     // }
     proxy: {
       '/user-account/login': {
-        target: 'http://47.110.243.237:8080', // 你的 API 域名
+        target: 'http://39.97.42.90:8080', // 你的 API 域名
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/user-account\/login/, ''), // 可选：去掉 /api 前缀
       },
