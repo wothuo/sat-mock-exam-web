@@ -66,10 +66,10 @@ function EndExamModal({
             onClick={onCancel}
             className="w-full bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold text-base hover:bg-slate-200 transition-all active:scale-[0.98]"
           >
-            No, Continue answering.
+            No, Continue answering
           </button>
           <p className="text-[10px] text-slate-400 text-center font-bold uppercase tracking-widest pt-2">
-            Your progress is automatically saved.
+            Your progress is automatically saved
           </p>
         </div>
       </div>
