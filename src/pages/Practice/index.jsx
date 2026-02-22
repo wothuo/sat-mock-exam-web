@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
-import { startPractice } from '../../services/training.js';
-
 import {
   TRAINING_SUBJECTS,
   SUBJECT_ENUM,
