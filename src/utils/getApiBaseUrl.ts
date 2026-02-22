@@ -14,7 +14,7 @@ export function getApiBaseUrl(): string {
   const env = urlParams.get('env');
 
   if (env === 'staging') {
-    return 'http://39.97.42.90:8080'; // 预发接口
+    return 'http://123.56.54.65:8080'; // 预发接口
   }
   if (env === 'local') {
     return 'http://localhost:8080'; // 本地接口
