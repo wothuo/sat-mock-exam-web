@@ -56,6 +56,11 @@ function QuestionDetailModal({ question, onClose }) {
   };
 
   const questionText = question.question ?? question.questionContent ?? '';
+  const hasMarkdownImage = (text) => typeof text === 'string' && /!\[[\s\S]*?\]\([^)]+\)/.test(text);
+  const questionContentHasImage = hasMarkdownImage(questionText);
+  const questionContentNeedsFold = questionText.length > 200 || questionContentHasImage;
+  const questionDescription = question.questionDescription ?? '';
+  const questionDescriptionNeedsFold = questionDescription.length > 200 || hasMarkdownImage(questionDescription);
   const optionsList = Array.isArray(question.options) ? question.options : [];
   const hasOptions = optionsList.length > 0;
   const isOptionObject = hasOptions && typeof optionsList[0] === 'object' && optionsList[0] !== null && 'option' in optionsList[0];
@@ -126,7 +131,7 @@ function QuestionDetailModal({ question, onClose }) {
                           <i className="fas fa-question-circle text-blue-500 mr-2"></i>
                           <span className="font-bold text-blue-700 text-sm">题目内容</span>
                         </div>
-                        {(questionText.length > 200 || questionText.includes('<img')) && (
+                        {questionContentNeedsFold && (
                             <button
                                 onClick={() => setIsQuestionContentExpanded(!isQuestionContentExpanded)}
                                 className="text-blue-500 hover:text-blue-700 text-xs font-medium flex items-center gap-1"
@@ -145,22 +150,22 @@ function QuestionDetailModal({ question, onClose }) {
                             </button>
                         )}
                       </div>
-                      <div className={`p-6 transition-all duration-300 min-h-40 ${isQuestionContentExpanded || (questionText.length <= 200 && !questionText.includes('<img')) ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
+                      <div className={`p-6 transition-all duration-300 min-h-40 relative ${isQuestionContentExpanded || !questionContentNeedsFold ? 'max-h-none' : 'max-h-48 overflow-hidden'}`}>
                         <FormattedQuestionPreview content={questionText} className="text-gray-800 leading-relaxed text-sm font-medium max-h-96 overflow-y-auto break-all" />
-                        {!isQuestionContentExpanded && (questionText.length > 200 || questionText.includes('<img')) && (
+                        {!isQuestionContentExpanded && questionContentNeedsFold && (
                             <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                         )}
                       </div>
                     </div>
                 )}
-                {question.questionDescription && (
+                {questionDescription && (
                     <div className="border-2 border-green-100 rounded-2xl overflow-hidden">
                       <div className="bg-green-50 px-6 py-3 border-b border-green-100 flex items-center justify-between">
                         <div className="flex items-center">
                           <i className="fas fa-info-circle text-green-500 mr-2"></i>
                           <span className="font-bold text-green-700 text-sm">题目描述</span>
                         </div>
-                        {question.questionDescription.length > 200 && (
+                        {questionDescriptionNeedsFold && (
                             <button
                                 onClick={() => setIsQuestionDescriptionExpanded(!isQuestionDescriptionExpanded)}
                                 className="text-green-500 hover:text-green-700 text-xs font-medium flex items-center gap-1"
@@ -179,9 +184,9 @@ function QuestionDetailModal({ question, onClose }) {
                             </button>
                         )}
                       </div>
-                      <div className={`p-6 transition-all duration-300 relative min-h-40 ${isQuestionDescriptionExpanded || question.questionDescription.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
-                        <FormattedQuestionPreview content={question.questionDescription} className="text-gray-800 leading-relaxed text-sm font-medium max-h-96 overflow-y-auto break-all" />
-                        {!isQuestionDescriptionExpanded && question.questionDescription.length > 200 && (
+                      <div className={`p-6 transition-all duration-300 relative min-h-40 ${isQuestionDescriptionExpanded || !questionDescriptionNeedsFold ? 'max-h-none' : 'max-h-48 overflow-hidden'}`}>
+                        <FormattedQuestionPreview content={questionDescription} className="text-gray-800 leading-relaxed text-sm font-medium max-h-96 overflow-y-auto break-all" />
+                        {!isQuestionDescriptionExpanded && questionDescriptionNeedsFold && (
                             <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                         )}
                       </div>
