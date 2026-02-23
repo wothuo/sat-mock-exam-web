@@ -390,7 +390,24 @@ function ExamSetQuestionStep({
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">题目类型</label>
                         <Select
                             value={q.interactionType}
-                            onChange={v => onUpdateQuestion(q.id, 'interactionType', v)}
+                            onChange={v => {
+                              // 当题目类型改变时，自动更新正确答案的默认值
+                              const isChoice = v === INTERACTION_TYPE_ENUM.CHOICE;
+                              const isBlank = v === INTERACTION_TYPE_ENUM.BLANK;
+                              
+                              // 如果从选择题切换到填空题，且当前答案是A/B/C/D，则清空答案
+                              if (isBlank && ['A', 'B', 'C', 'D'].includes(q.correctAnswer)) {
+                                onUpdateQuestion(q.id, 'correctAnswer', '');
+                              } 
+                              // 如果从填空题切换到选择题，且当前答案为空，则设置为A
+                              else if (isChoice && !q.correctAnswer) {
+                                onUpdateQuestion(q.id, 'correctAnswer', 'A');
+                              } 
+                              // 其他情况，只更新题目类型
+                              else {
+                                onUpdateQuestion(q.id, 'interactionType', v);
+                              }
+                            }}
                             className="w-full rounded-md"
                         >
                           {Object.entries(INTERACTION_TYPE_LABELS).map(([value, label]) => (
