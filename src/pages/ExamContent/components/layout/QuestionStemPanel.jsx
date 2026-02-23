@@ -1,47 +1,76 @@
 import React from 'react';
 
 function QuestionStemPanel({
-  currentQuestion,
-  totalQuestions,
-  question,
-  renderFormattedText,
-  onTextSelect
-}) {
-  return (
-    <div className="col-span-1 lg:col-span-5 bg-white rounded-lg p-4 sm:p-6 shadow-sm relative flex flex-col break-all">
-      <div className="pb-4 mb-6">
+                               currentQuestion,
+                               totalQuestions,
+                               question,
+                               renderFormattedText,
+                               onTextSelect,
+                               notes,
+                               showNotesPanel,
+                               setShowNotesPanel
+                           }) {
+    // 获取当前题目的备注数量
+    const currentNotesCount = Object.entries(notes).filter(([noteId, note]) => note.questionId === currentQuestion).length;
+
+    return (
+        <div className="col-span-1 lg:col-span-5 bg-white rounded-lg p-4 sm:p-6 shadow-sm relative flex flex-col">
+            {/* 备注图标按钮 */}
+            <button
+                onClick={() => setShowNotesPanel(!showNotesPanel)}
+                className={`absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200 ${
+                    showNotesPanel
+                        ? 'bg-yellow-500 text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-600 hover:bg-yellow-100 hover:text-yellow-600'
+                }`}
+                title={showNotesPanel ? '隐藏备注区域' : '显示备注区域'}
+            >
+                {currentNotesCount > 0 ? (
+                    <span className="relative">
+            <i className="fas fa-sticky-note"></i>
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+              {currentNotesCount}
+            </span>
+          </span>
+                ) : (
+                    <i className="fas fa-sticky-note"></i>
+                )}
+            </button>
+
+            <div className="pb-4 mb-6">
         <span className="text-sm font-medium text-gray-500">
           Question {currentQuestion} of {totalQuestions}
         </span>
-      </div>
-
-      {question && (
-        <div className="space-y-6 flex-1">
-          <div
-            className="text-lg font-medium text-gray-900 selectable-text"
-          >
-            {renderFormattedText(question.question, question.id, 'question')}
-          </div>
-
-          {/*{question.description && (*/}
-          {/*  <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">*/}
-          {/*    <div className="text-sm font-semibold text-blue-900 mb-2">*/}
-          {/*      <i className="fas fa-info-circle mr-2" />*/}
-          {/*      问题描述*/}
-          {/*    </div>*/}
-          {/*    <div className="text-sm text-blue-800 leading-relaxed">*/}
-          {/*      {renderFormattedText(question.description, question.id)}*/}
-          {/*    </div>*/}
-          {/*  </div>*/}
-          {/*)}*/}
-
-          {question.type === 'reading-passage' && question.passage && (
-            <div className="p-4 bg-gray-50 rounded-lg border-l-4 border-red-500">
-              <div className="prose max-w-none text-gray-700 leading-relaxed text-sm">
-                {renderFormattedText(question.passage, question.id, 'passage')}
-              </div>
             </div>
-          )}
+
+            {question && (
+                <div className="space-y-6 flex-1">
+                    <div
+                        className="text-lg font-medium text-gray-900 selectable-text"
+                        onMouseUp={onTextSelect}
+                    >
+                        {renderFormattedText(question.question, question.id)}
+                    </div>
+
+                    {/*{question.description && (*/}
+                    {/*  <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">*/}
+                    {/*    <div className="text-sm font-semibold text-blue-900 mb-2">*/}
+                    {/*      <i className="fas fa-info-circle mr-2" />*/}
+                    {/*      问题描述*/}
+                    {/*    </div>*/}
+                    {/*    <div className="text-sm text-blue-800 leading-relaxed">*/}
+                    {/*      {renderFormattedText(question.description, question.id)}*/}
+                    {/*    </div>*/}
+                    {/*  </div>*/}
+                    {/*)}*/}
+
+                    {question.type === 'reading-passage' && question.passage && (
+                        <div className="p-4 bg-gray-50 rounded-lg border-l-4 border-red-500">
+                            <div className="prose max-w-none text-gray-700 leading-relaxed text-sm">
+                                {renderFormattedText(question.passage, question.id)}
+                            </div>
+                        </div>
+                    )}
 
           {question.hasImage && question.images && question.images.length > 0 && (
               <div className="space-y-4">

@@ -44,6 +44,30 @@
   border-radius: 3px;
 }
 
+.highlight-orange {
+  background-color: #fed7aa;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.highlight-purple {
+  background-color: #e9d5ff;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.highlight-red {
+  background-color: #fecaca;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.highlight-cyan {
+  background-color: #a5f3fc;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
 .text-underline {
   text-decoration: underline;
   text-decoration-color: #dc2626;
@@ -51,12 +75,19 @@
   text-underline-offset: 2px;
 }
 
-.note-highlight {
-  background-color: #fbbf24;
-  padding: 2px 4px;
-  border-radius: 3px;
-  border: 2px solid #f59e0b;
-  animation: pulse-highlight 2s ease-in-out;
+.text-underline {
+  /* 移除text-decoration避免与formatText冲突 */
+  text-decoration: none;
+
+  /* 使用border-bottom实现下划线效果 */
+  border-bottom: 2px solid #dc2626;
+  padding-bottom: 1px;
+  display: inline-block;
+  line-height: 1.2;
+
+  /* 确保不会与其他下划线样式叠加 */
+  box-shadow: none;
+  text-shadow: none;
 }
 
 @keyframes pulse-highlight {

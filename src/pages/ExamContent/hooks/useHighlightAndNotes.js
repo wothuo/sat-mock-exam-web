@@ -139,17 +139,43 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
   }, [highlights, selectedText, currentQuestion, hideHighlightMenu]);
 
   const addUnderline = useCallback(() => {
+    const selection = window.getSelection();
     const textSource = window.currentTextSource || 'question'; // 默认为题干
-    
-    setHighlights((prev) => ({
-      ...prev,
-      [`underline-${Date.now()}`]: {
-        text: selectedText,
-        color: 'underline',
-        questionId: currentQuestion,
-        textSource: textSource // 添加文本来源标识
-      }
-    }));
+
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+
+      // 获取选中文本在容器中的位置信息
+      let startOffset = range.startOffset;
+      let endOffset = range.endOffset;
+      let containerText = container.textContent || '';
+
+      setHighlights((prev) => ({
+        ...prev,
+        [`underline-${Date.now()}`]: {
+          text: selectedText,
+          color: 'underline',
+          questionId: currentQuestion,
+          textSource: textSource, // 添加文本来源标识
+          // 保存位置信息用于精确标注
+          containerText: containerText,
+          startOffset: startOffset,
+          endOffset: endOffset
+        }
+      }));
+    } else {
+      // 回退到原来的逻辑
+      setHighlights((prev) => ({
+        ...prev,
+        [`underline-${Date.now()}`]: {
+          text: selectedText,
+          color: 'underline',
+          questionId: currentQuestion,
+          textSource: textSource // 添加文本来源标识
+        }
+      }));
+    }
     setSelectedText('');
     if (window.getSelection()) window.getSelection().removeAllRanges();
     hideHighlightMenu();
@@ -247,9 +273,18 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
               const selectedText = containerText.substring(startOffset, endOffset);
               const afterText = containerText.substring(endOffset);
 
+              // 对选中文本进行HTML转义
+              const escapedSelectedText = selectedText
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/"/g, '&quot;')
+                  .replace(/'/g, '&#39;');
+
               // 构建精确的高亮文本
               const highlightedText = beforeText +
-                  `<span class="${cls}" data-highlight-id="${id}">${selectedText}</span>` +
+                  // `<span class="${cls}" data-highlight-id="${id}">${selectedText}</span>` +
+                  `<span class="${cls}" data-highlight-id="${id}">${escapedSelectedText}</span>` +
                   afterText;
 
               // 如果当前处理的文本包含原始容器文本，则进行替换
