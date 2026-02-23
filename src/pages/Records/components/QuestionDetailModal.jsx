@@ -311,24 +311,24 @@ function QuestionDetailModal({ question, onClose }) {
                         </button>
                     )}
                   </div>
-                  <div className="p-6 space-y-4">
+                  <div className={`p-6 transition-all duration-300 relative min-h-40 ${isAnalysisExpanded || !explanationText || explanationText.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
                     <div>
                       <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Correct Answer</span>
                       <div className="text-sm font-black text-gray-900 break-words">{question.correctAnswer ?? '—'}</div>
                     </div>
-                    <div className={`transition-all duration-300 relative ${isAnalysisExpanded || !explanationText || explanationText.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
+                    <div className="mt-4">
                       <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">解析</span>
                       <div className="mt-2 text-gray-700 text-sm leading-relaxed break-all">
-                      {explanationText ? (
-                        <FormattedQuestionPreview content={explanationText} className="text-inherit" />
-                      ) : (
-                        <span className="text-gray-400">暂无解析</span>
-                      )}
+                        {explanationText ? (
+                          <FormattedQuestionPreview content={explanationText} className="text-inherit" />
+                        ) : (
+                          <span className="text-gray-400">暂无解析</span>
+                        )}
+                      </div>
                     </div>
-                      {!isAnalysisExpanded && explanationText && explanationText.length > 200 && (
-                          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
-                      )}
-                    </div>
+                    {!isAnalysisExpanded && explanationText && explanationText.length > 200 && (
+                        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                    )}
                   </div>
                 </div>
               </div>

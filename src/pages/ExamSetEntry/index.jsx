@@ -165,7 +165,7 @@ function ExamSetEntry() {
               difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
               content: `题目 ${qId} 的内容`,
               options: ['选项A', '选项B', '选项C', '选项D'],
-              correctAnswer: 'A',
+              correctAnswer: DEFAULT_INTERACTION_TYPE === INTERACTION_TYPE_ENUM.CHOICE ? 'A' : '',
               explanation: '解析内容'
             };
           })
@@ -213,7 +213,7 @@ function ExamSetEntry() {
               difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
               content: `题目 ${qId} 的内容`,
               options: ['选项A', '选项B', '选项C', '选项D'],
-              correctAnswer: 'A',
+              correctAnswer: DEFAULT_INTERACTION_TYPE === INTERACTION_TYPE_ENUM.CHOICE ? 'A' : '',
               explanation: '解析内容'
             };
           })

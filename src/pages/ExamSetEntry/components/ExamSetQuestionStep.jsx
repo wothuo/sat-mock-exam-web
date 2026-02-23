@@ -126,14 +126,6 @@ function ExamSetQuestionStep({
             </button>
             <button
               type="button"
-              onClick={() => onToolbarAction('insertUnderline', null, activeEditorId)}
-              className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
-              title="插入下划线"
-            >
-              <i className="fas fa-minus mr-0.5"></i>插入下划线
-            </button>
-            <button
-              type="button"
               onClick={() => onToolbarAction('strikethrough', null, activeEditorId)}
               className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
               title="删除线"
@@ -261,6 +253,14 @@ function ExamSetQuestionStep({
               title="插入表格"
             >
               <i className="fas fa-table mr-0.5"></i>插入表格
+            </button>
+            <button
+                type="button"
+                onClick={() => onToolbarAction('insertUnderline', null, activeEditorId)}
+                className="px-1.5 py-0.5 bg-gray-100 hover:bg-gray-200 rounded text-[10px] transition-colors"
+                title="插入下划线"
+            >
+              <i className="fas fa-minus mr-0.5"></i>插入下划线
             </button>
           </div>
           <div className="text-xs text-gray-500 ml-4">
