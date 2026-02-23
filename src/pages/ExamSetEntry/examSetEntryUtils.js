@@ -407,6 +407,30 @@ export function renderMathInPreview(previewId, delayMs = 120) {
 }
 
 /**
+ * 对指定 id 的单个容器执行 KaTeX 渲染，避免联动其他预览导致闪屏
+ * @param {string} containerId 容器元素 id
+ * @param {object} options 可选
+ */
+export function renderMathInContainerById(containerId, options = {}) {
+  if (!containerId || typeof window === 'undefined' || !window.renderMathInElement) return () => {};
+  const el = document.getElementById(containerId);
+  if (!el) return () => {};
+  const timer = setTimeout(() => {
+    try {
+      window.renderMathInElement(el, {
+        delimiters: KATEX_DELIMITERS,
+        throwOnError: false,
+        strict: false,
+        ...options
+      });
+    } catch (err) {
+      console.error('KaTeX rendering error:', err);
+    }
+  }, 0);
+  return () => clearTimeout(timer);
+}
+
+/**
  * 对页面上所有 .selectable-text, .math-content 容器执行 KaTeX 渲染（用于全局刷新）
  * @param {object} options 可选，传入 { delimiters, throwOnError, strict }
  */

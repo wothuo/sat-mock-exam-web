@@ -25,7 +25,6 @@ function RichTextEditor({
   const wrapperRef = useRef(null);
   const textareaRef = useRef(null);
   const userResizedRef = useRef(false);
-
   const syncHeight = () => {
     const wrapper = wrapperRef.current;
     const textarea = id ? document.getElementById(id) : textareaRef.current?.resizableTextArea?.textArea;
@@ -71,16 +70,17 @@ function RichTextEditor({
     }
   };
 
-  // 自动渲染数学公式（延迟确保预览区 DOM 已更新后再执行 KaTeX）
-  React.useEffect(() => {
-    if (showPreview && onRenderMath) {
-      const t = setTimeout(() => {
-        onRenderMath();
-      }, 150);
-      return () => clearTimeout(t);
-    }
-  }, [value, showPreview, onRenderMath]);
+  // FormattedQuestionPreview 已通过 containerId 自行处理 KaTeX，此处不再重复调用
 
+    // 自动渲染数学公式（延迟确保预览区 DOM 已更新后再执行 KaTeX）
+    React.useEffect(() => {
+      if (showPreview && onRenderMath) {
+        const t = setTimeout(() => {
+          onRenderMath();
+        }, 150);
+        return () => clearTimeout(t);
+      }
+    }, [value, showPreview, onRenderMath]);
   return (
     <div className="exam-question-editor-font">
       <div
@@ -122,6 +122,7 @@ function RichTextEditor({
                 content={value}
                 singleLine={false}
                 className="text-gray-900 exam-question-editor-font"
+                containerId={id ? `preview-${id}` : undefined}
               />
             )}
           </div>

@@ -793,10 +793,11 @@ function ExamSetEntry() {
     input.click();
   };
 
+  // 仅切换步骤或切换题目时全局渲染公式；输入时由各 FormattedQuestionPreview 自行渲染，避免 questions 变化导致全页闪屏
   useEffect(() => {
     const cleanup = renderMathInContainers();
     return cleanup;
-  }, [currentStep, selectedQuestionId, questions]);
+  }, [currentStep, selectedQuestionId]);
 
   if (fetchLoading && editId) {
     return (
