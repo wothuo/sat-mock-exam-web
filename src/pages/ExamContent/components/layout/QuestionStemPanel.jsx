@@ -14,7 +14,7 @@ function QuestionStemPanel({
     const currentNotesCount = Object.entries(notes).filter(([noteId, note]) => note.questionId === currentQuestion).length;
 
     return (
-        <div className="col-span-1 lg:col-span-5 bg-white rounded-lg p-4 sm:p-6 shadow-sm relative flex flex-col">
+        <div className="col-span-1 lg:col-span-4 bg-white rounded-lg p-4 sm:p-6 shadow-sm relative flex flex-col">
             {/* 备注图标按钮-禁用 */}
             {/*<button*/}
             {/*    disabled*/}

@@ -1,4 +1,8 @@
 /* 考试页全局样式（题干/高亮/备注等使用类名，需保持全局） */
+.exam-content-page {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
 .math-content img {
   display: inline-block;
 }

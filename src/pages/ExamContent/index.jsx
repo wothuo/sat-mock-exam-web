@@ -722,7 +722,7 @@ function ExamContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 exam-content-page">
       <ExamHeader
         title={examDataToUse.title}
         timeMode={timeMode}
@@ -773,7 +773,7 @@ function ExamContent() {
               handleTextSelection={handleTextSelection}
               renderFormattedText={renderFormattedText}
               formatText={formatText}
-              columnClassName={showNotesPanel ? 'lg:col-span-4' : 'lg:col-span-3'}
+              columnClassName="lg:col-span-4"
             />
           </div>
         </div>

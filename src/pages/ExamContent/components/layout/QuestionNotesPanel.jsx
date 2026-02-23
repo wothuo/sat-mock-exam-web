@@ -12,7 +12,7 @@ function QuestionNotesPanel({
   );
 
   return (
-    <div className="col-span-1 lg:col-span-3 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-100 p-5 flex flex-col max-h-[620px] min-h-[200px]">
+    <div className="col-span-1 lg:col-span-4 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-100 p-5 flex flex-col max-h-[620px] min-h-[200px]">
       {/* 面板标题 */}
       <div className="flex items-center space-x-3 mb-4 pb-3 border-b border-gray-200">
         <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-sm">
