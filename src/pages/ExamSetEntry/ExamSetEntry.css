@@ -29,13 +29,13 @@
   width: 100%;
 }
 
-/* 题目内容编辑区：英文使用 Georgia 字体 */
+/* 题目内容编辑区：英文使用 'Helvetica Neue', Helvetica, Arial 字体 */
 .exam-question-editor-font {
-  font-family: Georgia, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 .exam-question-editor-font .ant-input {
-  font-family: Georgia, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 /* 富文本编辑器：1-5 行自伸缩 + 可拖拽拉高 */
@@ -66,7 +66,7 @@
   padding: var(--editor-cell-padding) !important;
   font-size: var(--editor-font-size) !important;
   line-height: var(--editor-line-height) !important;
-  font-family: Georgia, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
   min-height: 32px !important;
   height: auto !important;
 }
@@ -77,7 +77,7 @@
   padding: var(--editor-cell-padding) !important;
   font-size: var(--editor-font-size) !important;
   line-height: var(--editor-line-height) !important;
-  font-family: Georgia, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
   min-height: 32px !important;
 }
 
@@ -112,7 +112,7 @@
   min-height: 32px;
   font-size: var(--editor-font-size, 12px);
   line-height: var(--editor-line-height, 1.5);
-  font-family: Georgia, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 .rich-text-preview .markdown-body {
   font-size: inherit;

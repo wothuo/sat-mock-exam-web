@@ -721,7 +721,7 @@ function ExamContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 exam-content-page">
       <ExamHeader
         title={examDataToUse.title}
         timeMode={timeMode}
