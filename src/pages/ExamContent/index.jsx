@@ -863,6 +863,13 @@ function ExamContent() {
               >
                 <span className="sr-only">青色</span>
               </button>
+              <button
+                  onClick={() => addHighlight('brown')}
+                  className="w-7 h-7 bg-amber-600 rounded-lg hover:bg-amber-700 transition-all duration-200 transform hover:scale-110 border-2 border-transparent hover:border-amber-800 shadow-sm"
+                  title="棕色高亮"
+              >
+                <span className="sr-only">棕色</span>
+              </button>
             </div>
           </div>
 

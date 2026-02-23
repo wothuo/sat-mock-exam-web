@@ -54,6 +54,7 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
           setSelectedText(text);
           // 保存当前文本来源，用于后续添加高亮
           window.currentTextSource = textSource;
+          console.log('设置文本来源:', textSource, '选中文本:', text);
           setNotePosition({ x: rect.left + rect.width / 2, y: rect.top - 10 });
           setTimeout(() => {
             const menu = document.getElementById('highlight-menu');
@@ -66,6 +67,8 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
           }, 50);
         } else {
           hideHighlightMenu();
+          // 清除文本来源
+          window.currentTextSource = null;
         }
       },
       [hideHighlightMenu, setShowNotesPanel]
@@ -75,6 +78,7 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
       (color) => {
         const selection = window.getSelection();
         const textSource = window.currentTextSource || 'question'; // 默认为题干
+        console.log('添加高亮 - 文本来源:', textSource, '颜色:', color, '选中文本:', selectedText);
         
         if (selection.rangeCount > 0) {
           const range = selection.getRangeAt(0);
@@ -121,15 +125,33 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
 
   const removeHighlight = useCallback(() => {
     const textSource = window.currentTextSource || 'question'; // 默认为题干
+    console.log('删除高亮 - 文本来源:', textSource, '选中文本:', selectedText, '当前高亮:', Object.keys(highlights));
+    
     const entry = Object.entries(highlights).find(
         ([, h]) => h.text === selectedText && h.questionId === currentQuestion && h.textSource === textSource
     );
+    
     if (entry) {
+      console.log('找到匹配的高亮:', entry[0]);
       setHighlights((prev) => {
         const next = { ...prev };
         delete next[entry[0]];
         return next;
       });
+    } else {
+      console.log('未找到匹配的高亮，尝试模糊匹配');
+      // 如果精确匹配失败，尝试模糊匹配（只匹配文本和题目ID）
+      const fuzzyEntry = Object.entries(highlights).find(
+          ([, h]) => h.text === selectedText && h.questionId === currentQuestion
+      );
+      if (fuzzyEntry) {
+        console.log('模糊匹配找到高亮:', fuzzyEntry[0]);
+        setHighlights((prev) => {
+          const next = { ...prev };
+          delete next[fuzzyEntry[0]];
+          return next;
+        });
+      }
     }
     setSelectedText('');
     if (window.getSelection()) window.getSelection().removeAllRanges();
@@ -141,6 +163,7 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
   const addUnderline = useCallback(() => {
     const selection = window.getSelection();
     const textSource = window.currentTextSource || 'question'; // 默认为题干
+    console.log('添加下划线 - 文本来源:', textSource, '选中文本:', selectedText);
 
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);

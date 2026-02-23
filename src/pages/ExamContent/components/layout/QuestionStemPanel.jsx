@@ -18,15 +18,20 @@ function QuestionStemPanel({
             {/* 备注图标按钮-禁用 */}
             {/*<button*/}
             {/*    disabled*/}
-            {/*    className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-gray-200 text-gray-400 cursor-not-allowed"*/}
+            {/*    className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold bg-gradient-to-br from-gray-200 to-gray-300 text-gray-400 cursor-not-allowed shadow-md"*/}
             {/*    title="备注功能已禁用"*/}
             {/*>*/}
             {/*    {currentNotesCount > 0 ? (*/}
             {/*        <span className="relative">*/}
-            {/*<i className="fas fa-sticky-note"></i>*/}
-            {/*<span className="absolute -top-1 -right-1 w-3 h-3 bg-gray-400 text-white text-xs rounded-full flex items-center justify-center">*/}
-            {/*  {currentNotesCount}*/}
-            {/*</span>*/}
+            {/*            <i className="fas fa-sticky-note"></i>*/}
+            {/*            <span className="absolute -top-2 -right-2 w-5 h-5 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md bg-gradient-to-br from-gray-400 to-gray-500">*/}
+            {/*                {currentNotesCount}*/}
+            {/*            </span>*/}
+            {/*        </span>*/}
+            {/*    ) : (*/}
+            {/*        <i className="fas fa-sticky-note"></i>*/}
+            {/*    )}*/}
+            {/*</button>*/}
             {/* 备注图标按钮 */}
             <button
                 onClick={() => setShowNotesPanel(!showNotesPanel)}

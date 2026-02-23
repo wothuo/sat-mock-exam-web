@@ -12,19 +12,25 @@ function QuestionNotesPanel({
   );
 
   return (
-    <div className="col-span-1 lg:col-span-3 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-100 p-5 flex flex-col">
+    <div className="col-span-1 lg:col-span-3 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-100 p-5 flex flex-col max-h-[620px] min-h-[200px]">
       {/* 面板标题 */}
       <div className="flex items-center space-x-3 mb-4 pb-3 border-b border-gray-200">
         <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-sm">
           <i className="fas fa-sticky-note text-white text-sm" />
         </div>
-        <div>
+        <div className="flex-1">
           <h3 className="text-lg font-bold text-gray-900">题目备注</h3>
           <p className="text-xs text-gray-500">已添加 {entries.length} 条备注</p>
         </div>
+        {entries.length > 6 && (
+          <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+            滚动查看更多
+          </div>
+        )}
       </div>
       
-      <div className="space-y-3 flex-1">
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <div className="space-y-3">
         {entries.map(([noteId, note]) => (
           <div
             key={noteId}
@@ -113,14 +119,17 @@ function QuestionNotesPanel({
 
         {/* 空状态 */}
         {entries.length === 0 && (
-          <div className="text-center py-10">
-            <div className="w-16 h-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
-              <i className="fas fa-sticky-note text-gray-400 text-2xl" />
+          <div className="flex items-center justify-center h-full min-h-[120px]">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+                <i className="fas fa-sticky-note text-gray-400 text-2xl" />
+              </div>
+              <p className="text-gray-500 font-medium mb-1">暂无备注</p>
+              <p className="text-xs text-gray-400">选中题目文字后可添加备注</p>
             </div>
-            <p className="text-gray-500 font-medium mb-1">暂无备注</p>
-            <p className="text-xs text-gray-400">选中题目文字后可添加备注</p>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
