@@ -69,7 +69,7 @@ function Hero() {
 
                 <h1 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight animate-fade-in-up delay-100">
                   {slide.title.includes('ReachTop') ? (
-                    <>ReachTop <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-pink-500">专业考试平台AUTO</span></>
+                    <>ReachTop <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-pink-500">专业考试平台AUTO123</span></>
                   ) : slide.title}
                 </h1>
 
