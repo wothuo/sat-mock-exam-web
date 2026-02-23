@@ -471,7 +471,8 @@ function ExamContent() {
     addHighlight,
     addUnderline,
     addNote,
-    removeHighlight
+    removeHighlight,
+    isHighlightEnabled
   } = highlightNotes;
 
   // 准备阶段依赖 answer/exam/start 接口加载完成（通过 loading 状态体现）

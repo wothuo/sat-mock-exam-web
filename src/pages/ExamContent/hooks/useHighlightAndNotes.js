@@ -14,6 +14,8 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
   const [showNoteModal, setShowNoteModal] = React.useState(false);
   const [notePosition, setNotePosition] = React.useState({ x: 0, y: 0 });
   const [expandedNotes, setExpandedNotes] = React.useState(new Set());
+  // 高亮功能开关 - 在此处配置，true为启用，false为禁用
+  const isHighlightEnabled = false;
 
   const hideHighlightMenu = useCallback(() => {
     const el = document.getElementById('highlight-menu');
@@ -49,6 +51,15 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
         const selection = window.getSelection();
         const text = selection.toString().trim();
         if (text.length > 0) {
+          // 检查高亮功能是否启用
+          if (!isHighlightEnabled) {
+            // 如果高亮功能被禁用，只记录选中文本但不显示菜单
+            setSelectedText(text);
+            window.currentTextSource = textSource;
+            console.log('高亮功能已禁用，选中文本但不显示菜单:', text);
+            return;
+          }
+          
           const range = selection.getRangeAt(0);
           const rect = range.getBoundingClientRect();
           setSelectedText(text);
@@ -71,7 +82,7 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
           window.currentTextSource = null;
         }
       },
-      [hideHighlightMenu, setShowNotesPanel]
+      [hideHighlightMenu, setShowNotesPanel, isHighlightEnabled]
   );
 
   const addHighlight = useCallback(
@@ -379,6 +390,7 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
     toggleNoteExpansion,
     deleteNote,
     hideHighlightMenu,
-    renderFormattedText
+    renderFormattedText,
+    isHighlightEnabled
   };
 }
