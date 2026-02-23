@@ -338,10 +338,13 @@ export function applyMarkdownInlineFormat(text) {
  * 统一富文本转 HTML：套题录入→套题展示→作答页→错题记录 全链路一致
  * 支持：数学公式、图片、加粗、斜体、删除线、换行、填空题占位符
  * @param {string} text
+ * @param {{ omitImages?: boolean }} [options] - omitImages: 题目索引等紧凑预览场景不渲染图片
  * @returns {string}
  */
-export function formatText(text) {
+export function formatText(text, options = {}) {
   if (!text) return text;
+
+  const { omitImages = false } = options;
 
   const mathBlocks = [];
   let processed = text.replace(/\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$/g, (match) => {
@@ -353,7 +356,7 @@ export function formatText(text) {
   const imageBlocks = [];
   processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
     const placeholder = `@@@IMGBLOCK${imageBlocks.length}@@@`;
-    imageBlocks.push(`<img src="${url}" alt="${alt.replace(/"/g, '&quot;')}" class="max-w-full h-auto rounded-lg my-2" />`);
+    imageBlocks.push(omitImages ? '' : `<img src="${url}" alt="${alt.replace(/"/g, '&quot;')}" class="max-w-full h-auto rounded-lg my-2" />`);
     return placeholder;
   });
 

@@ -340,7 +340,7 @@ function ExamSetQuestionStep({
                         id={`index-preview-${q.id}`}
                         className="index-preview-content exam-question-editor-font line-clamp-2 break-words [&_.katex]:text-[10px]"
                         dangerouslySetInnerHTML={{
-                          __html: formatText(q.content === '已录入' ? '' : (q.content || '')),
+                          __html: formatText(q.content === '已录入' ? '' : (q.content || ''), { omitImages: true }),
                         }}
                       />
                     )}
