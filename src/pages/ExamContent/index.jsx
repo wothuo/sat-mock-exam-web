@@ -45,21 +45,22 @@ import { formatQuestionTime } from './utils/formatTime';
 import './ExamContent.css';
 
 
-const INITIAL_TIME_SEC = 34 * 60 + 55;
+const FALLBACK_TIME_SEC = 34 * 60 + 55;
 
 function ExamContent() {
   const { examId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  console.log('location', location.state);
   
   // 使用useMemo缓存路由状态，避免无限重渲染
   const { sectionId, examTitle, examDuration, totalQuestions, stateQuestions, stateTimeMode } = useMemo(() => {
     const state = location.state || {};
     return {
       sectionId: state.sectionId || examId,
-      examTitle: state.examTitle || 'Section 1, Module 1: Reading and Writing',
-      examDuration: state.examDuration || '35分钟',
-      totalQuestions: state.totalQuestions || 27,
+      examTitle: state.examTitle,
+      examDuration: state.examDuration,
+      totalQuestions: state.totalQuestions,
       stateQuestions: state.questions || null, // 新增：获取路由状态中的题目数据
       stateTimeMode: state.timeMode || 'timed' // 获取时间模式
     };
@@ -419,6 +420,20 @@ function ExamContent() {
   const [showReference, setShowReference] = useState(false);
 
   const examDataToUse = realExamData || [];
+
+  // 根据题目数据计算倒计时初始秒数：套题模考用 sectionTiming，专项训练用 题目数×3分钟，接口无 sectionTiming 按专项训练处理
+  const initialTimeSec = useMemo(() => {
+    const rawQuestions = originalServerData || stateQuestions;
+    if (!rawQuestions || !Array.isArray(rawQuestions) || rawQuestions.length === 0) {
+      return FALLBACK_TIME_SEC;
+    }
+    const firstItem = rawQuestions[0];
+    const sectionTiming = firstItem?.sectionTiming ?? 0;
+    if (sectionTiming > 0) {
+      return sectionTiming * 60;
+    }
+    return rawQuestions.length * 3 * 60;
+  }, [originalServerData, stateQuestions]);
   
   // 只在开发环境或特定条件下输出调试信息
   if (process.env.NODE_ENV === 'development') {
@@ -453,7 +468,7 @@ function ExamContent() {
     resetOnBeginExam
   } = progress;
 
-  const { timeRemaining, formatTime } = useExamTimer(examStarted, timeMode, INITIAL_TIME_SEC);
+  const { timeRemaining, formatTime } = useExamTimer(examStarted, timeMode, initialTimeSec);
 
   const highlightNotes = useHighlightAndNotes(currentQuestion, setShowNotesPanel);
   const {
