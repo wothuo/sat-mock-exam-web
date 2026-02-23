@@ -511,6 +511,7 @@ function ExamSetQuestionStep({
                         showPreview={true}
                         showToolbar={false}
                         onToolbarAction={onToolbarAction}
+                        filterPasteLineBreaks={true}
                       />
                     </div>
 
@@ -525,6 +526,7 @@ function ExamSetQuestionStep({
                         onRenderMath={() => onRenderMathInPreview(`preview-question-description-${q.id}`)}
                         showToolbar={false}
                         onToolbarAction={onToolbarAction}
+                        filterPasteLineBreaks={true}
                       />
                     </div>
 
@@ -547,6 +549,7 @@ function ExamSetQuestionStep({
                               onRenderMath={() => onRenderMathInPreview(`preview-option-${opt}-${q.id}`)}
                               showToolbar={false}
                               onToolbarAction={onToolbarAction}
+                              filterPasteLineBreaks={true}
                             />
                           </div>
                         ))}
@@ -586,6 +589,7 @@ function ExamSetQuestionStep({
                           onRenderMath={() => onRenderMathInPreview(`preview-explanation-${q.id}`)}
                           showToolbar={false}
                           onToolbarAction={onToolbarAction}
+                          filterPasteLineBreaks={true}
                         />
                       </div>
                     </div>

@@ -1,4 +1,6 @@
-import React, { useEffect, memo } from 'react';
+import React, { useEffect, useState, useCallback, memo } from 'react';
+
+import { Modal } from 'antd';
 
 import { formatText, renderMathInContainers, renderMathInContainerById } from '../../pages/ExamSetEntry/examSetEntryUtils';
 
@@ -10,6 +12,8 @@ import { formatText, renderMathInContainers, renderMathInContainerById } from '.
  * @param {string} containerId - 可选，传入时仅对本容器渲染公式（套题录入多预览场景，避免联动闪屏）
  */
 function FormattedQuestionPreview({ content, singleLine = false, className = '', containerId }) {
+  const [previewImageSrc, setPreviewImageSrc] = useState(null);
+
   useEffect(() => {
     if (!(content || '').trim()) return;
     const cleanup = containerId
@@ -18,15 +22,43 @@ function FormattedQuestionPreview({ content, singleLine = false, className = '',
     return cleanup;
   }, [content, containerId]);
 
+  const handleContainerClick = useCallback((e) => {
+    if (e.target.tagName === 'IMG') {
+      e.preventDefault();
+      setPreviewImageSrc(e.target.src);
+    }
+  }, []);
+
   const baseClasses = 'math-content break-words markdown-body';
   const clampClass = singleLine ? 'line-clamp-1' : '';
-  const combinedClassName = [baseClasses, clampClass, className].filter(Boolean).join(' ');
+  const imagePreviewClasses = '[&_img]:max-h-[140px] [&_img]:object-contain [&_img]:cursor-pointer [&_img]:rounded-lg [&_img]:transition-opacity hover:[&_img]:opacity-90';
+  const combinedClassName = [baseClasses, clampClass, imagePreviewClasses, className].filter(Boolean).join(' ');
 
   return (
-    <div
-      className={combinedClassName}
-      dangerouslySetInnerHTML={{ __html: formatText(content || '') }}
-    />
+    <>
+      <div
+        className={combinedClassName}
+        dangerouslySetInnerHTML={{ __html: formatText(content || '') }}
+        onClick={handleContainerClick}
+        role="presentation"
+      />
+      <Modal
+        open={!!previewImageSrc}
+        onCancel={() => setPreviewImageSrc(null)}
+        footer={null}
+        centered
+        width="auto"
+        styles={{ body: { padding: 0 } }}
+      >
+        {previewImageSrc && (
+          <img
+            src={previewImageSrc}
+            alt=""
+            className="max-w-[90vw] max-h-[90vh] w-auto h-auto object-contain"
+          />
+        )}
+      </Modal>
+    </>
   );
 }
 

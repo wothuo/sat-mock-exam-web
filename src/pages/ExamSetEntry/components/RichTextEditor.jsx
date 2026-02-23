@@ -10,6 +10,18 @@ const { TextArea } = Input;
 const ROW_HEIGHT = 24;
 const MAX_AUTO_ROWS = 5;
 
+const PARAGRAPH_PLACEHOLDER = '\u0000';
+
+/** 粘贴时过滤换行：单个换行→空格，多个连续换行→一个段落分隔，保留段落感 */
+function normalizePasteText(raw) {
+  if (typeof raw !== 'string') return '';
+  let s = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  s = s.replace(/<br\s*\/?>/gi, '\n');
+  s = s.replace(/\n{2,}/g, PARAGRAPH_PLACEHOLDER);
+  s = s.replace(/\n/g, ' ');
+  return s.replace(new RegExp(PARAGRAPH_PLACEHOLDER, 'g'), '\n').replace(/ +/g, ' ').trim();
+}
+
 function RichTextEditor({ 
   value = '', 
   onChange, 
@@ -19,7 +31,8 @@ function RichTextEditor({
   id,
   onRenderMath,
   showToolbar = true,
-  onToolbarAction
+  onToolbarAction,
+  filterPasteLineBreaks = false
 }) {
   const [previewVisible, setPreviewVisible] = useState(showPreview);
   const wrapperRef = useRef(null);
@@ -57,6 +70,36 @@ function RichTextEditor({
     if (onToolbarAction) {
       onToolbarAction(action, data, id);
     }
+  };
+
+  const handlePaste = (e) => {
+    if (!filterPasteLineBreaks) return;
+    const dt = e.clipboardData;
+    if (!dt) return;
+    let raw = dt.getData('text/plain');
+    if (!raw && dt.types.includes('text/html')) {
+      const html = dt.getData('text/html');
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      raw = div.innerText || div.textContent || '';
+    }
+    if (!raw) return;
+    const normalized = normalizePasteText(raw);
+    e.preventDefault();
+    const textarea = id ? document.getElementById(id) : textareaRef.current?.resizableTextArea?.textArea;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const before = (value || '').slice(0, start);
+    const after = (value || '').slice(end);
+    const newValue = before + normalized + after;
+    onChange(newValue);
+    setTimeout(() => {
+      textarea.focus();
+      const pos = start + normalized.length;
+      textarea.setSelectionRange(pos, pos);
+    }, 0);
+    setTimeout(syncHeight, 0);
   };
 
   const togglePreview = () => {
@@ -104,6 +147,7 @@ function RichTextEditor({
           placeholder={placeholder}
           className="rich-text-area-inner rounded-md exam-question-editor-font"
           onFocus={() => handleToolbarAction('focus', null)}
+          onPaste={handlePaste}
         />
       </div>
       {showPreview && previewVisible && (
