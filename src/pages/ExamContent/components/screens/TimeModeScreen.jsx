@@ -7,7 +7,9 @@ import { message } from 'antd';
 import { answerOfSection } from '../../../../services/exam';
 import { startPractice } from '../../../../services/training';
 
-function TimeModeScreen({ timeMode, setTimeMode }) {
+function TimeModeScreen({ timeMode: timeModeProp, setTimeMode }) {
+  // 独立路由 /time-mode 传入的 setTimeMode 为空函数，需用内部 state 才能使选择生效
+  const [selectedTimeMode, setSelectedTimeMode] = useState(timeModeProp ?? 'timed');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,7 +18,7 @@ function TimeModeScreen({ timeMode, setTimeMode }) {
 
   const handleStart = async () => {
     setLoading(true);
-    console.log('开始处理，来源:', source, '配置:', config, '时间模式:', timeMode);
+    console.log('开始处理，来源:', source, '配置:', config, '时间模式:', selectedTimeMode);
     try {
       let questions;
       
@@ -35,7 +37,7 @@ function TimeModeScreen({ timeMode, setTimeMode }) {
             examDuration: config.examDuration,
             totalQuestions: config.totalQuestions,
             questions: questions,
-            timeMode: timeMode
+            timeMode: selectedTimeMode
           }
         });
       } else if (source === 'practice') {
@@ -54,7 +56,7 @@ function TimeModeScreen({ timeMode, setTimeMode }) {
         console.log('获取到题目:', questions);
         
         // 导航到练习页面，传递题目数据
-        navigate('/practicing', { state: { questions, timeMode: timeMode } });
+        navigate('/practicing', { state: { questions, timeMode: selectedTimeMode } });
       }
     } catch (error) {
       console.error('获取题目失败:', error);
@@ -110,8 +112,12 @@ function TimeModeScreen({ timeMode, setTimeMode }) {
 
               <div className="relative">
                 <select
-                    value={timeMode}
-                    onChange={(e) => setTimeMode(e.target.value)}
+                    value={selectedTimeMode}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setSelectedTimeMode(v);
+                      setTimeMode?.(v);
+                    }}
                     className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white shadow-sm transition-all duration-200"
                 >
                   <option value="timed">Timed</option>

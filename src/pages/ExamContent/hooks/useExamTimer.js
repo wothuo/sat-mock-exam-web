@@ -11,6 +11,13 @@ export function useExamTimer(examStarted, timeMode, initialSeconds) {
   const [timeRemaining, setTimeRemaining] = useState(initialSeconds);
   const intervalRef = useRef(null);
 
+  // 考试未开始时，initialSeconds 变化时重置剩余时间（如接口返回后从兜底值更新为真实值）
+  useEffect(() => {
+    if (!examStarted) {
+      setTimeRemaining(initialSeconds);
+    }
+  }, [initialSeconds, examStarted]);
+
   useEffect(() => {
     if (!examStarted || timeMode === 'untimed') return;
 
