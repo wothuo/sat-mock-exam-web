@@ -769,7 +769,7 @@ function ExamContent() {
               handleTextSelection={handleTextSelection}
               renderFormattedText={renderFormattedText}
               formatText={formatText}
-              columnClassName={showNotesPanel ? 'lg:col-span-4' : 'lg:col-span-3'}
+              columnClassName="lg:col-span-4"
             />
           </div>
         </div>
