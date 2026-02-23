@@ -12,59 +12,95 @@ function QuestionNotesPanel({
   );
 
   return (
-    <div className="col-span-1 lg:col-span-3 bg-white rounded-lg p-4 sm:p-6 shadow-sm flex flex-col">
-      <div className="space-y-4 flex-1">
+    <div className="col-span-1 lg:col-span-3 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-100 p-5 flex flex-col">
+      {/* 面板标题 */}
+      <div className="flex items-center space-x-3 mb-4 pb-3 border-b border-gray-200">
+        <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-sm">
+          <i className="fas fa-sticky-note text-white text-sm" />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-gray-900">题目备注</h3>
+          <p className="text-xs text-gray-500">已添加 {entries.length} 条备注</p>
+        </div>
+      </div>
+      
+      <div className="space-y-3 flex-1">
         {entries.map(([noteId, note]) => (
           <div
             key={noteId}
-            className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 transition-all duration-300"
+            className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 transition-all duration-300 hover:shadow-md hover:border-yellow-300"
           >
             {expandedNotes.has(noteId) ? (
-              <div>
-                <div className="text-sm text-gray-700 mb-3 p-3 bg-yellow-100 rounded-md border-l-3 border-yellow-400">
-                  "{note.text}"
+              <div className="space-y-3">
+                {/* 展开状态 - 选中文本 */}
+                <div className="flex items-start space-x-2">
+                  <i className="fas fa-quote-left text-yellow-500 text-xs mt-1 flex-shrink-0" />
+                  <div className="text-sm text-gray-800 bg-white/80 rounded-lg p-3 border-l-3 border-yellow-400 leading-relaxed flex-1">
+                    "{note.text}"
+                  </div>
                 </div>
-                <div className="text-sm text-gray-800 leading-relaxed mb-3">{note.note}</div>
-                <div className="flex justify-end space-x-2">
+                
+                {/* 展开状态 - 备注内容 */}
+                <div className="flex items-start space-x-2">
+                  <i className="fas fa-comment text-yellow-500 text-xs mt-1 flex-shrink-0" />
+                  <div className="text-sm text-gray-700 bg-white/60 rounded-lg p-3 leading-relaxed flex-1 min-h-16">
+                    {note.note}
+                  </div>
+                </div>
+                
+                {/* 展开状态 - 操作按钮 */}
+                <div className="flex justify-end space-x-2 pt-2">
                   <button
                     type="button"
                     onClick={() => onToggleNoteExpansion(noteId)}
-                    className="w-6 h-6 bg-yellow-200 text-yellow-700 rounded-full text-sm flex items-center justify-center hover:bg-yellow-300 transition-colors"
-                    title="收起"
+                    className="px-3 py-1.5 bg-yellow-200 text-yellow-700 rounded-lg text-xs font-medium hover:bg-yellow-300 transition-all duration-200 shadow-sm"
+                    title="收起备注"
                   >
-                    <i className="fas fa-chevron-up" />
+                    <i className="fas fa-chevron-up mr-1" />
+                    收起
                   </button>
                   <button
                     type="button"
                     onClick={() => onDeleteNote(noteId)}
-                    className="w-6 h-6 bg-red-500 text-white rounded-full text-sm flex items-center justify-center hover:bg-red-600 transition-colors"
+                    className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg text-xs font-medium hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-sm"
                     title="删除备注"
                   >
-                    <i className="fas fa-times" />
+                    <i className="fas fa-trash mr-1" />
+                    删除
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center h-6">
-                <i className="fas fa-sticky-note text-yellow-600 text-base mr-3 flex-shrink-0" />
-                <div className="flex-1 min-w-0 mr-3">
-                  <div className="text-sm text-yellow-700 font-medium truncate">
-                    {note.text.length > 25 ? `${note.text.substring(0, 25)}...` : note.text}
+              <div className="flex items-center space-x-3">
+                {/* 收起状态 - 图标 */}
+                <div className="w-8 h-8 bg-gradient-to-r from-yellow-300 to-orange-300 rounded-full flex items-center justify-center shadow-sm flex-shrink-0">
+                  <i className="fas fa-sticky-note text-white text-xs" />
+                </div>
+                
+                {/* 收起状态 - 文本预览 */}
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-yellow-800 truncate mb-1">
+                    {note.text.length > 30 ? `${note.text.substring(0, 30)}...` : note.text}
+                  </div>
+                  <div className="text-xs text-yellow-600 truncate">
+                    {note.note.length > 40 ? `${note.note.substring(0, 40)}...` : note.note}
                   </div>
                 </div>
-                <div className="flex items-center space-x-2 flex-shrink-0">
+                
+                {/* 收起状态 - 操作按钮 */}
+                <div className="flex items-center space-x-1 flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => onToggleNoteExpansion(noteId)}
-                    className="w-6 h-6 bg-yellow-200 text-yellow-700 rounded-full text-sm flex items-center justify-center hover:bg-yellow-300 transition-colors"
-                    title="展开备注"
+                    className="w-7 h-7 bg-yellow-200 text-yellow-700 rounded-lg text-xs flex items-center justify-center hover:bg-yellow-300 transition-all duration-200 shadow-sm"
+                    title="展开查看详情"
                   >
-                    <i className="fas fa-chevron-down" />
+                    <i className="fas fa-expand" />
                   </button>
                   <button
                     type="button"
                     onClick={() => onDeleteNote(noteId)}
-                    className="w-6 h-6 bg-red-500 text-white rounded-full text-sm flex items-center justify-center hover:bg-red-600 transition-colors"
+                    className="w-7 h-7 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg text-xs flex items-center justify-center hover:from-red-600 hover:to-pink-600 transition-all duration-200 shadow-sm"
                     title="删除备注"
                   >
                     <i className="fas fa-times" />
@@ -75,11 +111,14 @@ function QuestionNotesPanel({
           </div>
         ))}
 
+        {/* 空状态 */}
         {entries.length === 0 && (
-          <div className="text-center py-12 text-gray-400">
-            <i className="fas fa-sticky-note text-3xl mb-3" />
-            <p className="text-sm">暂无备注</p>
-            <p className="text-sm mt-2">选中文字后可添加备注</p>
+          <div className="text-center py-10">
+            <div className="w-16 h-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+              <i className="fas fa-sticky-note text-gray-400 text-2xl" />
+            </div>
+            <p className="text-gray-500 font-medium mb-1">暂无备注</p>
+            <p className="text-xs text-gray-400">选中题目文字后可添加备注</p>
           </div>
         )}
       </div>
@@ -88,4 +127,3 @@ function QuestionNotesPanel({
 }
 
 export default QuestionNotesPanel;
-
