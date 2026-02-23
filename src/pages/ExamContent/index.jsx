@@ -801,72 +801,81 @@ function ExamContent() {
       {/* 高亮菜单 */}
       <div
           id="highlight-menu"
-          className="fixed bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-2xl p-2 z-[9999] min-w-[320px]"
+          className="fixed bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl shadow-2xl p-2 z-[9999] min-w-[320px] highlight-enabled"
           style={{ display: 'none' }}
       >
+        {/* 功能状态提示 */}
+        <div className="status-message hidden">
+          <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center space-x-2 text-yellow-800 text-sm">
+              <i className="fas fa-exclamation-triangle"></i>
+              <span>标注功能暂未开放～</span>
+            </div>
+          </div>
+        </div>
         <div className="flex flex-col space-y-2">
           {/* 高亮颜色选择区域 */}
           <div className="flex items-center justify-between px-2 py-1">
             <div className="flex flex-wrap gap-1">
               <button
                   onClick={() => addHighlight('yellow')}
-                  className="w-7 h-7 bg-yellow-400 rounded-lg hover:bg-yellow-500 transition-all duration-200 transform hover:scale-110 border-2 border-transparent hover:border-yellow-600 shadow-sm"
+                  className="highlight-btn w-7 h-7 bg-yellow-400 rounded-lg transition-all duration-200 transform border-2 shadow-sm hover:bg-yellow-500 hover:scale-110 border-transparent hover:border-yellow-600"
                   title="黄色高亮"
               >
                 <span className="sr-only">黄色</span>
               </button>
               <button
                   onClick={() => addHighlight('green')}
-                  className="w-7 h-7 bg-green-400 rounded-lg hover:bg-green-500 transition-all duration-200 transform hover:scale-110 border-2 border-transparent hover:border-green-600 shadow-sm"
+                  className="highlight-btn w-7 h-7 bg-green-400 rounded-lg transition-all duration-200 transform border-2 shadow-sm hover:bg-green-500 hover:scale-110 border-transparent hover:border-green-600"
                   title="绿色高亮"
               >
                 <span className="sr-only">绿色</span>
               </button>
               <button
                   onClick={() => addHighlight('blue')}
-                  className="w-7 h-7 bg-blue-400 rounded-lg hover:bg-blue-500 transition-all duration-200 transform hover:scale-110 border-2 border-transparent hover:border-blue-600 shadow-sm"
+                  className="highlight-btn w-7 h-7 bg-blue-400 rounded-lg transition-all duration-200 transform border-2 shadow-sm hover:bg-blue-500 hover:scale-110 border-transparent hover:border-blue-600"
                   title="蓝色高亮"
               >
                 <span className="sr-only">蓝色</span>
               </button>
               <button
                   onClick={() => addHighlight('pink')}
-                  className="w-7 h-7 bg-pink-400 rounded-lg hover:bg-pink-500 transition-all duration-200 transform hover:scale-110 border-2 border-transparent hover:border-pink-600 shadow-sm"
+                  className="highlight-btn w-7 h-7 bg-pink-400 rounded-lg transition-all duration-200 transform border-2 shadow-sm hover:bg-pink-500 hover:scale-110 border-transparent hover:border-pink-600"
                   title="粉色高亮"
               >
                 <span className="sr-only">粉色</span>
               </button>
               <button
                   onClick={() => addHighlight('orange')}
-                  className="w-7 h-7 bg-orange-400 rounded-lg hover:bg-orange-500 transition-all duration-200 transform hover:scale-110 border-2 border-transparent hover:border-orange-600 shadow-sm"
+                  className="highlight-btn w-7 h-7 bg-orange-400 rounded-lg transition-all duration-200 transform border-2 shadow-sm hover:bg-orange-500 hover:scale-110 border-transparent hover:border-orange-600"
                   title="橙色高亮"
               >
                 <span className="sr-only">橙色</span>
               </button>
               <button
                   onClick={() => addHighlight('purple')}
-                  className="w-7 h-7 bg-purple-400 rounded-lg hover:bg-purple-500 transition-all duration-200 transform hover:scale-110 border-2 border-transparent hover:border-purple-600 shadow-sm"
+                  className="highlight-btn w-7 h-7 bg-purple-400 rounded-lg transition-all duration-200 transform border-2 shadow-sm hover:bg-purple-500 hover:scale-110 border-transparent hover:border-purple-600"
                   title="紫色高亮"
               >
                 <span className="sr-only">紫色</span>
               </button>
               <button
                   onClick={() => addHighlight('red')}
-                  className="w-7 h-7 bg-red-400 rounded-lg hover:bg-red-500 transition-all duration-200 transform hover:scale-110 border-2 border-transparent hover:border-red-600 shadow-sm"
+                  className="highlight-btn w-7 h-7 bg-red-400 rounded-lg transition-all duration-200 transform border-2 shadow-sm hover:bg-red-500 hover:scale-110 border-transparent hover:border-red-600"
                   title="红色高亮"
               >
                 <span className="sr-only">红色</span>
               </button>
               <button
                   onClick={() => addHighlight('cyan')}
-                  className="w-7 h-7 bg-cyan-400 rounded-lg hover:bg-cyan-500 transition-all duration-200 transform hover:scale-110 border-2 border-transparent hover:border-cyan-600 shadow-sm"
+                  className="highlight-btn w-7 h-7 bg-cyan-400 rounded-lg transition-all duration-200 transform border-2 shadow-sm hover:bg-cyan-500 hover:scale-110 border-transparent hover:border-cyan-600"
                   title="青色高亮"
               >
                 <span className="sr-only">青色</span>
               </button>
               <button
                   onClick={() => addHighlight('brown')}
-                  className="w-7 h-7 bg-amber-600 rounded-lg hover:bg-amber-700 transition-all duration-200 transform hover:scale-110 border-2 border-transparent hover:border-amber-800 shadow-sm"
+                  className="highlight-btn w-7 h-7 bg-amber-600 rounded-lg transition-all duration-200 transform border-2 shadow-sm hover:bg-amber-700 hover:scale-110 border-transparent hover:border-amber-800"
                   title="棕色高亮"
               >
                 <span className="sr-only">棕色</span>
@@ -882,7 +891,7 @@ function ExamContent() {
             <div className="flex items-center space-x-2">
               <button
                   onClick={addUnderline}
-                  className="px-3 py-1.5 text-xs bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-all duration-200 transform hover:scale-105 flex items-center space-x-1 shadow-sm"
+                  className="highlight-btn px-3 py-1.5 text-xs bg-gray-700 text-white rounded-lg transition-all duration-200 transform flex items-center space-x-1 shadow-sm hover:bg-gray-800 hover:scale-105"
                   title="添加下划线"
               >
                 <i className="fas fa-underline"></i>
@@ -890,7 +899,7 @@ function ExamContent() {
               </button>
               <button
                   onClick={removeHighlight}
-                  className="px-3 py-1.5 text-xs bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-200 transform hover:scale-105 flex items-center space-x-1 shadow-sm"
+                  className="highlight-btn px-3 py-1.5 text-xs bg-orange-500 text-white rounded-lg transition-all duration-200 transform flex items-center space-x-1 shadow-sm hover:bg-orange-600 hover:scale-105"
                   title="删除高亮"
               >
                 <i className="fas fa-eraser"></i>
@@ -900,7 +909,7 @@ function ExamContent() {
 
             <button
                 onClick={addNote}
-                className="px-3 py-1.5 text-xs bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 transform hover:scale-105 flex items-center space-x-1 shadow-sm"
+                className="highlight-btn px-3 py-1.5 text-xs bg-red-500 text-white rounded-lg transition-all duration-200 transform flex items-center space-x-1 shadow-sm hover:bg-red-600 hover:scale-105"
                 title="添加备注"
             >
               <i className="fas fa-sticky-note"></i>

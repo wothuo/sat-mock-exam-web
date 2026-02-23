@@ -3,6 +3,26 @@
   display: inline-block;
 }
 
+/* 高亮功能禁用状态样式 */
+#highlight-menu.highlight-disabled {
+  background-color: rgba(243, 244, 246, 0.95);
+  border-color: #d1d5db;
+}
+
+#highlight-menu.highlight-disabled .status-message {
+  display: block !important;
+}
+
+#highlight-menu.highlight-disabled .highlight-btn {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+#highlight-menu.highlight-disabled .highlight-btn:hover {
+  transform: none !important;
+}
+
 .math-content table {
   border-collapse: collapse;
   border: 1px solid #d1d5db;

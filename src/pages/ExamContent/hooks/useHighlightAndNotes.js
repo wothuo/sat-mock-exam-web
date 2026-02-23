@@ -15,7 +15,7 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
   const [notePosition, setNotePosition] = React.useState({ x: 0, y: 0 });
   const [expandedNotes, setExpandedNotes] = React.useState(new Set());
   // 高亮功能开关 - 在此处配置，true为启用，false为禁用
-  const isHighlightEnabled = false;
+  const isHighlightEnabled = true;
 
   const hideHighlightMenu = useCallback(() => {
     const el = document.getElementById('highlight-menu');
@@ -51,21 +51,12 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
         const selection = window.getSelection();
         const text = selection.toString().trim();
         if (text.length > 0) {
-          // 检查高亮功能是否启用
-          if (!isHighlightEnabled) {
-            // 如果高亮功能被禁用，只记录选中文本但不显示菜单
-            setSelectedText(text);
-            window.currentTextSource = textSource;
-            console.log('高亮功能已禁用，选中文本但不显示菜单:', text);
-            return;
-          }
-          
           const range = selection.getRangeAt(0);
           const rect = range.getBoundingClientRect();
           setSelectedText(text);
           // 保存当前文本来源，用于后续添加高亮
           window.currentTextSource = textSource;
-          console.log('设置文本来源:', textSource, '选中文本:', text);
+          console.log('设置文本来源:', textSource, '选中文本:', text, '高亮功能状态:', isHighlightEnabled ? '启用' : '禁用');
           setNotePosition({ x: rect.left + rect.width / 2, y: rect.top - 10 });
           setTimeout(() => {
             const menu = document.getElementById('highlight-menu');
@@ -74,6 +65,15 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
               menu.style.left = `${Math.max(10, rect.left + rect.width / 2 - 100)}px`;
               menu.style.top = `${Math.max(10, rect.top + window.scrollY - 50)}px`;
               menu.style.zIndex = '9999';
+              
+              // 根据高亮功能状态设置菜单样式
+              if (isHighlightEnabled) {
+                menu.classList.remove('highlight-disabled');
+                menu.classList.add('highlight-enabled');
+              } else {
+                menu.classList.remove('highlight-enabled');
+                menu.classList.add('highlight-disabled');
+              }
             }
           }, 50);
         } else {
