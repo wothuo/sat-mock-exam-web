@@ -109,7 +109,6 @@ function ExamSetQuestionStep({
 
   const invalidQuestionIds = new Set(questionValidationErrors.map(e => e.questionId));
 
-  console.log('lxl  questions', questions);
   return (
     <>
       {questionValidationErrors.length > 0 && (

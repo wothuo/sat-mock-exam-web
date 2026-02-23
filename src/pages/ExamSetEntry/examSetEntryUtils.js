@@ -349,8 +349,18 @@ export function formatText(text) {
     return placeholder;
   });
 
+  const imageBlocks = [];
+  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+    const placeholder = `@@@IMGBLOCK${imageBlocks.length}@@@`;
+    imageBlocks.push(`<img src="${url}" alt="${alt.replace(/"/g, '&quot;')}" class="max-w-full h-auto rounded-lg my-2" />`);
+    return placeholder;
+  });
+
   processed = applyMarkdownInlineFormat(processed);
-  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg my-2" />');
+
+  imageBlocks.forEach((html, index) => {
+    processed = processed.split(`@@@IMGBLOCK${index}@@@`).join(html);
+  });
 
   mathBlocks.forEach((block, index) => {
     processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
