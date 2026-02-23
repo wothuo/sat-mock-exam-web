@@ -110,6 +110,7 @@ function WrongTab({
             >
               <div className="flex flex-col lg:flex-row lg:items-center gap-6">
                 <div className="flex-1 min-w-0">
+                  {/* 标签区域 */}
                   <div className="flex items-center flex-wrap gap-3 mb-3">
                     <Tag color={getSubjectColor(q.subject)} className="m-0 px-3 rounded-lg font-bold border-0">{SUBJECT_CATEGORY_LABELS[q.subject] || q.subject}</Tag>
                     <Tag color={getDifficultyColor(q.difficulty)} className="m-0 px-3 rounded-lg font-bold border-0">{DIFFICULTY_LABELS[q.difficulty] || q.difficulty}</Tag>
@@ -118,9 +119,11 @@ function WrongTab({
                       {q.date}
                     </span>
                   </div>
+                  {/* 题目内容区域 */}
                   <div className="text-gray-800 font-bold text-base mb-2">
-                    <FormattedQuestionPreview content={q.question} singleLine className="text-inherit font-inherit" />
+                    <FormattedQuestionPreview content={q.question} singleLine compact className="text-inherit font-inherit" />
                   </div>
+                  {/* 来源区域 */}
                   <p className="text-xs text-gray-400 italic truncate m-0 opacity-70">Source: {q.title}</p>
                 </div>
                 <div className="flex items-center justify-between lg:justify-end gap-8 border-t lg:border-t-0 pt-4 lg:pt-0">
