@@ -8,6 +8,8 @@ function QuestionDetailModal({ question, onClose }) {
   const [isQuestionDescriptionExpanded, setIsQuestionDescriptionExpanded] = useState(false);
   const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
   const [isAnalysisExpanded, setIsAnalysisExpanded] = useState(false);
+  const [isAnswerExpanded, setIsAnswerExpanded] = useState(false);
+  const [isCorrectAnswerExpanded, setIsCorrectAnswerExpanded] = useState(false);
 
   useEffect(() => {
     if (question) {
@@ -124,7 +126,7 @@ function QuestionDetailModal({ question, onClose }) {
                           <i className="fas fa-question-circle text-blue-500 mr-2"></i>
                           <span className="font-bold text-blue-700 text-sm">题目内容</span>
                         </div>
-                        {questionText.length > 200 && (
+                        {(questionText.length > 200 || questionText.includes('<img')) && (
                             <button
                                 onClick={() => setIsQuestionContentExpanded(!isQuestionContentExpanded)}
                                 className="text-blue-500 hover:text-blue-700 text-xs font-medium flex items-center gap-1"
@@ -143,9 +145,9 @@ function QuestionDetailModal({ question, onClose }) {
                             </button>
                         )}
                       </div>
-                      <div className={`p-6 transition-all duration-300 min-h-40 ${isQuestionContentExpanded || questionText.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
+                      <div className={`p-6 transition-all duration-300 min-h-40 ${isQuestionContentExpanded || (questionText.length <= 200 && !questionText.includes('<img')) ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
                         <FormattedQuestionPreview content={questionText} className="text-gray-800 leading-relaxed text-sm font-medium max-h-96 overflow-y-auto break-all" />
-                        {!isQuestionContentExpanded && questionText.length > 200 && (
+                        {!isQuestionContentExpanded && (questionText.length > 200 || questionText.includes('<img')) && (
                             <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                         )}
                       </div>
@@ -268,11 +270,37 @@ function QuestionDetailModal({ question, onClose }) {
                     </div>
                 ) : (
                     <div className="border-2 border-gray-100 rounded-2xl overflow-hidden">
-                      <div className="bg-gray-50 px-6 py-3 border-b border-gray-100 flex items-center">
-                        <i className="fas fa-clipboard-check text-gray-500 mr-2"></i>
-                        <span className="font-bold text-gray-700 text-sm">作答结果</span>
+                      <div className="bg-gray-50 px-6 py-3 border-b border-gray-100 flex items-center justify-between">
+                        <div className="flex items-center">
+                          <i className="fas fa-clipboard-check text-gray-500 mr-2"></i>
+                          <span className="font-bold text-gray-700 text-sm">作答结果</span>
+                        </div>
+                        {((question.userAnswer && question.userAnswer.length > 20) || 
+                          (question.correctAnswer && question.correctAnswer.length > 20)) && (
+                          <button
+                              onClick={() => setIsAnswerExpanded(!isAnswerExpanded)}
+                              className="text-gray-500 hover:text-gray-700 text-xs font-medium flex items-center gap-1"
+                          >
+                            {isAnswerExpanded ? (
+                                <>
+                                  <i className="fas fa-chevron-up"></i>
+                                  收起
+                                </>
+                            ) : (
+                                <>
+                                  <i className="fas fa-chevron-down"></i>
+                                  展开
+                                </>
+                            )}
+                          </button>
+                        )}
                       </div>
-                      <div className="p-6 grid grid-cols-2 gap-4">
+                      <div className={`p-6 grid grid-cols-2 gap-4 transition-all duration-300 relative min-h-40 ${
+                        isAnswerExpanded || 
+                        (!question.userAnswer || question.userAnswer.length <= 20) && 
+                        (!question.correctAnswer || question.correctAnswer.length <= 20) 
+                          ? 'max-h-none' : 'max-h-24 overflow-hidden'
+                      }`}>
                         <div className={`p-4 rounded-xl border-2 ${isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">你的答案</span>
                           <div className="mt-1 text-sm font-black text-gray-900 break-all">{question.userAnswer ?? '—'}</div>
@@ -281,6 +309,11 @@ function QuestionDetailModal({ question, onClose }) {
                           <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">正确答案</span>
                           <div className="mt-1 text-sm font-black text-gray-900 break-all">{question.correctAnswer ?? '—'}</div>
                         </div>
+                        {!isAnswerExpanded && 
+                         ((question.userAnswer && question.userAnswer.length > 20) || 
+                          (question.correctAnswer && question.correctAnswer.length > 20)) && (
+                          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                        )}
                       </div>
                     </div>
                 )}
@@ -292,42 +325,78 @@ function QuestionDetailModal({ question, onClose }) {
                       <i className="fas fa-lightbulb text-red-500 mr-2"></i>
                       <span className="font-bold text-red-700 text-sm">Correct Answer & Analysis</span>
                     </div>
-                    {explanationText && explanationText.length > 200 && (
-                        <button
-                            onClick={() => setIsAnalysisExpanded(!isAnalysisExpanded)}
-                            className="text-red-500 hover:text-red-700 text-xs font-medium flex items-center gap-1"
-                        >
-                          {isAnalysisExpanded ? (
-                              <>
-                                <i className="fas fa-chevron-up"></i>
-                                收起
-                              </>
-                          ) : (
-                              <>
-                                <i className="fas fa-chevron-down"></i>
-                                展开
-                              </>
-                          )}
-                        </button>
-                    )}
+                    {(explanationText && explanationText.length > 200) || 
+                     (question.correctAnswer && question.correctAnswer.length > 30) ? (
+                      <div className="flex gap-2">
+                        {(question.correctAnswer && question.correctAnswer.length > 30) && (
+                          <button
+                              onClick={() => setIsCorrectAnswerExpanded(!isCorrectAnswerExpanded)}
+                              className="text-red-500 hover:text-red-700 text-xs font-medium flex items-center gap-1"
+                          >
+                            {isCorrectAnswerExpanded ? (
+                                <>
+                                  <i className="fas fa-chevron-up"></i>
+                                  收起
+                                </>
+                            ) : (
+                                <>
+                                  <i className="fas fa-chevron-down"></i>
+                                  展开
+                                </>
+                            )}
+                          </button>
+                        )}
+                        {explanationText && explanationText.length > 200 && (
+                          <button
+                              onClick={() => setIsAnalysisExpanded(!isAnalysisExpanded)}
+                              className="text-red-500 hover:text-red-700 text-xs font-medium flex items-center gap-1"
+                          >
+                            {isAnalysisExpanded ? (
+                                <>
+                                  <i className="fas fa-chevron-up"></i>
+                                  解析
+                                </>
+                            ) : (
+                                <>
+                                  <i className="fas fa-chevron-down"></i>
+                                  解析
+                                </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    ) : null}
                   </div>
-                  <div className="p-6 space-y-4">
-                    <div>
+                  <div className={`p-6 transition-all duration-300 relative min-h-40 ${
+                    (isAnalysisExpanded || !explanationText || explanationText.length <= 200) && 
+                    (isCorrectAnswerExpanded || !question.correctAnswer || question.correctAnswer.length <= 30)
+                      ? 'max-h-none' : 'max-h-40 overflow-hidden'
+                  }`}>
+                    <div className={`transition-all duration-300 ${
+                      isCorrectAnswerExpanded || !question.correctAnswer || question.correctAnswer.length <= 30
+                        ? 'max-h-none' : 'max-h-16 overflow-hidden'
+                    }`}>
                       <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Correct Answer</span>
                       <div className="text-sm font-black text-gray-900 break-words">{question.correctAnswer ?? '—'}</div>
+                      {!isCorrectAnswerExpanded && question.correctAnswer && question.correctAnswer.length > 30 && (
+                        <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                      )}
                     </div>
-                    <div className={`transition-all duration-300 relative ${isAnalysisExpanded || !explanationText || explanationText.length <= 200 ? 'max-h-none' : 'max-h-40 overflow-hidden'}`}>
+                    <div className="mt-4">
                       <span className="text-[12px] font-bold text-gray-400 uppercase tracking-widest">解析</span>
-                      <div className="mt-2 text-gray-700 text-sm leading-relaxed break-all">
-                      {explanationText ? (
-                        <FormattedQuestionPreview content={explanationText} className="text-inherit" />
-                      ) : (
-                        <span className="text-gray-400">暂无解析</span>
-                      )}
-                    </div>
-                      {!isAnalysisExpanded && explanationText && explanationText.length > 200 && (
-                          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
-                      )}
+                      <div className={`mt-2 text-gray-700 text-sm leading-relaxed break-all transition-all duration-300 relative ${
+                        isAnalysisExpanded || !explanationText || explanationText.length <= 200
+                          ? 'max-h-none' : 'max-h-24 overflow-hidden'
+                      }`}>
+                        {explanationText ? (
+                          <FormattedQuestionPreview content={explanationText} className="text-inherit" />
+                        ) : (
+                          <span className="text-gray-400">暂无解析</span>
+                        )}
+                        {!isAnalysisExpanded && explanationText && explanationText.length > 200 && (
+                          <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -3,6 +3,26 @@
   display: inline-block;
 }
 
+/* 高亮功能禁用状态样式 */
+#highlight-menu.highlight-disabled {
+  background-color: rgba(243, 244, 246, 0.95);
+  border-color: #d1d5db;
+}
+
+#highlight-menu.highlight-disabled .status-message {
+  display: block !important;
+}
+
+#highlight-menu.highlight-disabled .highlight-btn {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+#highlight-menu.highlight-disabled .highlight-btn:hover {
+  transform: none !important;
+}
+
 .math-content table {
   border-collapse: collapse;
   border: 1px solid #d1d5db;
@@ -22,26 +42,67 @@
 
 .highlight-yellow {
   background-color: #fef08a;
-  padding: 2px 4px;
-  border-radius: 3px;
+  border-radius: 2px;
+  display: inline;
+  line-height: inherit;
 }
 
 .highlight-green {
   background-color: #bbf7d0;
-  padding: 2px 4px;
-  border-radius: 3px;
+  border-radius: 2px;
+  display: inline;
+  line-height: inherit;
 }
 
 .highlight-blue {
   background-color: #bfdbfe;
-  padding: 2px 4px;
-  border-radius: 3px;
+  border-radius: 2px;
+  display: inline;
+  line-height: inherit;
 }
 
 .highlight-pink {
   background-color: #fbcfe8;
-  padding: 2px 4px;
-  border-radius: 3px;
+  border-radius: 2px;
+  display: inline;
+  line-height: inherit;
+}
+
+.highlight-orange {
+  background-color: #fed7aa;
+  border-radius: 2px;
+  display: inline;
+  line-height: inherit;
+}
+
+.highlight-purple {
+  background-color: #e9d5ff;
+  border-radius: 2px;
+  display: inline;
+  line-height: inherit;
+}
+
+.highlight-red {
+  background-color: #fecaca;
+  border-radius: 2px;
+  display: inline;
+  line-height: inherit;
+}
+
+.highlight-cyan {
+  background-color: #a5f3fc;
+  border-radius: 2px;
+  display: inline;
+  line-height: inherit;
+}
+
+.highlight-brown {
+  background-color: #d97706;
+  border-radius: 2px;
+  display: inline;
+  line-height: inherit;
+  /*padding: 0.1em 0.2em;*/
+  /*margin: -0.1em -0.2em;*/
 }
 
 .text-underline {
@@ -51,12 +112,19 @@
   text-underline-offset: 2px;
 }
 
-.note-highlight {
-  background-color: #fbbf24;
-  padding: 2px 4px;
-  border-radius: 3px;
-  border: 2px solid #f59e0b;
-  animation: pulse-highlight 2s ease-in-out;
+.text-underline {
+  /* 移除text-decoration避免与formatText冲突 */
+  text-decoration: none;
+
+  /* 使用border-bottom实现下划线效果 */
+  border-bottom: 2px solid #dc2626;
+  padding-bottom: 1px;
+  display: inline-block;
+  line-height: 1.2;
+
+  /* 确保不会与其他下划线样式叠加 */
+  box-shadow: none;
+  text-shadow: none;
 }
 
 @keyframes pulse-highlight {

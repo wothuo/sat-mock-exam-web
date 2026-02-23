@@ -14,6 +14,8 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
   const [showNoteModal, setShowNoteModal] = React.useState(false);
   const [notePosition, setNotePosition] = React.useState({ x: 0, y: 0 });
   const [expandedNotes, setExpandedNotes] = React.useState(new Set());
+  // 高亮功能开关 - 在此处配置，true为启用，false为禁用
+  const isHighlightEnabled = true;
 
   const hideHighlightMenu = useCallback(() => {
     const el = document.getElementById('highlight-menu');
@@ -54,6 +56,7 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
           setSelectedText(text);
           // 保存当前文本来源，用于后续添加高亮
           window.currentTextSource = textSource;
+          console.log('设置文本来源:', textSource, '选中文本:', text, '高亮功能状态:', isHighlightEnabled ? '启用' : '禁用');
           setNotePosition({ x: rect.left + rect.width / 2, y: rect.top - 10 });
           setTimeout(() => {
             const menu = document.getElementById('highlight-menu');
@@ -62,19 +65,31 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
               menu.style.left = `${Math.max(10, rect.left + rect.width / 2 - 100)}px`;
               menu.style.top = `${Math.max(10, rect.top + window.scrollY - 50)}px`;
               menu.style.zIndex = '9999';
+              
+              // 根据高亮功能状态设置菜单样式
+              if (isHighlightEnabled) {
+                menu.classList.remove('highlight-disabled');
+                menu.classList.add('highlight-enabled');
+              } else {
+                menu.classList.remove('highlight-enabled');
+                menu.classList.add('highlight-disabled');
+              }
             }
           }, 50);
         } else {
           hideHighlightMenu();
+          // 清除文本来源
+          window.currentTextSource = null;
         }
       },
-      [hideHighlightMenu, setShowNotesPanel]
+      [hideHighlightMenu, setShowNotesPanel, isHighlightEnabled]
   );
 
   const addHighlight = useCallback(
       (color) => {
         const selection = window.getSelection();
         const textSource = window.currentTextSource || 'question'; // 默认为题干
+        console.log('添加高亮 - 文本来源:', textSource, '颜色:', color, '选中文本:', selectedText);
         
         if (selection.rangeCount > 0) {
           const range = selection.getRangeAt(0);
@@ -121,15 +136,33 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
 
   const removeHighlight = useCallback(() => {
     const textSource = window.currentTextSource || 'question'; // 默认为题干
+    console.log('删除高亮 - 文本来源:', textSource, '选中文本:', selectedText, '当前高亮:', Object.keys(highlights));
+    
     const entry = Object.entries(highlights).find(
         ([, h]) => h.text === selectedText && h.questionId === currentQuestion && h.textSource === textSource
     );
+    
     if (entry) {
+      console.log('找到匹配的高亮:', entry[0]);
       setHighlights((prev) => {
         const next = { ...prev };
         delete next[entry[0]];
         return next;
       });
+    } else {
+      console.log('未找到匹配的高亮，尝试模糊匹配');
+      // 如果精确匹配失败，尝试模糊匹配（只匹配文本和题目ID）
+      const fuzzyEntry = Object.entries(highlights).find(
+          ([, h]) => h.text === selectedText && h.questionId === currentQuestion
+      );
+      if (fuzzyEntry) {
+        console.log('模糊匹配找到高亮:', fuzzyEntry[0]);
+        setHighlights((prev) => {
+          const next = { ...prev };
+          delete next[fuzzyEntry[0]];
+          return next;
+        });
+      }
     }
     setSelectedText('');
     if (window.getSelection()) window.getSelection().removeAllRanges();
@@ -139,17 +172,44 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
   }, [highlights, selectedText, currentQuestion, hideHighlightMenu]);
 
   const addUnderline = useCallback(() => {
+    const selection = window.getSelection();
     const textSource = window.currentTextSource || 'question'; // 默认为题干
-    
-    setHighlights((prev) => ({
-      ...prev,
-      [`underline-${Date.now()}`]: {
-        text: selectedText,
-        color: 'underline',
-        questionId: currentQuestion,
-        textSource: textSource // 添加文本来源标识
-      }
-    }));
+    console.log('添加下划线 - 文本来源:', textSource, '选中文本:', selectedText);
+
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const container = range.commonAncestorContainer;
+
+      // 获取选中文本在容器中的位置信息
+      let startOffset = range.startOffset;
+      let endOffset = range.endOffset;
+      let containerText = container.textContent || '';
+
+      setHighlights((prev) => ({
+        ...prev,
+        [`underline-${Date.now()}`]: {
+          text: selectedText,
+          color: 'underline',
+          questionId: currentQuestion,
+          textSource: textSource, // 添加文本来源标识
+          // 保存位置信息用于精确标注
+          containerText: containerText,
+          startOffset: startOffset,
+          endOffset: endOffset
+        }
+      }));
+    } else {
+      // 回退到原来的逻辑
+      setHighlights((prev) => ({
+        ...prev,
+        [`underline-${Date.now()}`]: {
+          text: selectedText,
+          color: 'underline',
+          questionId: currentQuestion,
+          textSource: textSource // 添加文本来源标识
+        }
+      }));
+    }
     setSelectedText('');
     if (window.getSelection()) window.getSelection().removeAllRanges();
     hideHighlightMenu();
@@ -247,9 +307,18 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
               const selectedText = containerText.substring(startOffset, endOffset);
               const afterText = containerText.substring(endOffset);
 
+              // 对选中文本进行HTML转义
+              const escapedSelectedText = selectedText
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  .replace(/"/g, '&quot;')
+                  .replace(/'/g, '&#39;');
+
               // 构建精确的高亮文本
               const highlightedText = beforeText +
-                  `<span class="${cls}" data-highlight-id="${id}">${selectedText}</span>` +
+                  // `<span class="${cls}" data-highlight-id="${id}">${selectedText}</span>` +
+                  `<span class="${cls}" data-highlight-id="${id}">${escapedSelectedText}</span>` +
                   afterText;
 
               // 如果当前处理的文本包含原始容器文本，则进行替换
@@ -321,6 +390,7 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
     toggleNoteExpansion,
     deleteNote,
     hideHighlightMenu,
-    renderFormattedText
+    renderFormattedText,
+    isHighlightEnabled
   };
 }
