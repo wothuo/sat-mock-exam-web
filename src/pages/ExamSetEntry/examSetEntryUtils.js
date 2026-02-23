@@ -335,7 +335,8 @@ export function applyMarkdownInlineFormat(text) {
 }
 
 /**
- * Markdown/公式文本转预览 HTML（加粗、斜体、图片、换行，保留公式块）
+ * 统一富文本转 HTML：套题录入→套题展示→作答页→错题记录 全链路一致
+ * 支持：数学公式、图片、加粗、斜体、删除线、换行、填空题占位符
  * @param {string} text
  * @returns {string}
  */
@@ -356,7 +357,18 @@ export function formatText(text) {
     return placeholder;
   });
 
+  const blankPlaceholders = [];
+  processed = processed.replace(/_{4,}/g, (match) => {
+    const placeholder = `@@@BLANKPLACEHOLDER${blankPlaceholders.length}@@@`;
+    blankPlaceholders.push(match);
+    return placeholder;
+  });
+
   processed = applyMarkdownInlineFormat(processed);
+
+  blankPlaceholders.forEach((block, index) => {
+    processed = processed.split(`@@@BLANKPLACEHOLDER${index}@@@`).join(block);
+  });
 
   imageBlocks.forEach((html, index) => {
     processed = processed.split(`@@@IMGBLOCK${index}@@@`).join(html);

@@ -3,26 +3,6 @@ import React, { useEffect } from 'react';
 import { Modal } from 'antd';
 
 import { SECTION_SUBJECT_LABELS } from '../examSetEntryConstants';
-import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
-
-/** 与题目索引一致的 Markdown→HTML，保留 $...$ 供 KaTeX 渲染 */
-function formatContentToHtml(text) {
-  if (!text || typeof text !== 'string') return '';
-  const mathBlocks = [];
-  let processed = text.replace(/\$\$[\s\S]*?\$\$|\$[^$\n]+?\$/g, (match) => {
-    const placeholder = `@@@MATHBLOCK${mathBlocks.length}@@@`;
-    mathBlocks.push(match);
-    return placeholder;
-  });
-  processed = applyMarkdownInlineFormat(processed);
-  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, function(match, alt, src) {
-    return `<img src="${src.trim()}" alt="${alt.trim()}" class="max-w-full h-auto rounded-lg my-2 max-h-32 object-contain" loading="lazy" onerror="this.style.display='none'" />`;
-  });
-  mathBlocks.forEach((block, index) => {
-    processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
-  });
-  return processed;
-}
 
 function getQuestionPreviewPlaceholder(content) {
   if (!content || typeof content !== 'string') return true;

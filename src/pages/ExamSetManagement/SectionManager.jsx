@@ -28,6 +28,8 @@ import {
     UnorderedListOutlined,
 } from '@ant-design/icons';
 
+import { formatText } from '../ExamSetEntry/examSetEntryUtils';
+
 // import QuestionEditor from '../QuestionBank/QuestionEditor';
 
 const { TextArea } = Input;
@@ -290,32 +292,6 @@ function SectionManager({ visible, examSet, onSave, onCancel }) {
 
     message.success('题目选择已保存');
     setIsQuestionSelectorVisible(false);
-  };
-
-  const formatText = (text) => {
-    if (!text) return text;
-
-    // 1. 保护数学公式，防止被 Markdown 逻辑干扰
-    const mathBlocks = [];
-    let processed = text.replace(/\$([\s\S]*?)\$/g, (match) => {
-      const placeholder = `@@@MATHBLOCK${mathBlocks.length}@@@`;
-      mathBlocks.push(match);
-      return placeholder;
-    });
-
-    // 2. 处理 Markdown 格式
-    processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    processed = processed.replace(/__(.*?)__/g, '<strong>$1</strong>');
-    processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    processed = processed.replace(/_(.*?)_/g, '<em>$1</em>');
-    processed = processed.replace(/\n/g, '<br />');
-
-    // 3. 还原数学公式
-    mathBlocks.forEach((block, index) => {
-      processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
-    });
-
-    return processed;
   };
 
   // 统一的数学公式渲染函数

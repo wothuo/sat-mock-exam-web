@@ -19,41 +19,11 @@ import {
   QUESTION_TYPE_LABELS,
   DEFAULT_SUBJECT_CATEGORY, SECTION_DIFFICULTY_ENUM
 } from '../examSetEntryConstants';
-import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
+import { formatText } from '../examSetEntryUtils';
 
 import RichTextEditor from './RichTextEditor';
 
 const { Option } = Select;
-
-/** 题目索引专用：移除图片，保留数学公式和基础格式 */
-function formatContentToHtml(text) {
-  if (!text || typeof text !== 'string') return '';
-  
-  // 1. 保护数学公式
-  const mathBlocks = [];
-  let processed = text.replace(/\$\$[\s\S]*?\$\$|\$[^\$\n]+?\$/g, (match) => {
-    const placeholder = `@@@MATHBLOCK${mathBlocks.length}@@@`;
-    mathBlocks.push(match);
-    return placeholder;
-  });
-
-  // 2. 移除所有图片标记（不显示图片）
-  // 匹配Markdown图片格式 ![alt](url)
-  processed = processed.replace(/!\[[^\]]*\]\([^)]*\)/g, '');
-  
-  // 3. 移除裸图片URL
-  processed = processed.replace(/https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp|svg)(?:\?[^\s]*)?/gi, '');
-
-  // 4. 基础文本格式处理（使用共享工具，含斜体）
-  processed = applyMarkdownInlineFormat(processed);
-
-  // 5. 还原数学公式
-  mathBlocks.forEach((block, index) => {
-    processed = processed.split(`@@@MATHBLOCK${index}@@@`).join(block);
-  });
-
-  return processed;
-}
 
 /** 题目索引无内容时的占位文案 */
 function getIndexPreviewPlaceholder(content) {
@@ -370,7 +340,7 @@ function ExamSetQuestionStep({
                         id={`index-preview-${q.id}`}
                         className="index-preview-content exam-question-editor-font line-clamp-2 break-words [&_.katex]:text-[10px]"
                         dangerouslySetInnerHTML={{
-                          __html: formatContentToHtml(q.content),
+                          __html: formatText(q.content === '已录入' ? '' : (q.content || '')),
                         }}
                       />
                     )}
