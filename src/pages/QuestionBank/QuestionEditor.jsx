@@ -11,16 +11,16 @@ const { Option } = Select;
 
 function QuestionEditor({ question, onSave, onCancel }) {
   const [form] = Form.useForm();
-  const [questionType, setQuestionType] = useState('multiple-choice');
+  const [questionType, setQuestionType] = useState('CHOICE');
   const [activeEditorId, setActiveEditorId] = useState(null);
 
   useEffect(() => {
     if (question) {
       form.setFieldsValue(question);
-      setQuestionType(question.type || 'multiple-choice');
+      setQuestionType(question.type || 'CHOICE');
     } else {
       form.resetFields();
-      setQuestionType('multiple-choice');
+      setQuestionType('CHOICE');
     }
   }, [question, form]);
 
@@ -417,7 +417,7 @@ function QuestionEditor({ question, onSave, onCancel }) {
             type: '基础运算',
             difficulty: 'Medium',
             source: '历年真题',
-            questionType: 'multiple-choice'
+            questionType: 'CHOICE'
           }}
         >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -470,8 +470,8 @@ function QuestionEditor({ question, onSave, onCancel }) {
             rules={[{ required: true }]}
           >
             <Radio.Group onChange={(e) => setQuestionType(e.target.value)}>
-              <Radio value="multiple-choice">选择题</Radio>
-              <Radio value="student-produced">填空题</Radio>
+              <Radio value="CHOICE">选择题</Radio>
+              <Radio value="BLANK">填空题</Radio>
             </Radio.Group>
           </Form.Item>
 
@@ -489,7 +489,7 @@ function QuestionEditor({ question, onSave, onCancel }) {
             />
           </Form.Item>
 
-          {questionType === 'multiple-choice' && (
+          {questionType === 'CHOICE' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {['A', 'B', 'C', 'D'].map((opt) => (
                 <Form.Item
@@ -516,7 +516,7 @@ function QuestionEditor({ question, onSave, onCancel }) {
               label={<span className="font-bold text-gray-700">正确答案</span>}
               rules={[{ required: true, message: '请输入正确答案' }]}
             >
-              {questionType === 'multiple-choice' ? (
+              {questionType === 'CHOICE' ? (
                 <Select className="h-10">
                   {['A', 'B', 'C', 'D'].map(o => <Option key={o} value={o}>{o}</Option>)}
                 </Select>
@@ -566,4 +566,3 @@ function QuestionEditor({ question, onSave, onCancel }) {
 }
 
 export default QuestionEditor;
-

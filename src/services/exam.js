@@ -4,6 +4,17 @@
 import { get, post } from '../utils/request.ts';
 
 /**
+ * 根据套题 ID 列表批量获取套题详情
+ * @param {number[]} examIds - 套题 ID 列表
+ * @param {Object} config - 请求配置（如 signal、showError）
+ * @returns {Promise<Array>} ExamPool 对象数组
+ */
+export const getExamSetDetails = async (examIds, config = {}) => {
+  const response = await post('/exam/details', { examIds }, config);
+  return response.data;
+};
+
+/**
  * 获取套题列表
  * @param {Object} params - 查询参数
  * @param {string} params.examType - 考试类型（必填，如：SAT/IELTS/TOEFL）
@@ -32,7 +43,7 @@ export const getExamSetList = async (params, config = {}) => {
  * @param {number} data.creatorId - 创建人ID
  * @returns {Promise} 新增的套题数据
  */
-export const createExamSet = async (data) => {
+export const createExam = async (data) => {
   const response = await post('/exam/create', data);
   return response.data;
 };
@@ -69,7 +80,7 @@ export const checkExamExists = async (params) => {
  * @param {number} [data.status] - 状态（0-正常/1-禁用，默认0）
  * @returns {Promise} 更新后的套题数据
  */
-export const updateExamSet = async (data) => {
+export const updateExam = async (data) => {
   const response = await post('/exam/update', data);
   return response.data;
 };

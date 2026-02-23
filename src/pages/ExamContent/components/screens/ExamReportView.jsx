@@ -128,16 +128,16 @@ function ExamReportView({
                           <span className="text-red-500"><i className="fas fa-times-circle mr-2" />Incorrect</span>
                         )}
                       </td>
-                      <td className={`py-4 font-bold ${isCorrect ? 'text-blue-600' : 'text-red-500'} max-w-[200px] truncate whitespace-nowrap overflow-hidden`}>
+                      <td className={`py-4 font-bold ${isCorrect ? 'text-blue-600' : 'text-red-500'} max-w-[100px] truncate whitespace-nowrap overflow-hidden`}>
                         {typeof answers[q.id] === 'object' && answers[q.id] !== null ? (
                             Object.values(answers[q.id]).join(', ')
                         ) : (
                             answers[q.id] || 'Omitted'
                         )}
                       </td>
-                      <td className="py-4 font-bold text-gray-900 max-w-[200px] truncate whitespace-nowrap overflow-hidden">{q.correctAnswer || 'N/A'}</td>
+                      <td className="py-4 font-bold text-gray-900 max-w-[100px] truncate whitespace-nowrap overflow-hidden ml-40">{q.correctAnswer || 'N/A'}</td>
 
-                      <td className="py-4">
+                      <td className="py-4 ml-40">
                         <span className="text-gray-700 font-medium">
                           {formatQuestionTime(questionTimes[q.id])}
                         </span>

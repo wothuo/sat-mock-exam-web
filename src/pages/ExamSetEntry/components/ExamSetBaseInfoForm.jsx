@@ -2,20 +2,20 @@ import React from 'react';
 
 import { Button, Card, Form, Input, Select } from 'antd';
 
+import { SOURCE_ENUM, SOURCE_OPTIONS, REGION_OPTIONS, DIFFICULTY_OPTIONS } from '../examSetEntryConstants';
+
 const { Option } = Select;
 const { TextArea } = Input;
 
-const DIFFICULTIES = ['简单', '中等', '困难'];
-const REGIONS = ['亚洲-中国北京', '亚洲-中国深圳', '亚洲-中国香港', '亚洲-新加坡', '美洲-美国', '美洲-加拿大', '欧洲-英国', '大洋洲-澳大利亚', '非洲与中东-阿联酋'];
 const EXAM_TYPES = ['SAT', 'IELTS', 'TOEFL', 'GRE'];
 const YEARS = [2026, 2025, 2024, 2023];
-const SOURCES = ['历年真题', '官方样题', '模拟试题', '机构题库', '教师自编', '其他'];
 
 /**
  * 套题录入 - 基础信息表单（步骤 0）
  * 表单由父组件 Form 提供，本组件仅负责展示与「下一步」触发，校验与后续逻辑在父组件 onNext 中处理
  */
 function ExamSetBaseInfoForm({ form, loading, isEditMode, onNext }) {
+
   return (
     <Card className="rounded-3xl shadow-sm border-gray-100">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
@@ -59,8 +59,8 @@ function ExamSetBaseInfoForm({ form, loading, isEditMode, onNext }) {
           rules={[{ required: true, message: '请选择地区' }]}
         >
           <Select placeholder="选择地区" className="h-11 rounded-xl">
-            {REGIONS.map(r => (
-              <Option key={r} value={r}>{r}</Option>
+            {REGION_OPTIONS.map(opt => (
+              <Option key={opt.value} value={opt.value}>{opt.label}</Option>
             ))}
           </Select>
         </Form.Item>
@@ -71,8 +71,8 @@ function ExamSetBaseInfoForm({ form, loading, isEditMode, onNext }) {
           rules={[{ required: true, message: '请选择难度' }]}
         >
           <Select placeholder="选择难度" className="h-11 rounded-xl">
-            {DIFFICULTIES.map(d => (
-              <Option key={d} value={d}>{d}</Option>
+            {DIFFICULTY_OPTIONS.map(opt => (
+              <Option key={opt.value} value={opt.value}>{opt.label}</Option>
             ))}
           </Select>
         </Form.Item>
@@ -80,13 +80,12 @@ function ExamSetBaseInfoForm({ form, loading, isEditMode, onNext }) {
         <Form.Item
           name="source"
           label={<span className="font-bold text-gray-700">套题来源</span>}
-          initialValue="历年真题"
           rules={[{ required: true, message: '请选择套题来源' }]}
         >
           <Select placeholder="选择套题来源" className="h-11 rounded-xl">
-            {SOURCES.map(s => (
-              <Option key={s} value={s} disabled={s !== '历年真题'}>
-                {s}{s !== '历年真题' ? ' (暂不支持)' : ''}
+            {SOURCE_OPTIONS.map(opt => (
+              <Option key={opt.value} value={opt.value} disabled={opt.value !== SOURCE_ENUM.PAST_YEAR}>
+                {opt.label}{opt.value !== SOURCE_ENUM.PAST_YEAR ? ' (暂不支持)' : ''}
               </Option>
             ))}
           </Select>

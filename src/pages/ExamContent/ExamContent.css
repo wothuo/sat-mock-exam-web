@@ -1,4 +1,18 @@
 /* 考试页全局样式（题干/高亮/备注等使用类名，需保持全局） */
+.math-content img {
+  display: inline-block;
+}
+
+.math-content table {
+  border-collapse: collapse;
+  border: 1px solid #d1d5db;
+}
+
+.math-content table td,
+.math-content table th {
+  border: 1px solid #d1d5db;
+}
+
 .selectable-text {
   user-select: text;
   -webkit-user-select: text;

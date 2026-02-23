@@ -8,6 +8,8 @@ import { DeleteOutlined, EditOutlined, FormOutlined } from '@ant-design/icons';
 
 import { getExamSetList, deleteExam, alterExamStatus } from '@/services/exam';
 
+import { SOURCE_LABELS } from '@/pages/ExamSetEntry/examSetEntryConstants';
+
 import ExamSetListToolbar from './components/ExamSetListToolbar';
 import ExamSetEditor from './ExamSetEditor';
 import SectionManager from './SectionManager';
@@ -53,13 +55,13 @@ function ExamSetManagement() {
       if (result && result.list) {
         // getExamSetList已经在exam.js中返回了response.data
         const examList = result.list || [];
-        
+
         // 转换数据格式以适配表格
         const transformedData = examList.map(item => ({
           id: item.examId,
           taskId: item.examId, // 保持与原代码兼容
           title: item.examName,
-          source: item.source || '暂无',
+          source: item.source,
           totalQuestions: item.questionCount || 0,
           status: item.status === 0 ? 0 : 1, // 保持数字状态值，0-正常（发布），1-禁用（下线）
           statusDesc: item.status === 0 ? '已发布' : '已下线', // 使用状态字段生成描述
@@ -72,12 +74,12 @@ function ExamSetManagement() {
           sections: item.sectionCount || 0, // 使用服务端返回的sectionCount字段
           description: item.examDescription || '', // 使用正确的字段名examDescription
         }));
-        
+
         setExamSets(transformedData);
-        
+
         // 处理total为0但实际有数据的情况
         const total = result.total > 0 ? result.total : examList.length;
-        
+
         setPagination({
           current: result.pageNum || pageNum,
           pageSize: result.pageSize || pageSize,
@@ -107,14 +109,14 @@ function ExamSetManagement() {
       if (!signal?.aborted) setLoading(false);
     }
   };
-  
+
   // 处理搜索
   const handleSearch = () => {
     // 搜索时重置到第一页
     setPagination(prev => ({ ...prev, current: 1 }));
     fetchExamSetList(1, pagination.pageSize, searchKeyword);
   };
-  
+
   // 处理重置搜索
   const handleReset = () => {
     setSearchKeyword('');
@@ -137,12 +139,12 @@ function ExamSetManagement() {
       key: 'title',
       width: 150,
       render: (text, record) => (
-          <div className="min-w-0 px-2">
-            <div className="font-semibold text-gray-900 truncate" title={text}>{text}</div>
-            {record.description && (
-                <div className="text-xs text-gray-500 mt-1 truncate" title={record.description}>{record.description}</div>
-            )}
-          </div>
+        <div className="min-w-0 px-2">
+          <div className="font-semibold text-gray-900 truncate" title={text}>{text}</div>
+          {record.description && (
+            <div className="text-xs text-gray-500 mt-1 truncate" title={record.description}>{record.description}</div>
+          )}
+        </div>
       )
     },
     {
@@ -150,24 +152,27 @@ function ExamSetManagement() {
       dataIndex: 'source',
       key: 'source',
       width: 80,
-      render: (source) => (
+      render: (source) => {
+        const displayText = SOURCE_LABELS[source] || '暂无';
+        return (
           <div className="px-2">
-            <Tag color="blue" className="truncate max-w-full" title={source}>{source}</Tag>
+            <Tag color="blue" className="truncate max-w-full" title={displayText}>{displayText}</Tag>
           </div>
-      )
+        );
+      }
     },
     {
       title: 'Section数量',
       key: 'sections',
       width: 80,
       render: (_, record) => (
-          <div className="px-2">
-            <span className="font-medium text-blue-600">
-              {record.sections !== null && record.sections !== undefined && record.sections > 0
-                  ? `${record.sections} 个`
-                  : <span className="text-gray-400">暂无</span>}
-            </span>
-          </div>
+        <div className="px-2">
+          <span className="font-medium text-blue-600">
+            {record.sections !== null && record.sections !== undefined && record.sections > 0
+              ? `${record.sections} 个`
+              : <span className="text-gray-400">暂无</span>}
+          </span>
+        </div>
       )
     },
     {
@@ -176,9 +181,9 @@ function ExamSetManagement() {
       key: 'totalQuestions',
       width: 70,
       render: (questions) => (
-          <div className="px-2">
-            <span className="font-medium text-green-600">{questions} 题</span>
-          </div>
+        <div className="px-2">
+          <span className="font-medium text-green-600">{questions} 题</span>
+        </div>
       )
     },
     {
@@ -187,11 +192,11 @@ function ExamSetManagement() {
       key: 'totalDuration',
       width: 80,
       render: (duration) => (
-          <div className="px-2">
-            <span className="font-medium text-orange-600">
-              {duration !== null && duration !== undefined ? `${duration} 分钟` : <span className="text-gray-400">暂无</span>}
-            </span>
-          </div>
+        <div className="px-2">
+          <span className="font-medium text-orange-600">
+            {duration !== null && duration !== undefined ? `${duration} 分钟` : <span className="text-gray-400">暂无</span>}
+          </span>
+        </div>
       )
     },
     {
@@ -200,12 +205,12 @@ function ExamSetManagement() {
       key: 'status',
       width: 80,
       render: (status, record) => (
-          <Switch
-              checked={status === 0}
-              onChange={(checked) => handleChangeStatus(checked, record)}
-              checkedChildren="发布"
-              unCheckedChildren="下线"
-          />
+        <Switch
+          checked={status === 0}
+          onChange={(checked) => handleChangeStatus(checked, record)}
+          checkedChildren="发布"
+          unCheckedChildren="下线"
+        />
       )
     },
     {
@@ -214,36 +219,36 @@ function ExamSetManagement() {
       width: 150,
       fixed: 'right',
       render: (_, record) => (
-          <div className="px-2">
-            <Space size="middle" className="flex-nowrap">
-               {/*<Button type="link"*/}
-               {/*        size="small"*/}
-               {/*        icon={<EyeOutlined />}*/}
-               {/*        onClick={() => handleManageSections(record)}*/}
-               {/*>*/}
-               {/*  题目管理*/}
-               {/*</Button>*/}
-              <Button
-                  type="link"
-                  size="small"
-                  icon={<EditOutlined />}
-                  onClick={() => handleEdit(record)}
-                  className="text-blue-600 hover:text-blue-800 px-2"
-              >
-                编辑
-              </Button>
-              <Button
-                  type="link"
-                  size="small"
-                  danger
-                  icon={<DeleteOutlined />}
-                  onClick={() => handleDelete(record)}
-                  className="text-red-600 hover:text-red-800 px-2"
-              >
-                删除
-              </Button>
-            </Space>
-          </div>
+        <div className="px-2">
+          <Space size="middle" className="flex-nowrap">
+            {/*<Button type="link"*/}
+            {/*        size="small"*/}
+            {/*        icon={<EyeOutlined />}*/}
+            {/*        onClick={() => handleManageSections(record)}*/}
+            {/*>*/}
+            {/*  题目管理*/}
+            {/*</Button>*/}
+            <Button
+              type="link"
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+              className="text-blue-600 hover:text-blue-800 px-2"
+            >
+              编辑
+            </Button>
+            <Button
+              type="link"
+              size="small"
+              danger
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(record)}
+              className="text-red-600 hover:text-red-800 px-2"
+            >
+              删除
+            </Button>
+          </Space>
+        </div>
       )
     }
   ];
@@ -280,7 +285,7 @@ function ExamSetManagement() {
       ),
       okText: '确认删除',
       cancelText: '取消',
-      okButtonProps: { 
+      okButtonProps: {
         danger: true,
         className: 'h-10 px-6 font-medium'
       },
@@ -293,7 +298,7 @@ function ExamSetManagement() {
           // 调用后端删除接口
           const examId = record.examId || record.id || record.taskId;
           await deleteExam(examId);
-          
+
           // 前端更新列表
           setExamSets(prev => prev.filter(item => (item.examId || item.id || item.taskId) !== examId));
           message.success('删除成功');
@@ -339,7 +344,7 @@ function ExamSetManagement() {
 
   const handleSaveExamSet = (examSetData) => {
     if (editingExamSet) {
-      setExamSets(prev => prev.map(item => 
+      setExamSets(prev => prev.map(item =>
         item.id === editingExamSet.id ? { ...item, ...examSetData } : item
       ));
       message.success('套题更新成功');

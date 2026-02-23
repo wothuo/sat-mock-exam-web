@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 
@@ -24,7 +24,8 @@ import {
 import {
   NoteModal,
   ProgressModal,
-  EndExamModal
+  EndExamModal,
+  SubmitSuccessModal
 } from './components/modals';
 import {
   PreparingScreen,
@@ -52,14 +53,15 @@ function ExamContent() {
   const location = useLocation();
   
   // 使用useMemo缓存路由状态，避免无限重渲染
-  const { sectionId, examTitle, examDuration, totalQuestions, stateQuestions } = useMemo(() => {
+  const { sectionId, examTitle, examDuration, totalQuestions, stateQuestions, stateTimeMode } = useMemo(() => {
     const state = location.state || {};
     return {
       sectionId: state.sectionId || examId,
       examTitle: state.examTitle || 'Section 1, Module 1: Reading and Writing',
       examDuration: state.examDuration || '35分钟',
       totalQuestions: state.totalQuestions || 27,
-      stateQuestions: state.questions || null // 新增：获取路由状态中的题目数据
+      stateQuestions: state.questions || null, // 新增：获取路由状态中的题目数据
+      stateTimeMode: state.timeMode || 'timed' // 获取时间模式
     };
   }, [location.state, examId]); // 只有当location.state或examId变化时才重新计算
   
@@ -71,6 +73,7 @@ function ExamContent() {
   
   const hasFetchedRef = React.useRef(false);
   const prevSectionIdRef = React.useRef(sectionId);
+  const hasProcessedStateQuestionsRef = React.useRef(false);
 
   // 获取真实题目数据（初始化仅请求一次，ref 防止 StrictMode 双重调用）
   useEffect(() => {
@@ -88,8 +91,8 @@ function ExamContent() {
     }
 
     // 如果路由状态中已有题目数据，直接使用
-    if (stateQuestions) {
-      console.log('使用路由状态中的题目数据:', stateQuestions);
+    if (stateQuestions && !realExamData) {
+
       
       // 适配不同格式的题目数据
       let questionsData = null;
@@ -167,25 +170,31 @@ function ExamContent() {
             }
           }
           
-          // 根据题目类型确定题型
-          let questionType = 'multiple-choice';
-          if (questionObj?.questionType?.toUpperCase() === 'BLANK' || questionObj?.questionType === '填空题') {
-            questionType = 'fill-in-blanks';
-          } else if (questionObj?.questionType?.toUpperCase() === 'CHOICE' || questionObj?.questionType === '选择题') {
-            questionType = 'multiple-choice';
+          // 根据题目类型确定题型，统一为BLANK和CHOICE两种类型
+          let questionType = 'CHOICE'; // 默认设为选择题
+          const originalQuestionType = questionObj?.questionType?.toUpperCase();
+          
+          if (originalQuestionType === 'BLANK' || questionObj?.questionType === '填空题') {
+            questionType = 'BLANK';
+          } else if (originalQuestionType === 'CHOICE' || questionObj?.questionType === '选择题') {
+            questionType = 'CHOICE';
           }
+          // 保留原始questionType用于调试
+          console.log(`题目 ${index + 1} 原始questionType:`, originalQuestionType, '转换后type:', questionType);
           
           const questionContent = questionObj?.questionContent || 
                                 questionObj?.question || 
                                 questionObj?.content || 
                                 `题目 ${index + 1} 内容加载中...`;
           
-          const blanks = questionType === 'fill-in-blanks' ? [{ id: 'blank1' }] : [];
+          const blanks = questionType === 'BLANK' ? [{ id: 'blank1' }] : [];
 
           return {
             id: index + 1,
             originalId: questionObj?.questionId,
             type: questionType,
+            hasImage: false, // 通过属性区分带图片的题目
+            questionType: originalQuestionType, // 保留原始questionType用于调试和后续处理
             question: questionContent,
             content: questionContent,
             description: questionObj?.questionDescription || '',
@@ -300,19 +309,14 @@ function ExamContent() {
             }
             
             // 根据题目类型确定题型
-            let questionType = 'multiple-choice';
-            if (questionObj?.questionType === '填空题') {
-              questionType = 'fill-in-blanks';
-            } else if (questionObj?.questionType === '选择题') {
-              questionType = 'multiple-choice';
-            }
-            
+            let questionType = questionObj?.questionType.toUpperCase();
+
             const questionContent = questionObj?.questionContent || 
                                   questionObj?.question || 
                                   questionObj?.content || 
                                   `题目 ${index + 1} 内容加载中...`;
             
-            const blanks = questionType === 'fill-in-blanks' ? [{ id: 'blank1' }] : [];
+            const blanks = questionType === 'BLANK' ? [{ id: 'blank1' }] : [];
             
             // 提取图片URL - 检查questionContent中是否包含图片URL
             let imageUrls = [];
@@ -350,21 +354,15 @@ function ExamContent() {
               }
             }
             
-            // 如果存在图片URL，调整题目类型为带图片的类型
+            // 统一使用BLANK和CHOICE类型，通过hasImage属性区分带图片的题目
             let finalQuestionType = questionType;
-            
-            if (imageUrls.length > 0 && questionType === 'multiple-choice') {
-              finalQuestionType = 'multiple-choice-with-image';
-            } else if (imageUrls.length > 0 && questionType === 'student-produced') {
-              finalQuestionType = 'student-produced-with-image';
-            } else if (imageUrls.length > 0 && questionType === 'fill-in-blanks') {
-              finalQuestionType = 'image-with-blanks';
-            }
             
             return {
               id: index + 1, // 使用索引作为ID，确保与currentQuestion匹配
               originalId: questionObj?.questionId, // 保存原始ID用于后续处理
               type: finalQuestionType,
+              hasImage: imageUrls.length > 0, // 通过属性区分带图片的题目
+              hasTable: false, // 暂时设为false，后续可根据内容判断
               question: processedQuestionContent,
               content: processedQuestionContent,
               images: imageUrls,
@@ -406,13 +404,14 @@ function ExamContent() {
 
   const [showDirections, setShowDirections] = useState(true);
   const [showProgress, setShowProgress] = useState(false);
-  const [showTimeMode, setShowTimeMode] = useState(true);
-  const [showIntro, setShowIntro] = useState(false);
-  const [timeMode, setTimeMode] = useState('timed');
+  const [showTimeMode, setShowTimeMode] = useState(!stateQuestions); // 如果已有题目数据，不显示时间模式选择
+  const [showIntro, setShowIntro] = useState(!!stateQuestions); // 如果已有题目数据，直接显示IntroScreen
+  const [timeMode, setTimeMode] = useState(stateTimeMode);
   const [examStarted, setExamStarted] = useState(false);
   const [showNotesPanel, setShowNotesPanel] = useState(false);
   const [showTimeAsIcon, setShowTimeAsIcon] = useState(false);
   const [showEndExamModal, setShowEndExamModal] = useState(false);
+  const [showSubmitSuccessModal, setShowSubmitSuccessModal] = useState(false);
   const [isPreparing, setIsPreparing] = useState(true);
   const [hideTime, setHideTime] = useState(false);
   const [examFinished, setExamFinished] = useState(false);
@@ -484,6 +483,14 @@ function ExamContent() {
     }
   }, [loading]);
 
+  // 如果有题目数据，直接显示IntroScreen
+  useEffect(() => {
+    if (stateQuestions && !showIntro) {
+      setShowIntro(true);
+      setShowTimeMode(false);
+    }
+  }, [stateQuestions]); // 移除showIntro依赖，避免无限循环
+
   const prevQuestionRef = React.useRef(currentQuestion);
   const prevExamFinishedRef = React.useRef(examFinished);
 
@@ -508,6 +515,11 @@ function ExamContent() {
     setShowProgress(false);
   };
 
+  const handleViewReport = useCallback(() => {
+    setShowSubmitSuccessModal(false);
+    setExamFinished(true);
+  }, []);
+
   const startExam = () => {
     setShowTimeMode(false);
     setShowIntro(true);
@@ -519,14 +531,18 @@ function ExamContent() {
     resetOnBeginExam();
   };
 
-  // 使用Ref来追踪最新的questionTimes状态
-  const questionTimesRef = React.useRef(questionTimes);
+  const questionTimesRef = useRef(questionTimes);
+  const hasAutoSubmittedRef = useRef(false);
+  const submittingRef = useRef(false);
+
   useEffect(() => {
     // 当questionTimes更新时，同步更新Ref
     questionTimesRef.current = questionTimes;
   }, [questionTimes]);
 
   const handleFinishExam = async () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     try {
       // 先记录最后一道题的耗时
       recordQuestionTime(currentQuestion);
@@ -624,14 +640,32 @@ function ExamContent() {
         console.warn('没有有效的作答数据需要提交');
       }
 
+      setShowSubmitSuccessModal(true);
     } catch (error) {
       console.error('提交作答数据时发生错误:', error);
-    } finally {
       setExamFinished(true);
+    } finally {
       setShowEndExamModal(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
+
+  const handleFinishExamRef = useRef(handleFinishExam);
+  handleFinishExamRef.current = handleFinishExam;
+
+  const shouldAutoSubmit =
+    examStarted &&
+    timeMode === 'timed' &&
+    timeRemaining === 0 &&
+    !examFinished &&
+    !hasAutoSubmittedRef.current;
+
+  useEffect(() => {
+    if (shouldAutoSubmit && !hasAutoSubmittedRef.current) {
+      hasAutoSubmittedRef.current = true;
+      handleFinishExamRef.current();
+    }
+  }, [shouldAutoSubmit]);
 
 
   if (isPreparing) {
@@ -654,6 +688,8 @@ function ExamContent() {
       />
     );
   }
+
+
 
   if (showTimeMode) {
     return (
@@ -681,7 +717,7 @@ function ExamContent() {
         directionsOpen={showDirections}
         onToggleDirections={() => setShowDirections(prev => !prev)}
         directionsContent={renderFormattedText(examDataToUse?.directions?.content, 'directions')}
-        showReference={examDataToUse?.sectionCategory === '数学'}
+        showReference={examDataToUse?.sectionCategory === 'SAT_MATH'}
         onOpenReference={() => setShowReference(true)}
         onShowTimeAsIcon={() => setShowTimeAsIcon(true)}
         onShowTimeAsText={() => setShowTimeAsIcon(false)}
@@ -869,6 +905,11 @@ function ExamContent() {
       <ReferenceDrawer
         open={showReference}
         onClose={() => setShowReference(false)}
+      />
+
+      <SubmitSuccessModal
+        open={showSubmitSuccessModal}
+        onViewReport={handleViewReport}
       />
 
       <EndExamModal

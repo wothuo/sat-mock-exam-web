@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 
 import { Modal } from 'antd';
 
+import { SECTION_SUBJECT_LABELS } from '../examSetEntryConstants';
 import { applyMarkdownInlineFormat } from '../examSetEntryUtils';
 
 /** 与题目索引一致的 Markdown→HTML，保留 $...$ 供 KaTeX 渲染 */
@@ -135,7 +136,7 @@ function ExamSetSummaryModal({ open, onCancel, onOk, loading, summaryFormValues 
                       <div className="flex items-center space-x-3 text-xs text-gray-500">
                         <span className="flex items-center">
                           <i className="fas fa-book mr-1"></i>
-                          {section.subject}
+                          {SECTION_SUBJECT_LABELS[section.subject] ?? section.subject}
                         </span>
                         <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
                         <span className="flex items-center">

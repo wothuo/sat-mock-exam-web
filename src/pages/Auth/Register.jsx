@@ -72,17 +72,17 @@ function Register() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-red-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
+      <div className="max-w-lg w-full">
         <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
-          <div className="text-center mb-8">
-            <Link to="/" className="inline-flex items-center justify-center space-x-2 mb-6">
+          <div className="text-center mb-6">
+            <Link to="/" className="inline-flex items-center justify-center space-x-2 mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-800 rounded-xl flex items-center justify-center shadow-lg">
                 <i className="fas fa-trophy text-white text-xl"></i>
               </div>
               <span className="text-2xl font-bold text-gray-900">ReachTop</span>
             </Link>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">创建账户</h2>
-            <p className="text-gray-600">开始您的学习之旅</p>
+            {/*<h2 className="text-3xl font-bold text-gray-900 mb-1">创建账户</h2>*/}
+            <p className="text-gray-600">创建账户开始您的学习之旅~</p>
           </div>
 
           <Form
@@ -90,83 +90,93 @@ function Register() {
             onFinish={handleSubmit}
             layout="vertical"
             size="large"
-            className="space-y-2"
+            className="space-y-3"
           >
-            <Form.Item
-              name="username"
-              label={<span className="text-sm font-medium text-gray-700">账号</span>}
-              rules={[
-                { required: true, message: '请输入账号' },
-                { min: 4, message: '账号至少4个字符' }
-              ]}
-            >
-              <Input
-                prefix={<UserOutlined className="text-gray-400" />}
-                placeholder="设置您的登录账号"
-                className="rounded-xl"
-              />
-            </Form.Item>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="username"
+                  // label={<span className="text-sm font-medium text-gray-700">账号</span>}
+                  rules={[
+                    { required: true, message: '请输入账号' },
+                    { min: 4, message: '账号至少4个字符' }
+                  ]}
+                >
+                  <Input
+                    prefix={<UserOutlined className="text-gray-400" />}
+                    placeholder="设置登录账号"
+                    className="rounded-xl"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="name"
+                  // label={<span className="text-sm font-medium text-gray-700">姓名</span>}
+                  rules={[
+                    { required: true, message: '请输入姓名' },
+                    { min: 2, message: '姓名至少2个字符' }
+                  ]}
+                >
+                  <Input
+                    prefix={<NumberOutlined className="text-gray-400" />}
+                    placeholder="真实姓名"
+                    className="rounded-xl"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
 
-            <Form.Item
-              name="name"
-              label={<span className="text-sm font-medium text-gray-700">姓名</span>}
-              rules={[
-                { required: true, message: '请输入姓名' },
-                { min: 2, message: '姓名至少2个字符' }
-              ]}
-            >
-              <Input
-                prefix={<NumberOutlined className="text-gray-400" />}
-                placeholder="真实姓名"
-                className="rounded-xl"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="password"
-              label={<span className="text-sm font-medium text-gray-700">密码</span>}
-              rules={[
-                { required: true, message: '请输入密码' },
-                { min: 6, message: '密码长度至少6位' },
-                {
-                  pattern: /(?=.*[A-Za-z])(?=.*\d)/,
-                  message: '密码必须包含字母和数字'
-                }
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="设置密码"
-                className="rounded-xl"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="confirmPassword"
-              label={<span className="text-sm font-medium text-gray-700">确认密码</span>}
-              dependencies={['password']}
-              rules={[
-                { required: true, message: '请确认密码' },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue('password') === value) {
-                      return Promise.resolve();
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="password"
+                  // label={<span className="text-sm font-medium text-gray-700">密码</span>}
+                  rules={[
+                    { required: true, message: '请输入密码' },
+                    { min: 6, message: '密码长度至少6位' },
+                    {
+                      pattern: /(?=.*[A-Za-z])(?=.*\d)/,
+                      message: '密码必须包含字母和数字'
                     }
-                    return Promise.reject(new Error('两次密码输入不一致'));
-                  },
-                }),
-              ]}
-            >
-              <Input.Password
-                prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="确认密码"
-                className="rounded-xl"
-              />
-            </Form.Item>
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined className="text-gray-400" />}
+                    placeholder="设置密码"
+                    className="rounded-xl"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="confirmPassword"
+                  // label={<span className="text-sm font-medium text-gray-700">确认密码</span>}
+                  dependencies={['password']}
+                  rules={[
+                    { required: true, message: '请确认密码' },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue('password') === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error('两次密码输入不一致'));
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined className="text-gray-400" />}
+                    placeholder="确认密码"
+                    className="rounded-xl"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
 
             <Form.Item
               name="phone"
-              label={<span className="text-sm font-medium text-gray-700">手机号</span>}
+              // label={<span className="text-sm font-medium text-gray-700">手机号</span>}
               rules={[
                 { required: true, message: '请输入手机号' },
                 { pattern: /^1[3-9]\d{9}$/, message: '请输入有效的手机号' }
@@ -180,7 +190,7 @@ function Register() {
             </Form.Item>
 
             <Form.Item
-              label={<span className="text-sm font-medium text-gray-700">验证码</span>}
+              // label={<span className="text-sm font-medium text-gray-700">验证码</span>}
               required
             >
               <Row gutter={8}>
@@ -290,4 +300,3 @@ function Register() {
 }
 
 export default Register;
-

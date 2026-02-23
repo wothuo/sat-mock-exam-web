@@ -2,20 +2,25 @@ import React, { useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
-import { startPractice } from '../../services/training.js';
-
-import { TRAINING_SUBJECTS } from './constants';
+import {
+  TRAINING_SUBJECTS,
+  SUBJECT_ENUM,
+  QUESTION_SOURCE_ENUM,
+  QUESTION_DIMENSION_ENUM,
+  QUESTION_DIFFICULTY_ENUM,
+  QUESTION_SUBCATEGORY_ENUM
+} from './constants';
 import TrainingConfig from './TrainingConfig';
 
 
 function SpecialTraining() {
   const navigate = useNavigate();
-  const [activeSubject, setActiveSubject] = useState('阅读');
+  const [activeSubject, setActiveSubject] = useState(SUBJECT_ENUM.READING);
   const [trainingConfig, setTrainingConfig] = useState({
-    questionType: '全部',
-    source: '全部',
-    dimension: '全部',
-    difficulty: '随机',
+    questionType: QUESTION_SUBCATEGORY_ENUM.ALL,
+    source: QUESTION_SOURCE_ENUM.ALL,
+    dimension: QUESTION_DIMENSION_ENUM.ALL,
+    difficulty: QUESTION_DIFFICULTY_ENUM.RANDOM,
     count: '5题'
     // viewMode: '随时查看答案和解析'
   });
@@ -27,8 +32,14 @@ function SpecialTraining() {
     }));
   };
 
-  const handleStartTraining = async () => {
-    // 转换参数格式
+  // 根据中文标签获取对应的英文枚举值
+  const getEnumValueFromLabel = (labels, label) => {
+    const entry = Object.entries(labels).find(([key, value]) => value === label);
+    return entry ? entry[0] : label; // 如果找不到对应的枚举值，返回原值
+  };
+
+  const handleStartTraining = () => {
+    // 直接使用枚举值，无需转换
     const practiceParams = {
       questionCategory: activeSubject,
       questionSubCategory: trainingConfig.questionType,
@@ -38,21 +49,15 @@ function SpecialTraining() {
       size: parseInt(trainingConfig.count) || 5
     };
 
-    console.log('开始训练，配置参数：', practiceParams);
+    console.log('准备开始训练，配置参数：', practiceParams);
 
-    try {
-      // 调用开始练习API
-      const questions = await startPractice(practiceParams);
-      console.log('获取到题目：', questions);
-
-      // 直接使用返回的题目数组，因为startPractice已经返回了response.data
-      console.log('提取题目数据：', questions);
-
-      navigate('/practicing', { state: { questions } });
-    } catch (error) {
-      console.error('开始训练失败：', error);
-      // 可以添加错误提示
-    }
+    // 导航到时间模式选择页面，传递配置参数
+    navigate('/time-mode', {
+      state: {
+        source: 'practice',
+        config: practiceParams
+      }
+    });
   };
 
 
@@ -69,10 +74,10 @@ function SpecialTraining() {
                 onClick={() => {
                   setActiveSubject(subject.id);
                   setTrainingConfig({
-                    questionType: '全部',
-                    source: '全部',
-                    dimension: '全部',
-                    difficulty: '随机',
+                    questionType: QUESTION_SUBCATEGORY_ENUM.ALL,
+                    source: QUESTION_SOURCE_ENUM.ALL,
+                    dimension: QUESTION_DIMENSION_ENUM.ALL,
+                    difficulty: QUESTION_DIFFICULTY_ENUM.RANDOM,
                     count: '5题'
                     // viewMode: '随时查看答案和解析'
                   });

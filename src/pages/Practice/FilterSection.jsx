@@ -20,7 +20,7 @@ function FilterSection({
       </div>
       
       <div className="flex flex-wrap gap-3">
-        {options.map((option) => {
+        {(options ?? []).map((option) => {
           const isSelected = value === option.id;
           
           if (showIcons) {
@@ -31,7 +31,7 @@ function FilterSection({
                   className={`group relative px-3 py-3 sm:px-4 sm:py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 min-w-[80px] sm:min-w-[100px] flex-1 sm:flex-none ${
                     isSelected
                       ? `bg-gradient-to-br ${
-                          option.id === '全部' 
+                          option.id === 'ALL' 
                             ? 'from-blue-500 to-blue-600' 
                             : option.color.includes('blue') ? 'from-blue-500 to-blue-600' :
                               option.color.includes('green') ? 'from-green-500 to-green-600' :
@@ -46,7 +46,7 @@ function FilterSection({
                               option.color.includes('lime') ? 'from-lime-500 to-lime-600' :
                               'from-gray-500 to-gray-600'
                         } text-white shadow-lg ring-2 ring-offset-2 ${
-                          option.id === '全部' 
+                          option.id === 'ALL' 
                             ? 'ring-blue-400' 
                             : option.color.includes('blue') ? 'ring-blue-400' :
                               option.color.includes('green') ? 'ring-green-400' :

@@ -1,6 +1,90 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-function TimeModeScreen({ timeMode, setTimeMode, onStart }) {
+import { useNavigate, useLocation } from 'react-router-dom';
+
+import { message } from 'antd';
+
+import { answerOfSection } from '../../../../services/exam';
+import { startPractice } from '../../../../services/training';
+
+function TimeModeScreen({ timeMode, setTimeMode }) {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  // 从路由状态中获取配置参数
+  const { source = 'exam', config = {} } = location.state || {};
+
+  const handleStart = async () => {
+    setLoading(true);
+    console.log('开始处理，来源:', source, '配置:', config, '时间模式:', timeMode);
+    try {
+      let questions;
+      
+      if (source === 'exam') {
+        // 模考模式：调用answerOfSection获取题目
+        console.log('调用answerOfSection，sectionId:', config.sectionId);
+        questions = await answerOfSection(config.sectionId);
+        console.log('获取到题目:', questions);
+        
+        // 导航到考试内容页面，传递必要的参数
+        navigate(`/exam/${config.sectionId}`, {
+          state: {
+            sectionId: config.sectionId,
+            examTitle: config.examTitle,
+            sectionName: config.sectionName,
+            examDuration: config.examDuration,
+            totalQuestions: config.totalQuestions,
+            questions: questions,
+            timeMode: timeMode
+          }
+        });
+      } else if (source === 'practice') {
+        // 训练模式：调用startPractice获取题目
+        const practiceParams = {
+          questionCategory: config.questionCategory,
+          questionSubCategory: config.questionSubCategory,
+          difficulty: config.difficulty,
+          source: config.source,
+          records: config.records,
+          size: config.size
+        };
+        
+        console.log('调用startPractice，参数:', practiceParams);
+        questions = await startPractice(practiceParams);
+        console.log('获取到题目:', questions);
+        
+        // 导航到练习页面，传递题目数据
+        navigate('/practicing', { state: { questions, timeMode: timeMode } });
+      }
+    } catch (error) {
+      console.error('获取题目失败:', error);
+      message.error('获取题目失败，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 根据来源显示不同的标题和描述
+  const getTitle = () => {
+    if (source === 'exam') {
+      return {
+        title: 'Select Exam Timing',
+        subtitle: 'Choose your preferred timing option'
+      };
+    } else if (source === 'practice') {
+      return {
+        title: 'Select Practice Timing',
+        subtitle: 'Choose your preferred timing option'
+      };
+    }
+    return {
+      title: 'Choose Time Mode',
+      subtitle: 'Select your preferred timing option'
+    };
+  };
+
+  const { title, subtitle } = getTitle();
+
   return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full">
@@ -11,18 +95,18 @@ function TimeModeScreen({ timeMode, setTimeMode, onStart }) {
                 <i className="fas fa-clock text-2xl text-white" />
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-                Choose Time Mode
+                {title}
               </h1>
               <p className="text-gray-600 text-sm sm:text-base">
-                Select your preferred timing option
+                {subtitle}
               </p>
             </div>
 
             {/* 时间模式选择 */}
             <div className="mb-6 sm:mb-8">
-              <label className="block text-sm font-semibold text-gray-800 mb-3">
-                Timing <span className="text-red-500">*</span>
-              </label>
+              {/*<label className="block text-sm font-semibold text-gray-800 mb-3">*/}
+              {/*  Timing <span className="text-red-500">*</span>*/}
+              {/*</label>*/}
 
               <div className="relative">
                 <select
@@ -30,7 +114,7 @@ function TimeModeScreen({ timeMode, setTimeMode, onStart }) {
                     onChange={(e) => setTimeMode(e.target.value)}
                     className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white shadow-sm transition-all duration-200"
                 >
-                  <option value="timed">✓ Timed</option>
+                  <option value="timed">Timed</option>
                   <option value="untimed">Untimed</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
@@ -60,10 +144,11 @@ function TimeModeScreen({ timeMode, setTimeMode, onStart }) {
             <div className="text-center">
               <button
                   type="button"
-                  onClick={onStart}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 w-full sm:w-auto min-w-[140px]"
+                  onClick={handleStart}
+                  disabled={loading}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg font-semibold text-base transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 w-full sm:w-auto min-w-[140px]"
               >
-                Start Practice
+                {loading ? 'Loading...' : (source === 'exam' ? 'Start Exam' : 'Start Practice')}
               </button>
             </div>
           </div>

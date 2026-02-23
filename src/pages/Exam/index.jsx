@@ -7,11 +7,55 @@ import { Button, Card, Col, Empty, Pagination, Row, Space, Spin, Tag, message } 
 import { ClockCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 import { queryExamSectionList, answerOfSection } from '../../services/exam';
+import { SOURCE_ENUM, SOURCE_LABELS } from '../ExamSetEntry/examSetEntryConstants';
+
+/** 套题所属科目枚举 */
+const SUBJECT_ENUM = {
+  ALL: 'ALL',
+  SAT_MATH: 'SAT_MATH',
+  SAT_RW: 'SAT_RW'
+};
+
+/** 枚举值 -> 中文展示 */
+const SUBJECT_LABELS = {
+  [SUBJECT_ENUM.ALL]: '全部',
+  [SUBJECT_ENUM.SAT_MATH]: '数学',
+  [SUBJECT_ENUM.SAT_RW]: '阅读语法'
+};
+
+const SUBJECT_OPTIONS = [
+  { value: SUBJECT_ENUM.ALL, label: SUBJECT_LABELS[SUBJECT_ENUM.ALL] },
+  { value: SUBJECT_ENUM.SAT_MATH, label: SUBJECT_LABELS[SUBJECT_ENUM.SAT_MATH] },
+  { value: SUBJECT_ENUM.SAT_RW, label: SUBJECT_LABELS[SUBJECT_ENUM.SAT_RW] }
+];
+
+/** 套题难度枚举 */
+const DIFFICULTY_ENUM = {
+  ALL: 'ALL',
+  EASY: 'EASY',
+  MEDIUM: 'MEDIUM',
+  HARD: 'HARD'
+};
+
+/** 枚举值 -> 中文展示 */
+const DIFFICULTY_LABELS = {
+  [DIFFICULTY_ENUM.ALL]: '全部',
+  [DIFFICULTY_ENUM.EASY]: '简单',
+  [DIFFICULTY_ENUM.MEDIUM]: '中等',
+  [DIFFICULTY_ENUM.HARD]: '困难'
+};
+
+const DIFFICULTY_OPTIONS = [
+  { value: DIFFICULTY_ENUM.ALL, label: DIFFICULTY_LABELS[DIFFICULTY_ENUM.ALL] },
+  { value: DIFFICULTY_ENUM.EASY, label: DIFFICULTY_LABELS[DIFFICULTY_ENUM.EASY] },
+  { value: DIFFICULTY_ENUM.MEDIUM, label: DIFFICULTY_LABELS[DIFFICULTY_ENUM.MEDIUM] },
+  { value: DIFFICULTY_ENUM.HARD, label: DIFFICULTY_LABELS[DIFFICULTY_ENUM.HARD] }
+];
 
 function MockExam() {
-  const [activeTab, setActiveTab] = useState('历年真题');
-  const [selectedSubject, setSelectedSubject] = useState('全部');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('全部');
+  const [activeTab, setActiveTab] = useState(SOURCE_ENUM.PAST_YEAR);
+  const [selectedSubject, setSelectedSubject] = useState(SUBJECT_ENUM.ALL);
+  const [selectedDifficulty, setSelectedDifficulty] = useState(DIFFICULTY_ENUM.ALL);
   const [selectedYear, setSelectedYear] = useState('全部');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
@@ -20,8 +64,6 @@ function MockExam() {
   const [examError, setExamError] = useState(null);
   const [total, setTotal] = useState(0);
 
-  const subjects = ['全部', '数学', '阅读语法'];
-  const difficulties = ['全部', '简单', '中等', '困难'];
   const years = ['全部', '2026', '2025', '2024', '2023'];
 
   const fetchExamData = useCallback(async (signal) => {
@@ -32,38 +74,37 @@ function MockExam() {
         pageNum: currentPage,
         pageSize: pageSize,
         examType: 'ALL',
-        difficulty: selectedDifficulty === '全部' ? 'ALL' : selectedDifficulty,
+        difficulty: selectedDifficulty,
         examRegion: 'ALL',
         examYear: selectedYear === '全部' ? 'ALL' : selectedYear,
-        source: activeTab === '历年真题' ? '历年真题' : '官方样题',
+        source: activeTab,
         examName: 'ALL',
-        sectionCategory: selectedSubject === '全部' ? 'ALL' : selectedSubject
+        sectionCategory: selectedSubject
       };
 
       const response = await queryExamSectionList(params, { signal, showError: false });
 
       if (signal.aborted) return;
-      if (response && response.list) {
-        const transformedData = response.list.map(item => ({
-          id: item.sectionId,
-          title: item.examSummary.examName,
-          sectionName: item.sectionName,
-          subject: item.sectionCategory,
-          source: item.examSummary.source,
-          duration: `${item.sectionTiming}分钟`,
-          questions: item.questionCount,
-          difficulty: item.examSummary.difficulty,
-          // description: item.examSummary.examDescription || `${item.examSummary.examYear}年${item.examSummary.examType}${item.examSummary.examRegion}地区${item.sectionCategory}部分`,
-          description: `${item.examSummary.examYear}年${item.examSummary.examType} ${item.examSummary.examRegion}地区 ${item.sectionCategory}部分`,
-          year: parseInt(item.examSummary.examYear) || 2025
-        }));
-
-        setExamSets(transformedData);
-        setTotal(response.total || 0);
-      }
+      const rawList = response?.list ?? [];
+      const transformedData = rawList.map(item => ({
+        id: item.sectionId,
+        title: item.examSummary.examName,
+        sectionName: item.sectionName,
+        subject: item.sectionCategory,
+        source: item.examSummary.source,
+        duration: `${item.sectionTiming}分钟`,
+        questions: item.questionCount,
+        difficulty: item.sectionDifficulty,
+        description: `${item.examSummary.examYear}年${item.examSummary.examType} ${item.examSummary.examRegion}地区 ${SUBJECT_LABELS[item.sectionCategory] ?? item.sectionCategory}部分`,
+        year: parseInt(item.examSummary.examYear) || 2025
+      }));
+      setExamSets(transformedData);
+      setTotal(response?.total ?? 0);
     } catch (error) {
       if (signal.aborted || error?.name === 'AbortError' || error?.code === 'ERR_CANCELED') return;
       console.error('获取套题数据失败:', error);
+      setExamSets([]);
+      setTotal(0);
       setExamError(error);
     } finally {
       if (!signal.aborted) setLoading(false);
@@ -84,10 +125,10 @@ function MockExam() {
 
   const filteredExams = examSets.filter(exam => {
     const matchSource = exam.source === activeTab;
-    const matchDifficulty = selectedDifficulty === '全部' || exam.difficulty === selectedDifficulty;
+    const matchDifficulty = selectedDifficulty === DIFFICULTY_ENUM.ALL || exam.difficulty === selectedDifficulty;
     const matchYear = selectedYear === '全部' || exam.year.toString() === selectedYear;
 
-    let matchSubject = selectedSubject === '全部';
+    let matchSubject = selectedSubject === SUBJECT_ENUM.ALL;
     if (!matchSubject) {
       matchSubject = exam.subject === selectedSubject;
     }
@@ -110,26 +151,24 @@ function MockExam() {
         <div className="mb-8">
           <div className="flex space-x-1 bg-white/80 backdrop-blur-xl p-1 rounded-2xl w-fit shadow-lg border border-white/20">
             <button
-              onClick={() => setActiveTab('历年真题')}
-              className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
-                activeTab === '历年真题'
+              onClick={() => setActiveTab(SOURCE_ENUM.PAST_YEAR)}
+              className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${activeTab === SOURCE_ENUM.PAST_YEAR
                   ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <i className="fas fa-history mr-2"></i>
-              历年真题
+              {SOURCE_LABELS[SOURCE_ENUM.PAST_YEAR]}
             </button>
             <button
-              onClick={() => setActiveTab('官方样题')}
-              className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${
-                activeTab === '官方样题'
+              onClick={() => setActiveTab(SOURCE_ENUM.OFFICIAL_SAMPLE)}
+              className={`px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ${activeTab === SOURCE_ENUM.OFFICIAL_SAMPLE
                   ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <i className="fas fa-file-alt mr-2"></i>
-              官方样题
+              {SOURCE_LABELS[SOURCE_ENUM.OFFICIAL_SAMPLE]}
             </button>
           </div>
         </div>
@@ -144,31 +183,29 @@ function MockExam() {
                 <h3 className="text-lg font-semibold text-gray-900">所属科目</h3>
               </div>
               <div className="flex flex-wrap gap-3">
-                {subjects.map((subject) => (
+                {SUBJECT_OPTIONS.map(({ value, label }) => (
                   <button
-                    key={subject}
-                    onClick={() => setSelectedSubject(subject)}
-                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                      selectedSubject === subject
+                    key={value}
+                    onClick={() => setSelectedSubject(value)}
+                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${selectedSubject === value
                         ? 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white shadow-lg'
                         : 'bg-gradient-to-br from-white to-gray-50 text-gray-700 border border-gray-200 hover:shadow-lg'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        selectedSubject === subject 
-                          ? 'bg-white/20 backdrop-blur-sm' 
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${selectedSubject === value
+                          ? 'bg-white/20 backdrop-blur-sm'
                           : 'bg-gray-100 group-hover:bg-blue-100'
-                      }`}>
-                        {selectedSubject === subject ? (
+                        }`}>
+                        {selectedSubject === value ? (
                           <i className="fas fa-check text-white text-xs"></i>
                         ) : (
                           <i className="far fa-circle text-gray-400 group-hover:text-blue-500 text-xs"></i>
                         )}
                       </div>
                       <span className="relative">
-                        {subject}
-                        {selectedSubject === subject && (
+                        {label}
+                        {selectedSubject === value && (
                           <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-white/30 rounded-full"></div>
                         )}
                       </span>
@@ -186,31 +223,29 @@ function MockExam() {
                 <h3 className="text-lg font-semibold text-gray-900">套题难度</h3>
               </div>
               <div className="flex flex-wrap gap-3">
-                {difficulties.map((difficulty) => (
+                {DIFFICULTY_OPTIONS.map(({ value, label }) => (
                   <button
-                    key={difficulty}
-                    onClick={() => setSelectedDifficulty(difficulty)}
-                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                      selectedDifficulty === difficulty
+                    key={value}
+                    onClick={() => setSelectedDifficulty(value)}
+                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${selectedDifficulty === value
                         ? 'bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-lg'
                         : 'bg-gradient-to-br from-white to-gray-50 text-gray-700 border border-gray-200 hover:shadow-lg'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        selectedDifficulty === difficulty 
-                          ? 'bg-white/20 backdrop-blur-sm' 
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${selectedDifficulty === value
+                          ? 'bg-white/20 backdrop-blur-sm'
                           : 'bg-gray-100 group-hover:bg-orange-100'
-                      }`}>
-                        {selectedDifficulty === difficulty ? (
+                        }`}>
+                        {selectedDifficulty === value ? (
                           <i className="fas fa-check text-white text-xs"></i>
                         ) : (
                           <i className="far fa-circle text-gray-400 group-hover:text-orange-500 text-xs"></i>
                         )}
                       </div>
                       <span className="relative">
-                        {difficulty}
-                        {selectedDifficulty === difficulty && (
+                        {label}
+                        {selectedDifficulty === value && (
                           <div className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-white/30 rounded-full"></div>
                         )}
                       </span>
@@ -232,18 +267,16 @@ function MockExam() {
                   <button
                     key={year}
                     onClick={() => setSelectedYear(year)}
-                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                      selectedYear === year
+                    className={`group relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${selectedYear === year
                         ? 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg'
                         : 'bg-gradient-to-br from-white to-gray-50 text-gray-700 border border-gray-200 hover:shadow-lg'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${
-                        selectedYear === year 
-                          ? 'bg-white/20 backdrop-blur-sm' 
+                      <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 ${selectedYear === year
+                          ? 'bg-white/20 backdrop-blur-sm'
                           : 'bg-gray-100 group-hover:bg-purple-100'
-                      }`}>
+                        }`}>
                         {selectedYear === year ? (
                           <i className="fas fa-check text-white text-xs"></i>
                         ) : (
@@ -286,105 +319,109 @@ function MockExam() {
             </div>
           ) : (
             <Row gutter={[12, 12]} className="mb-8">
-              {paginatedExams.map((exam) => (
-                <Col xs={24} sm={12} lg={8} key={exam.id}>
-              <Card
-                hoverable
-                className="h-full"
-                styles={{
-                  body: { padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }
-                }}
-              >
-                <div className="relative bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4 mb-3">
-                  <Space direction="vertical" size="small" className="w-full">
-                    <div className="mb-2">
-                      <Space className="w-full justify-between items-center">
-                        <div className="flex items-center space-x-2">
-                        <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
-                          {exam.source}
-                        </span>
-                          <div className="flex items-center text-xs text-purple-600 font-medium">
-                            <i className="fas fa-book mr-1"></i>
-                            {exam.subject}
-                          </div>
-                        </div>
-                        <span className={`text-xs font-semibold px-2 py-1 rounded-md ${
-                            exam.difficulty === '简单' ? 'text-green-700 bg-green-100' :
-                                exam.difficulty === '中等' ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100'}`}>
-                        {exam.difficulty}
-                      </span>
-                      </Space>
-                    </div>
-
-                    {exam.title && (
-                        <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
-                          <i className="fas fa-cube mr-1"></i>
-                          {exam.title}
-                        </div>
-                    )}
-                    {exam.sectionName && (
-                        <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
-                          <i className="fas fa-layer-group text-xs"></i>
-                          {/*<span className="text-gray-600">{exam.sectionName}</span>*/}
-                          <span className="text-gray-500">{exam.sectionName}</span>
-                          {/*<span className="text-gray-700/80">{exam.sectionName}</span>*/}
-                          {/*<span className="text-blue-600/70">{exam.sectionName}</span>*/}
-                        </div>
-                    )}
-                  </Space>
-                </div>
-
-                <div className="p-4 flex-1 flex flex-col">
-                  {/*<p className="text-sm text-gray-600 mb-6 flex-1">*/}
-                  {/*  {exam.description}*/}
-                  {/*  {exam.sectionName && (*/}
-                  {/*      <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">*/}
-                  {/*        <i className="fas fa-layer-group text-xs"></i>*/}
-                  {/*        {exam.sectionName}*/}
-                  {/*      </div>*/}
-                  {/*  )}*/}
-                  {/*</p>*/}
-
-                  <Row gutter={8} className="mb-5">
-                    <Col span={12}>
-                      <div className="flex items-center justify-center bg-blue-50 rounded-lg p-3 h-full">
-                        <ClockCircleOutlined className="text-blue-500 text-lg mr-2" />
-                        <div>
-                          <div className="text-xs font-bold">考试时长: {exam.duration}</div>
-                        </div>
-                      </div>
-                    </Col>
-                    <Col span={12}>
-                      <div className="flex items-center justify-center bg-purple-50 rounded-lg p-3 h-full">
-                        <QuestionCircleOutlined className="text-purple-500 text-lg mr-2" />
-                        <div>
-                          <div className="text-xs font-bold">题目数量: {exam.questions}题</div>
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>
-
-                  <div className="mt-2">
-                    <Link
-                        to={`/exam/${exam.id}`}
-                        state={{
-                          sectionId: exam.id,
-                          examTitle: exam.title,
-                          sectionName: exam.sectionName,
-                          examDuration: exam.duration,
-                          totalQuestions: exam.questions
-                        }}
+              {paginatedExams.map((exam) => {
+                return (
+                  <Col xs={24} sm={12} lg={8} key={exam.id}>
+                    <Card
+                      hoverable
+                      className="h-full"
+                      styles={{
+                        body: { padding: 0, height: '100%', display: 'flex', flexDirection: 'column' }
+                      }}
                     >
-                      <Button type="primary" block size="large" className="bg-gradient-to-r from-indigo-500 to-purple-500">
-                        <i className="fas fa-rocket mr-2"></i>
-                        开始模考
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </Card>
-                </Col>
-              ))}
+                      <div className="relative bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 p-4 mb-3">
+                        <Space direction="vertical" size="small" className="w-full">
+                          <div className="mb-2">
+                            <Space className="w-full justify-between items-center">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
+                                  {SOURCE_LABELS[exam.source] ?? exam.source}
+                                </span>
+                                <div className="flex items-center text-xs text-purple-600 font-medium">
+                                  <i className="fas fa-book mr-1"></i>
+                                  {SUBJECT_LABELS[exam.subject] ?? exam.subject}
+                                </div>
+                              </div>
+                              <span className={`text-xs font-semibold px-2 py-1 rounded-md ${exam.difficulty === DIFFICULTY_ENUM.EASY ? 'text-green-700 bg-green-100' :
+                                  exam.difficulty === DIFFICULTY_ENUM.MEDIUM ? 'text-amber-700 bg-amber-100' : 'text-red-700 bg-red-100'}`}>
+                                {DIFFICULTY_LABELS[exam.difficulty] ?? exam.difficulty}
+                              </span>
+                            </Space>
+                          </div>
+
+                          {exam.title && (
+                            <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
+                              <i className="fas fa-cube mr-1"></i>
+                              {exam.title}
+                            </div>
+                          )}
+                          {exam.sectionName && (
+                            <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
+                              <i className="fas fa-layer-group text-xs"></i>
+                              {/*<span className="text-gray-600">{exam.sectionName}</span>*/}
+                              <span className="text-gray-500">{exam.sectionName}</span>
+                              {/*<span className="text-gray-700/80">{exam.sectionName}</span>*/}
+                              {/*<span className="text-blue-600/70">{exam.sectionName}</span>*/}
+                            </div>
+                          )}
+                        </Space>
+                      </div>
+
+                      <div className="p-4 flex-1 flex flex-col">
+                        {/*<p className="text-sm text-gray-600 mb-6 flex-1">*/}
+                        {/*  {exam.description}*/}
+                        {/*  {exam.sectionName && (*/}
+                        {/*      <div className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600">*/}
+                        {/*        <i className="fas fa-layer-group text-xs"></i>*/}
+                        {/*        {exam.sectionName}*/}
+                        {/*      </div>*/}
+                        {/*  )}*/}
+                        {/*</p>*/}
+
+                        <Row gutter={8} className="mb-5">
+                          <Col span={12}>
+                            <div className="flex items-center justify-center bg-blue-50 rounded-lg p-3 h-full">
+                              <ClockCircleOutlined className="text-blue-500 text-lg mr-2" />
+                              <div>
+                                <div className="text-xs font-bold">考试时长: {exam.duration}</div>
+                              </div>
+                            </div>
+                          </Col>
+                          <Col span={12}>
+                            <div className="flex items-center justify-center bg-purple-50 rounded-lg p-3 h-full">
+                              <QuestionCircleOutlined className="text-purple-500 text-lg mr-2" />
+                              <div>
+                                <div className="text-xs font-bold">题目数量: {exam.questions}题</div>
+                              </div>
+                            </div>
+                          </Col>
+                        </Row>
+
+                        <div className="mt-2">
+                          <Link
+                            to="/time-mode"
+                            state={{
+                              source: 'exam',
+                              config: {
+                                sectionId: exam.id,
+                                examTitle: exam.title,
+                                sectionName: exam.sectionName,
+                                examDuration: exam.duration,
+                                totalQuestions: exam.questions
+                              }
+                            }}
+                          >
+                            <Button type="primary" block size="large" className="bg-gradient-to-r from-indigo-500 to-purple-500">
+                              <i className="fas fa-rocket mr-2"></i>
+                              开始模考
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </Card>
+                  </Col>
+                )
+              })}
             </Row>
           )}
         </Spin>

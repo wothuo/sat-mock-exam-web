@@ -72,65 +72,72 @@ function QuestionStemPanel({
                         </div>
                     )}
 
-                    {(question.type === 'multiple-choice-with-image' ||
-                            question.type === 'student-produced-with-image' ||
-                            question.type === 'image-with-blanks') &&
-                        question.images && question.images.length > 0 && (
-                            <div className="space-y-4">
-                                {question.images.map((img, imgIndex) => (
-                                    <div key={imgIndex} className="flex justify-center">
-                                        <img
-                                            src={img.url}
-                                            alt={img.alt || `Question image ${imgIndex + 1}`}
-                                            className="max-w-full max-h-96 h-auto rounded-lg border border-gray-200 shadow-sm object-contain transition-all duration-300 hover:shadow-md"
-                                            style={{
-                                                maxWidth: 'min(100%, 600px)',
-                                                width: 'auto',
-                                                height: 'auto'
-                                            }}
-                                            onError={(e) => {
-                                                e.target.style.display = 'none';
-                                                console.warn(`图片加载失败: ${img.url}`);
-                                            }}
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                    {(question.type === 'table-question' || question.type === 'complex-table') && question.table && (
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                                <thead className="bg-gray-50">
-                                {question.table.header.map((header, index) => (
-                                    <tr key={index}>
-                                        {header.map((cell, cellIndex) => (
-                                            <th key={cellIndex} className="px-4 py-2 text-left text-sm font-medium text-gray-900 border-b border-gray-200">
-                                                {cell}
-                                            </th>
-                                        ))}
-                                    </tr>
-                                ))}
-                                </thead>
-                                <tbody>
-                                {question.table.rows.map((row, index) => (
-                                    <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                        {row.map((cell, cellIndex) => (
-                                            <td key={cellIndex} className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200">
-                                                {cell}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </div>
+          {question.hasImage && question.images && question.images.length > 0 && (
+              <div className="space-y-4">
+                {question.images.map((img, imgIndex) => (
+                  <div key={imgIndex} className="flex justify-center">
+                    <img
+                      src={img.url}
+                      alt={img.alt || `Question image ${imgIndex + 1}`}
+                      className="max-w-full max-h-96 h-auto rounded-lg border border-gray-200 shadow-sm object-contain transition-all duration-300 hover:shadow-md"
+                      style={{
+                        maxWidth: 'min(100%, 600px)',
+                        width: 'auto',
+                        height: 'auto'
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        console.warn(`图片加载失败: ${img.url}`);
+                      }}
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
             )}
+
+          {question.hasTable && question.table && (
+            <div className="overflow-x-auto">
+              {question.table.title && (
+                <div className="mb-4 text-center font-semibold text-gray-900 text-sm">
+                  {renderFormattedText(question.table.title, question.id, 'tableTitle')}
+                </div>
+              )}
+
+              <table className="w-full border-collapse border border-gray-300 text-xs">
+                <thead>
+                  <tr className="bg-gray-50">
+                    {question.table.headers.map((header, index) => (
+                      <th
+                        key={index}
+                        className="border border-gray-300 px-2 py-1 text-left font-medium text-gray-900"
+                      >
+                        {renderFormattedText(header, question.id, 'tableHeader')}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {question.table.rows.map((row, rowIndex) => (
+                    <tr key={rowIndex} className="hover:bg-gray-50">
+                      {row.map((cell, cellIndex) => (
+                        <td
+                          key={cellIndex}
+                          className="border border-gray-300 px-2 py-1 text-gray-700"
+                        >
+                          {renderFormattedText(cell, question.id, 'tableCell')}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-    );
+      )}
+    </div>
+  );
 }
 
 export default QuestionStemPanel;

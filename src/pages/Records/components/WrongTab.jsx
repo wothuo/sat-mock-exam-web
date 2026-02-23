@@ -4,6 +4,9 @@ import { Button, Card, Pagination, Select, Space, Spin, Tag } from 'antd';
 
 import { ClockCircleOutlined, EyeOutlined } from '@ant-design/icons';
 
+import FormattedQuestionPreview from '../../../components/common/FormattedQuestionPreview';
+import { SUBJECT_CATEGORY_LABELS, DIFFICULTY_LABELS } from '../../ExamSetEntry/examSetEntryConstants';
+
 const { Option } = Select;
 
 function WrongTab({
@@ -11,9 +14,9 @@ function WrongTab({
   total = 0,
   pageNum = 1,
   pageSize = 10,
-  subject = 'all',
-  difficulty = 'all',
-  period = 'all',
+  subject = 'ALL',
+  difficulty = 'ALL',
+  period = 'ALL',
   onFilterChange,
   onPageChange,
   onShowDetail,
@@ -39,23 +42,21 @@ function WrongTab({
 
   const getDifficultyColor = (d) => {
     const colors = {
-      简单: 'green',
-      中等: 'orange',
-      困难: 'red'
+      EASY: 'green',
+      MEDIUM: 'orange',
+      HARD: 'red'
     };
     return colors[d] || 'geekblue';
   };
 
   const getSubjectColor = (s) => {
     const colors = {
-      数学: 'blue',
-      阅读: 'purple',
-      语法: 'orange',
-      阅读语法: 'magenta'
+      MATH: 'blue',
+      READING: 'purple',
+      WRITING: 'magenta',
     };
     return colors[s] || 'cyan';
   };
-  console.log(records);
 
   return (
     <div className="space-y-4">
@@ -68,10 +69,10 @@ function WrongTab({
             style={{ width: 150 }}
             placeholder="选择科目"
           >
-            <Option value="all">📚 全部科目</Option>
-            <Option value="数学">🔢 数学</Option>
-            <Option value="阅读">📖 阅读</Option>
-            <Option value="语法">✏️ 语法</Option>
+            <Option value="ALL">📚 全部科目</Option>
+            <Option value="MATH">🔢 数学</Option>
+            <Option value="READING">📖 阅读</Option>
+            <Option value="WRITING">✏️ 语法</Option>
           </Select>
           <Select
             value={difficulty}
@@ -79,10 +80,10 @@ function WrongTab({
             style={{ width: 150 }}
             placeholder="选择难度"
           >
-            <Option value="all">📊 全部难度</Option>
-            <Option value="简单">🎯 简单</Option>
-            <Option value="中等">⚡ 中等</Option>
-            <Option value="困难">🔥 困难</Option>
+            <Option value="ALL">📊 全部难度</Option>
+            <Option value="EASY">🎯 简单</Option>
+            <Option value="MEDIUM">⚡ 中等</Option>
+            <Option value="HARD">🔥 困难</Option>
           </Select>
           <Select
             value={period}
@@ -90,10 +91,10 @@ function WrongTab({
             style={{ width: 150 }}
             placeholder="选择时间"
           >
-            <Option value="all">📅 全部时间</Option>
-            <Option value="最近一周">📅 最近一周</Option>
-            <Option value="最近一个月">📅 最近一个月</Option>
-            <Option value="最近三个月">📆 最近三个月</Option>
+            <Option value="ALL">📅 全部时间</Option>
+            <Option value="RECENT_WEEK">📅 最近一周</Option>
+            <Option value="RECENT_MONTH">📅 最近一个月</Option>
+            <Option value="RECENT_THREE_MONTHS">📆 最近三个月</Option>
           </Select>
         </Space>
       </div>
@@ -110,31 +111,35 @@ function WrongTab({
               <div className="flex flex-col lg:flex-row lg:items-center gap-6">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center flex-wrap gap-3 mb-3">
-                    <Tag color={getSubjectColor(q.subject)} className="m-0 px-3 rounded-lg font-bold border-0">{q.subject}</Tag>
-                    <Tag color={getDifficultyColor(q.difficulty)} className="m-0 px-3 rounded-lg font-bold border-0">{q.difficulty}</Tag>
+                    <Tag color={getSubjectColor(q.subject)} className="m-0 px-3 rounded-lg font-bold border-0">{SUBJECT_CATEGORY_LABELS[q.subject] || q.subject}</Tag>
+                    <Tag color={getDifficultyColor(q.difficulty)} className="m-0 px-3 rounded-lg font-bold border-0">{DIFFICULTY_LABELS[q.difficulty] || q.difficulty}</Tag>
                     <span className="text-xs text-gray-400 font-bold flex items-center ml-1">
                       <i className="far fa-calendar-alt mr-1.5"></i>
                       {q.date}
                     </span>
                   </div>
-                  <h3 className="text-gray-800 font-bold text-base mb-2 math-content line-clamp-1">
-                    {q.question}
-                  </h3>
+                  <div className="text-gray-800 font-bold text-base mb-2">
+                    <FormattedQuestionPreview content={q.question} singleLine className="text-inherit font-inherit" />
+                  </div>
                   <p className="text-xs text-gray-400 italic truncate m-0 opacity-70">Source: {q.title}</p>
                 </div>
                 <div className="flex items-center justify-between lg:justify-end gap-8 border-t lg:border-t-0 pt-4 lg:pt-0">
                   <div className="flex items-center gap-8">
-                    <div className="text-center">
+                    <div className="text-center w-28">
                       <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Your</div>
-                      <div className="text-sm font-black text-red-500 bg-red-50 min-w-10 h-8 flex items-center justify-center rounded-lg mx-auto px-2">{q.userAnswer}</div>
+                      <div className="text-sm font-black text-red-500 bg-red-50 min-w-10 h-8 flex items-center justify-center rounded-lg mx-auto px-2 truncate" title={q.userAnswer}>
+                        {q.userAnswer && q.userAnswer.length > 6 ? q.userAnswer.substring(0, 8) + '...' : q.userAnswer}
+                      </div>
                     </div>
-                    <div className="text-center">
+                    <div className="text-center w-28">
                       <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Correct</div>
-                      <div className="text-sm font-black text-blue-600 bg-blue-50 min-w-10 h-8 flex items-center justify-center rounded-lg mx-auto">{q.correctAnswer}</div>
+                      <div className="text-sm font-black text-blue-600 bg-blue-50 min-w-10 h-8 flex items-center justify-center rounded-lg mx-auto truncate" title={q.correctAnswer}>
+                        {q.correctAnswer && q.correctAnswer.length > 6 ? q.correctAnswer.substring(0, 8) + '...' : q.correctAnswer}
+                      </div>
                     </div>
-                    <div className="text-center hidden sm:block">
+                    <div className="text-center hidden sm:block w-24">
                       <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Time</div>
-                      <div className="text-sm font-black text-purple-600 flex items-center h-8">
+                      <div className="text-sm font-black text-purple-600 flex items-center justify-center h-8 truncate" title={formatQuestionTime(q.timeSpent)}>
                         <ClockCircleOutlined className="mr-1" />
                         {formatQuestionTime(q.timeSpent)}
                       </div>

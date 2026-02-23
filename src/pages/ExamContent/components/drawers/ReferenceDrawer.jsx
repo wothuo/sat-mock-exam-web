@@ -1,5 +1,6 @@
 import React from 'react';
 import { Drawer } from 'antd';
+// import {} from '../../../../components/assetes/examContent/mathReference.png'
 
 const REFERENCE_SHAPES = [
   { shape: 'Circle', formulas: ['A = πr²', 'C = 2πr'], svg: '<circle cx="40" cy="40" r="30" fill="none" stroke="currentColor" stroke-width="2"/><line x1="40" y1="40" x2="70" y2="40" stroke="currentColor" stroke-width="2"/><text x="55" y="35" font-size="10" fill="currentColor">r</text>' },
@@ -32,7 +33,10 @@ function ReferenceDrawer({ open, onClose }) {
       styles={{ body: { padding: '24px' } }}
     >
       <div className="space-y-6">
-        <div className="grid grid-cols-3 gap-4">
+        <div>
+          <img src="src/components/assetes/examContent/mathReference.png" alt="image.png" />
+        </div>
+        {/* <div className="grid grid-cols-3 gap-4">
           {REFERENCE_SHAPES.map((item, index) => (
             <div key={index} className="flex flex-col items-center p-3 bg-gray-50 rounded-xl">
               <svg width="70" height="70" viewBox="0 0 80 80" className="text-gray-700 mb-2" dangerouslySetInnerHTML={{ __html: item.svg }} />
@@ -44,7 +48,7 @@ function ReferenceDrawer({ open, onClose }) {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
           <div className="text-sm text-gray-700 space-y-2">

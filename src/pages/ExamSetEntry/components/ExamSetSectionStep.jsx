@@ -3,6 +3,8 @@ import React from 'react';
 import { Button, Card, Empty, Modal, Space, Tag } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 
+import { SECTION_DIFFICULTY_ENUM, SECTION_DIFFICULTY_LABELS, SECTION_SUBJECT_LABELS } from '../examSetEntryConstants';
+
 /**
  * 套题录入 - Section 结构规划（步骤 1）
  * 仅负责展示与事件转发，Section 新增/编辑 Modal 及 sections 状态保留在父组件
@@ -87,7 +89,7 @@ function ExamSetSectionStep({
                     <span className="font-bold text-gray-700 ml-2 truncate" title={section.name}>{section.name}</span>
                   </div>
                   <div className="flex items-center flex-shrink-0 ml-2">
-                    <Tag color="purple" className="m-0 rounded-md border-0 font-bold text-[10px] mr-2">{section.subject}</Tag>
+                    <Tag color="purple" className="m-0 rounded-md border-0 font-bold text-[10px] mr-2">{SECTION_SUBJECT_LABELS[section.subject] ?? section.subject}</Tag>
                     <Button type="text" size="small" icon={<EditOutlined className="text-blue-500" />} onClick={() => onEditSection(section)} />
                     <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={() => handleDeleteClick(section)} />
                   </div>
@@ -104,9 +106,9 @@ function ExamSetSectionStep({
                 <div className="text-right">
                   <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Difficulty</div>
                   <div className="flex items-center justify-end">
-                    <i className={`fas fa-star ${section.difficulty === '简单' ? 'text-green-500' : section.difficulty === '困难' ? 'text-red-500' : 'text-yellow-500'} text-sm`} />
+                    <i className={`fas fa-star ${section.difficulty === SECTION_DIFFICULTY_ENUM.EASY ? 'text-green-500' : section.difficulty === SECTION_DIFFICULTY_ENUM.HARD ? 'text-red-500' : 'text-yellow-500'} text-sm`} />
                     <span className="text-xs font-medium ml-1 text-gray-600">
-                      {section.difficulty}
+                      {SECTION_DIFFICULTY_LABELS[section.difficulty] ?? section.difficulty}
                     </span>
                   </div>
                 </div>

@@ -79,15 +79,12 @@ function mapWrongItem(item) {
 
 /** 前端筛选值 → 接口参数 */
 function toApiQuestionCategory(value) {
-  if (!value || value === 'all') return undefined;
   return value;
 }
 function toApiDifficulty(value) {
-  if (!value || value === 'all') return undefined;
   return value;
 }
 function toApiTimeRange(value) {
-  if (!value || value === 'all') return undefined;
   return value;
 }
 
@@ -103,9 +100,9 @@ function PracticeRecord() {
     total: 0
   });
   const [wrongLoading, setWrongLoading] = useState(false);
-  const [wrongSubject, setWrongSubject] = useState('all');
-  const [wrongDifficulty, setWrongDifficulty] = useState('all');
-  const [wrongPeriod, setWrongPeriod] = useState('all');
+  const [wrongSubject, setWrongSubject] = useState('ALL');
+  const [wrongDifficulty, setWrongDifficulty] = useState('ALL');
+  const [wrongPeriod, setWrongPeriod] = useState('ALL');
   const [wrongError, setWrongError] = useState(null);
 
   const loadWrongList = useCallback(async (pageNum = wrongPagination.current, pageSize = wrongPagination.pageSize) => {
@@ -163,7 +160,7 @@ function PracticeRecord() {
         });
       });
     }
-  }, [activeTab]);
+  }, [activeTab, wrongList]);
 
   // 笔记记录数据
   const tabItems = [
