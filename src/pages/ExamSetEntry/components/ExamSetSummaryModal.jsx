@@ -140,7 +140,7 @@ function ExamSetSummaryModal({ open, onCancel, onOk, loading, summaryFormValues 
           <div>
             <h4 className="font-bold text-amber-900 mb-2">提交前请确认</h4>
             <p className="text-sm text-amber-800 leading-relaxed">
-              请仔细核对各 Section 的题目数量和分布情况，确认无误后点击「确认提交」完成录入。提交后将无法修改，如需调整请点击「返回修改」。
+              请仔细核对各 Section 的题目数量和分布情况，确认无误后点击「确认提交」完成录入，如需调整请点击「返回修改」。
             </p>
           </div>
         </div>

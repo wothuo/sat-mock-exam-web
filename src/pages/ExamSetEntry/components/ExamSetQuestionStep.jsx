@@ -277,12 +277,12 @@ function ExamSetQuestionStep({
             <span className="font-bold text-gray-900 text-sm">题目索引 ({questions.length})</span>
             <div className="flex items-center space-x-2">
               <Button
-                type="default"
+                type="text"
                 size="small"
                 icon={isQuestionsReversed ? <SortDescendingOutlined /> : <SortAscendingOutlined />}
                 onClick={onToggleQuestionOrder}
-                className="rounded-md font-bold"
-                title={isQuestionsReversed ? "切换为正序" : "切换为倒序"}
+                className="rounded-md font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                title={isQuestionsReversed ? "切换为正序排列" : "切换为倒序排列"}
               >
                 {isQuestionsReversed ? "倒序" : "正序"}
               </Button>
@@ -624,7 +624,7 @@ function ExamSetQuestionStep({
       </div>
 
       <div className="flex items-center justify-between pt-8">
-        <Button size="large" onClick={onPrev} className="h-12 px-8 rounded-md">
+        <Button size="large" onClick={onPrev} className="h-12 px-8 rounded-md font-bold">
           上一步：修改 Section 信息
         </Button>
         <Space>

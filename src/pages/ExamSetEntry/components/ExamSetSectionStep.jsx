@@ -131,7 +131,7 @@ function ExamSetSectionStep({
       )}
 
       <div className="flex items-center justify-between pt-8">
-        <Button size="large" onClick={onPrev} className="h-12 px-8 rounded-xl">
+        <Button size="large" onClick={onPrev} className="h-12 px-8 rounded-xl font-bold">
           上一步
         </Button>
         <Space>
