@@ -68,7 +68,7 @@ function QuestionStemPanel({
                 <div className="space-y-6 flex-1">
                     <div
                         className="text-lg font-medium text-gray-900 selectable-text"
-                        onMouseUp={onTextSelect}
+                        onMouseUp={(e) => onTextSelect(e, 'question')}
                     >
                         {renderFormattedText(question.question, question.id)}
                     </div>
@@ -87,7 +87,8 @@ function QuestionStemPanel({
 
                     {question.type === 'reading-passage' && question.passage && (
                         <div className="p-4 bg-gray-50 rounded-lg border-l-4 border-red-500">
-                            <div className="prose max-w-none text-gray-700 leading-relaxed text-sm">
+                            <div className="prose max-w-none text-gray-700 leading-relaxed text-sm selectable-text"
+                                 onMouseUp={(e) => onTextSelect(e, 'passage')}>
                                 {renderFormattedText(question.passage, question.id)}
                             </div>
                         </div>
@@ -120,7 +121,8 @@ function QuestionStemPanel({
           {question.hasTable && question.table && (
             <div className="overflow-x-auto">
               {question.table.title && (
-                <div className="mb-4 text-center font-semibold text-gray-900 text-sm">
+                <div className="mb-4 text-center font-semibold text-gray-900 text-sm selectable-text"
+                     onMouseUp={(e) => onTextSelect(e, 'tableTitle')}>
                   {renderFormattedText(question.table.title, question.id, 'tableTitle')}
                 </div>
               )}
@@ -131,7 +133,8 @@ function QuestionStemPanel({
                     {question.table.headers.map((header, index) => (
                       <th
                         key={index}
-                        className="border border-gray-300 px-2 py-1 text-left font-medium text-gray-900"
+                        className="border border-gray-300 px-2 py-1 text-left font-medium text-gray-900 selectable-text"
+                        onMouseUp={(e) => onTextSelect(e, 'tableHeader')}
                       >
                         {renderFormattedText(header, question.id, 'tableHeader')}
                       </th>
@@ -143,11 +146,12 @@ function QuestionStemPanel({
                     <tr key={rowIndex} className="hover:bg-gray-50">
                       {row.map((cell, cellIndex) => (
                         <td
-                          key={cellIndex}
-                          className="border border-gray-300 px-2 py-1 text-gray-700"
-                        >
-                          {renderFormattedText(cell, question.id, 'tableCell')}
-                        </td>
+                        key={cellIndex}
+                        className="border border-gray-300 px-2 py-1 text-gray-700 selectable-text"
+                        onMouseUp={(e) => onTextSelect(e, 'tableCell')}
+                      >
+                        {renderFormattedText(cell, question.id, 'tableCell')}
+                      </td>
                       ))}
                     </tr>
                   ))}

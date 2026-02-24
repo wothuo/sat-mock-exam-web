@@ -19,7 +19,8 @@ function QuestionAnswerPanel({
     <div className="space-y-4">
       {question.followUpQuestion && (
         <div className="mb-6 p-4 bg-red-50 rounded-lg">
-          <div className="font-medium text-gray-900 mb-4">
+          <div className="font-medium text-gray-900 mb-4 selectable-text"
+               onMouseUp={(e) => handleTextSelection(e, 'followUpQuestion')}>
               {renderFormattedText(question.followUpQuestion, question.id, 'followUpQuestion')}
             </div>
         </div>
@@ -39,10 +40,11 @@ function QuestionAnswerPanel({
                 checked={answers[currentQuestion] === option.charAt(1)}
                 onChange={(e) => handleAnswerSelect(e.target.value)}
               />
-              <div className="modern-radio-circle" />
+              <div className="modern-radio-circle" onMouseUp={(e) => e.stopPropagation()} />
             </div>
             <div
               className="radio-text flex-1 selectable-text break-all"
+              onMouseUp={(e) => handleTextSelection(e, 'option')}
             >
               {renderFormattedText(option, question.id, 'option')}
             </div>
@@ -54,7 +56,8 @@ function QuestionAnswerPanel({
 
   const renderStudentProduced = () => (
     <div className="space-y-6">
-      <div className="text-gray-700">
+      <div className="text-gray-700 selectable-text"
+           onMouseUp={(e) => handleTextSelection(e, 'answerFormat')}>
           {renderFormattedText(question.answerFormat, question.id, 'answerFormat')}
         </div>
       <div>
@@ -137,7 +140,8 @@ function QuestionAnswerPanel({
             />
             <div className="modern-radio-circle" />
           </div>
-          <div className="radio-text flex-1">
+          <div className="radio-text flex-1 selectable-text"
+               onMouseUp={(e) => handleTextSelection(e, 'tableOption')}>
               {renderFormattedText(option, question.id, 'tableOption')}
             </div>
         </label>
@@ -150,9 +154,10 @@ function QuestionAnswerPanel({
       <div className="space-y-6">
         {question.description && (
           <div className="mb-6">
-            <div className="text-base text-gray-900 leading-relaxed max-h-48 overflow-y-auto break-all">
-              {renderFormattedText(question.description, question.id, 'description')}
-            </div>
+            <div className="text-base text-gray-900 leading-relaxed max-h-48 overflow-y-auto break-all selectable-text"
+               onMouseUp={(e) => handleTextSelection(e, 'description')}>
+            {renderFormattedText(question.description, question.id, 'description')}
+          </div>
           </div>
         )}
 

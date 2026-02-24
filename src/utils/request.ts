@@ -18,6 +18,60 @@ import { getApiBaseUrl } from './getApiBaseUrl';
 import { navigate } from './router';
 import { clearToken, getToken, isTokenExpired } from './token';
 
+// 防止重复提示登录过期消息的标志
+let isShowingAuthError = false;
+
+// 全局错误消息队列，确保一次只显示一个重要错误
+let errorQueue: Array<{message: string, type: 'auth' | 'server' | 'network' | 'other', priority: number}> = [];
+let isShowingError = false;
+
+// 错误优先级定义
+const ERROR_PRIORITY = {
+  auth: 3,      // 认证错误优先级最高
+  server: 2,    // 服务器错误次之
+  network: 1,   // 网络错误再次
+  other: 0      // 其他错误优先级最低
+};
+
+// 处理错误队列
+const processErrorQueue = () => {
+  if (isShowingError || errorQueue.length === 0) return;
+
+  // 按优先级排序
+  errorQueue.sort((a, b) => b.priority - a.priority);
+
+  // 取优先级最高的错误
+  const error = errorQueue.shift();
+  if (!error) return;
+
+  isShowingError = true;
+  message.error(error.message);
+
+  // 3秒后处理下一个错误
+  setTimeout(() => {
+    isShowingError = false;
+    processErrorQueue();
+  }, 3000);
+};
+
+// 添加错误到队列
+const addErrorToQueue = (errorMessage: string, type: 'auth' | 'server' | 'network' | 'other') => {
+  // 检查是否已存在相同类型且优先级更高的错误
+  const existingHigherPriority = errorQueue.some(e =>
+      e.type === type && e.priority >= ERROR_PRIORITY[type]
+  );
+
+  if (!existingHigherPriority) {
+    errorQueue.push({
+      message: errorMessage,
+      type,
+      priority: ERROR_PRIORITY[type]
+    });
+
+    processErrorQueue();
+  }
+};
+
 const API_BASE_URL = getApiBaseUrl();
 
 // API基础配置
@@ -141,15 +195,29 @@ axiosInstance.interceptors.response.use(
                           isSessionConflictError ||
                           processedResponse.message?.includes('会话已过期') ||
                           processedResponse.message?.includes('登录已过期');
-        
+
         if (isAuthError) {
-          if (isSessionConflictError) {
-            isSessionConflict = true; // 标记为会话冲突
-            message.error('您的账号已在其他设备登录，将被强制退出');
-          } else {
-            message.error('登录已过期，请重新登录');
+          // 防止重复提示
+          if (!isShowingAuthError) {
+            isShowingAuthError = true;
+
+            let errorMessage = '';
+            if (isSessionConflictError) {
+              isSessionConflict = true; // 标记为会话冲突
+              errorMessage = '您的账号已在其他设备登录，将被强制退出';
+            } else {
+              errorMessage = '登录已过期，请重新登录';
+            }
+
+            // 添加到错误队列，优先级最高
+            addErrorToQueue(errorMessage, 'auth');
+
+            // 3秒后重置标志，允许下次再次提示
+            setTimeout(() => {
+              isShowingAuthError = false;
+            }, 3000);
           }
-          
+
           clearToken();
           const currentPath = window.location.hash.replace('#', '') || window.location.pathname;
           if (currentPath !== LOGIN_PATH && !currentPath.endsWith(LOGIN_PATH)) {
@@ -176,19 +244,32 @@ axiosInstance.interceptors.response.use(
       if (status === 401) {
         clearToken();
         const currentPath = window.location.hash.replace('#', '') || window.location.pathname;
-        
-        // 获取错误信息
-        let errorMessage = '登录信息已失效，请重新登录';
-        if (error.response?.data?.message) {
-          errorMessage = error.response.data.message;
+
+        // 防止重复提示
+        if (!isShowingAuthError) {
+          isShowingAuthError = true;
+
+          // 获取错误信息
+          let errorMessage = '登录信息已失效，请重新登录';
+          if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          }
+
+          // 添加到错误队列，优先级最高
+          addErrorToQueue(errorMessage, 'auth');
+
+          // 3秒后重置标志，允许下次再次提示
+          setTimeout(() => {
+            isShowingAuthError = false;
+          }, 3000);
         }
-        
+
         // 跳转到主页
         if (currentPath !== LOGIN_PATH && !currentPath.endsWith(LOGIN_PATH)) {
           navigate('/');
         }
-        
-        const authError = new Error(errorMessage);
+
+        const authError = new Error('登录信息已失效');
         (authError as any).code = 401;
         return Promise.reject(authError);
       }
@@ -197,13 +278,21 @@ axiosInstance.interceptors.response.use(
       if (status === 403) {
         const forbiddenError = new Error('没有权限访问该资源');
         (forbiddenError as any).code = 403;
+
+        // 添加到错误队列，优先级较低
+        addErrorToQueue('没有权限访问该资源', 'other');
+
         return Promise.reject(forbiddenError);
       }
-      
+
       // 404未找到
       if (status === 404) {
         const notFoundError = new Error('请求的资源不存在');
         (notFoundError as any).code = 404;
+
+        // 添加到错误队列，优先级较低
+        addErrorToQueue('请求的资源不存在', 'other');
+
         return Promise.reject(notFoundError);
       }
       
@@ -211,12 +300,17 @@ axiosInstance.interceptors.response.use(
       if (status >= 500) {
         const serverError = new Error('服务器错误，请稍后重试');
         (serverError as any).code = status;
+
+        // 添加到错误队列，优先级次之
+        addErrorToQueue('服务器错误，请稍后重试', 'server');
+
         return Promise.reject(serverError);
       }
       
       // 其他HTTP错误
       const httpError = new Error(`请求失败: ${status} ${statusText}`);
       (httpError as any).code = status;
+      addErrorToQueue(`请求失败: ${status} ${statusText}`, 'other');
       return Promise.reject(httpError);
     }
     
@@ -224,6 +318,7 @@ axiosInstance.interceptors.response.use(
     if (error.code === 'ECONNABORTED' || error.message === 'Network Error') {
       const networkError = new Error('网络错误，请检查网络连接');
       (networkError as any).code = 'NETWORK_ERROR';
+      addErrorToQueue('网络错误，请检查网络连接', 'network');
       return Promise.reject(networkError);
     }
     
@@ -247,7 +342,17 @@ const handleError = (error: any, showError: boolean = true) => {
 
   if (showError && !isCancel) {
     const errorMessage = error?.message || '请求失败，请稍后重试';
-    message.error(errorMessage);
+
+    // 判断错误类型并添加到队列
+    if (errorMessage.includes('登录') || errorMessage.includes('会话') || errorMessage.includes('认证')) {
+      addErrorToQueue(errorMessage, 'auth');
+    } else if (errorMessage.includes('服务器') || errorMessage.includes('服务')) {
+      addErrorToQueue(errorMessage, 'server');
+    } else if (errorMessage.includes('网络') || errorMessage.includes('连接')) {
+      addErrorToQueue(errorMessage, 'network');
+    } else {
+      addErrorToQueue(errorMessage, 'other');
+    }
   }
 
   if (!isCancel) {
