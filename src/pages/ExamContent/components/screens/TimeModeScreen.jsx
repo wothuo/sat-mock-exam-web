@@ -52,7 +52,7 @@ function TimeModeScreen({ timeMode: timeModeProp, setTimeMode }) {
         };
         
         console.log('调用startPractice，参数:', practiceParams);
-        questions = await startPractice(practiceParams);
+        questions = startPractice(practiceParams);
         console.log('获取到题目:', questions);
         
         // 导航到练习页面，传递题目数据

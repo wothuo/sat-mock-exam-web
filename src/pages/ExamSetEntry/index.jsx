@@ -848,6 +848,19 @@ function ExamSetEntry() {
   }
 
   return (
+      // <div className="max-w-6xl mx-auto padding-bottom-1">
+      //   <div className="mb-8">
+      //     <h1 className="text-2xl font-black text-gray-900 m-6">
+      //       {isEditMode ? '编辑套题' : '录入新套题'}
+      //     </h1>
+      //     <div className="flex justify-center">
+      //       <Steps
+      //           current={currentStep}
+      //           className="w-full max-w-xl"
+      //           items={STEP_ITEMS}
+      //       />
+      //     </div>
+      //   </div>
       <div className="max-w-6xl mx-auto padding-bottom-1">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-2xl font-black text-gray-900 m-0">
@@ -857,6 +870,7 @@ function ExamSetEntry() {
             <Steps
                 current={currentStep}
                 className="max-w-2xl"
+                style={{ minWidth: '500px' }}
                 items={STEP_ITEMS}
             />
           </div>
