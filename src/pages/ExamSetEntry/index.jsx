@@ -87,6 +87,7 @@ function ExamSetEntry() {
   const [selectedQuestionId, setSelectedQuestionId] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [activeEditorId, setActiveEditorId] = useState(null);
+  const [isQuestionsReversed, setIsQuestionsReversed] = useState(false);
 
   const [isSectionModalVisible, setIsSectionModalVisible] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
@@ -507,13 +508,25 @@ function ExamSetEntry() {
       status: 1
     };
 
-    setQuestions([...questions, newQuestion]);
+    // 根据当前排序状态决定新题目的位置
+    const updatedQuestions = isQuestionsReversed 
+      ? [newQuestion, ...questions] // 倒序时，新题目添加到数组开头
+      : [...questions, newQuestion]; // 正序时，新题目添加到数组末尾
+    
+    setQuestions(updatedQuestions);
     setSelectedQuestionId(newId);
 
     // 延迟滚动到最新题目
     setTimeout(() => {
       if (questionListRef.current) {
-        questionListRef.current.scrollTop = questionListRef.current.scrollHeight;
+        // 根据当前排序状态决定滚动方向
+        if (isQuestionsReversed) {
+          // 倒序时，新题目在数组开头，所以滚动到顶部
+          questionListRef.current.scrollTop = 0;
+        } else {
+          // 正序时，新题目在数组末尾，所以滚动到底部
+          questionListRef.current.scrollTop = questionListRef.current.scrollHeight;
+        }
       }
     }, 0);
   };
@@ -549,6 +562,15 @@ function ExamSetEntry() {
         setSelectedQuestionId(null);
       }
       return newQuestions;
+    });
+  };
+
+  const toggleQuestionOrder = () => {
+    setIsQuestionsReversed(prev => {
+      const newReversedState = !prev;
+      // 实际反转题目数组顺序
+      setQuestions(prevQuestions => [...prevQuestions].reverse());
+      return newReversedState;
     });
   };
 
@@ -877,10 +899,12 @@ function ExamSetEntry() {
                 isEditMode={isEditMode}
                 questionListRef={questionListRef}
                 questionValidationErrors={questionValidationErrors}
+                isQuestionsReversed={isQuestionsReversed}
                 onAddQuestion={addQuestion}
                 onSelectQuestion={setSelectedQuestionId}
                 onUpdateQuestion={updateQuestion}
                 onRemoveQuestion={removeQuestion}
+                onToggleQuestionOrder={toggleQuestionOrder}
                 onToolbarAction={handleToolbarAction}
                 onRenderMathInPreview={renderMathInPreview}
                 onInsertImage={insertImage}

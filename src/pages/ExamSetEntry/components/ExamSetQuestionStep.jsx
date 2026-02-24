@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import { Alert, Button, Empty, Input, Select, Space, Tag } from 'antd';
 
-import { CheckCircleOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, DeleteOutlined, PlusOutlined, SortAscendingOutlined, SortDescendingOutlined } from '@ant-design/icons';
 
 import {
   INTERACTION_TYPE_ENUM,
@@ -45,10 +45,12 @@ function ExamSetQuestionStep({
   isEditMode,
   questionListRef,
   questionValidationErrors = [],
+  isQuestionsReversed = false,
   onAddQuestion,
   onSelectQuestion,
   onUpdateQuestion,
   onRemoveQuestion,
+  onToggleQuestionOrder,
   onToolbarAction,
   onRenderMathInPreview,
   onInsertImage,
@@ -273,21 +275,37 @@ function ExamSetQuestionStep({
         <div className="w-full md:w-72 flex flex-col bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
           <div className="py-1.5 px-3 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between">
             <span className="font-bold text-gray-900 text-sm">题目索引 ({questions.length})</span>
-            <Button
-              type="primary"
-              size="small"
-              icon={<PlusOutlined />}
-              onClick={onAddQuestion}
-              className="rounded-md bg-blue-600 border-0 font-bold"
-            >
-              添加
-            </Button>
+            <div className="flex items-center space-x-2">
+              <Button
+                type="default"
+                size="small"
+                icon={isQuestionsReversed ? <SortDescendingOutlined /> : <SortAscendingOutlined />}
+                onClick={onToggleQuestionOrder}
+                className="rounded-md font-bold"
+                title={isQuestionsReversed ? "切换为正序" : "切换为倒序"}
+              >
+                {isQuestionsReversed ? "倒序" : "正序"}
+              </Button>
+              <Button
+                type="primary"
+                size="small"
+                icon={<PlusOutlined />}
+                onClick={onAddQuestion}
+                className="rounded-md bg-blue-600 border-0 font-bold"
+              >
+                添加
+              </Button>
+            </div>
           </div>
           <div
             ref={questionListRef}
             className="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar"
           >
             {questions.map((q, index) => {
+              // 根据排序状态计算显示的序号
+              // 正序时：1, 2, 3, 4, 5
+              // 倒序时：5, 4, 3, 2, 1
+              const displayIndex = isQuestionsReversed ? questions.length - index : index + 1;
               const isDeleted = q.delFlag === '1';
               const section = sections.find(s => s.id === q.sectionId);
               const isSectionDeleted = section?.delFlag === '1';
@@ -319,7 +337,7 @@ function ExamSetQuestionStep({
                               : 'bg-gray-200 text-gray-500'
                         }`}
                       >
-                        {isDeleted ? '×' : index + 1}
+                        {isDeleted ? '×' : displayIndex}
                       </span>
                       <Tag color={q.interactionType === INTERACTION_TYPE_ENUM.CHOICE ? 'blue' : 'green'} className="m-0 border-0 text-[9px] font-bold px-1.5 leading-3">
                         {INTERACTION_TYPE_LABELS[q.interactionType] ?? q.interactionType}
