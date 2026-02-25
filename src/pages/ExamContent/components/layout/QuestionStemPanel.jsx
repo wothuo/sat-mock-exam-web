@@ -54,6 +54,16 @@ function QuestionStemPanel({
         img.setAttribute('role', 'button');
         img.setAttribute('title', 'Enlarge');
         img.setAttribute('aria-label', 'Enlarge');
+        if (img.closest('.img-enlarge-wrapper')) return;
+        const wrapper = document.createElement('span');
+        wrapper.className = 'img-enlarge-wrapper inline-block relative align-middle';
+        img.parentNode.insertBefore(wrapper, img);
+        wrapper.appendChild(img);
+        const icon = document.createElement('span');
+        icon.className = 'img-enlarge-icon absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/50 text-white text-xs rounded pointer-events-none';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.innerHTML = '<i class="fas fa-expand"></i>';
+        wrapper.appendChild(icon);
       });
     }, [question]);
 
@@ -145,7 +155,7 @@ function QuestionStemPanel({
                     <img
                       src={img.url}
                       alt={img.alt || `Question image ${imgIndex + 1}`}
-                      className="question-stem-img max-w-full max-h-80 h-auto rounded-lg border border-gray-200 shadow-sm object-contain cursor-pointer transition-all duration-300 hover:shadow-md hover:opacity-95"
+                      className="question-stem-img max-w-full max-h-[100px] h-auto rounded-lg border border-gray-200 shadow-sm object-contain cursor-pointer transition-all duration-300 hover:shadow-md hover:opacity-95"
                       style={{
                         maxWidth: 'min(100%, 600px)',
                         width: 'auto',

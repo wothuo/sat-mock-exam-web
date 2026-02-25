@@ -9,7 +9,14 @@
 
 /* 题目区域图片：限制高度，可点击放大 */
 .question-stem-panel img {
-  max-height: 320px;
+  max-height: 100px;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+/* 答题区域图片：限制高度，可点击放大，带放大图标提示 */
+.question-answer-panel img {
+  max-height: 100px;
   object-fit: contain;
   cursor: pointer;
 }
