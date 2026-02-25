@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { Modal } from 'antd';
 
 function QuestionStemPanel({
                                currentQuestion,
@@ -10,11 +11,54 @@ function QuestionStemPanel({
                                showNotesPanel,
                                setShowNotesPanel
                            }) {
-    // 获取当前题目的备注数量
+    const [previewImageSrc, setPreviewImageSrc] = useState(null);
+    const [clickedImageEl, setClickedImageEl] = useState(null);
+    const contentRef = useRef(null);
+
     const currentNotesCount = Object.entries(notes).filter(([noteId, note]) => note.questionId === currentQuestion).length;
 
+    const handleImageAction = useCallback((e) => {
+      if (e.target.tagName !== 'IMG') return;
+      if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
+        if (e.type === 'keydown') e.preventDefault();
+        setPreviewImageSrc(e.target.src);
+        setClickedImageEl(e.target);
+      }
+    }, []);
+
+    const handleContentClick = useCallback((e) => {
+      if (e.target.tagName === 'IMG') {
+        e.preventDefault();
+        handleImageAction(e);
+      }
+    }, [handleImageAction]);
+
+    const handleContentKeyDown = useCallback((e) => {
+      if (e.target.tagName === 'IMG') handleImageAction(e);
+    }, [handleImageAction]);
+
+    const handleCloseModal = useCallback(() => {
+      const el = clickedImageEl;
+      setPreviewImageSrc(null);
+      setClickedImageEl(null);
+      if (el && typeof el.focus === 'function') {
+        setTimeout(() => el.focus(), 0);
+      }
+    }, [clickedImageEl]);
+
+    useEffect(() => {
+      if (!contentRef.current) return;
+      const imgs = contentRef.current.querySelectorAll('img');
+      imgs.forEach((img) => {
+        img.setAttribute('tabindex', '0');
+        img.setAttribute('role', 'button');
+        img.setAttribute('title', 'Enlarge');
+        img.setAttribute('aria-label', 'Enlarge');
+      });
+    }, [question]);
+
     return (
-        <div className="col-span-1 lg:col-span-4 bg-white rounded-lg p-4 sm:p-6 shadow-sm relative flex flex-col">
+        <div className="question-stem-panel col-span-1 lg:col-span-4 bg-white rounded-lg p-4 sm:p-6 shadow-sm relative flex flex-col">
             {/* 备注图标按钮-禁用 */}
             {/*<button*/}
             {/*    disabled*/}
@@ -65,7 +109,7 @@ function QuestionStemPanel({
             </div>
 
             {question && (
-                <div className="space-y-6 flex-1">
+                <div ref={contentRef} className="space-y-6 flex-1" onClick={handleContentClick} onKeyDown={handleContentKeyDown} role="presentation">
                     <div
                         className="text-lg font-medium text-gray-900 selectable-text"
                         onMouseUp={(e) => onTextSelect(e, 'question')}
@@ -101,7 +145,7 @@ function QuestionStemPanel({
                     <img
                       src={img.url}
                       alt={img.alt || `Question image ${imgIndex + 1}`}
-                      className="max-w-full max-h-96 h-auto rounded-lg border border-gray-200 shadow-sm object-contain transition-all duration-300 hover:shadow-md"
+                      className="question-stem-img max-w-full max-h-80 h-auto rounded-lg border border-gray-200 shadow-sm object-contain cursor-pointer transition-all duration-300 hover:shadow-md hover:opacity-95"
                       style={{
                         maxWidth: 'min(100%, 600px)',
                         width: 'auto',
@@ -161,6 +205,24 @@ function QuestionStemPanel({
           )}
         </div>
       )}
+
+      <Modal
+        open={!!previewImageSrc}
+        onCancel={handleCloseModal}
+        footer={null}
+        centered
+        width="auto"
+        styles={{ body: { padding: 0 } }}
+        aria-label="Question image preview"
+      >
+        {previewImageSrc && (
+          <img
+            src={previewImageSrc}
+            alt="Question image (enlarged)"
+            className="max-w-[90vw] max-h-[90vh] w-auto h-auto object-contain"
+          />
+        )}
+      </Modal>
     </div>
   );
 }

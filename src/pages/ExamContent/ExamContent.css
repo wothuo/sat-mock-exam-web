@@ -7,6 +7,13 @@
   display: inline-block;
 }
 
+/* 题目区域图片：限制高度，可点击放大 */
+.question-stem-panel img {
+  max-height: 320px;
+  object-fit: contain;
+  cursor: pointer;
+}
+
 /* 高亮功能禁用状态样式 */
 #highlight-menu.highlight-disabled {
   background-color: rgba(243, 244, 246, 0.95);
