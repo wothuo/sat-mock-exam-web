@@ -45,15 +45,15 @@ function ReferenceDrawer({ open, onClose }) {
               type="button"
               onClick={handleImageClick}
               className="w-full text-left border-0 p-0 bg-transparent cursor-pointer rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              aria-label="点击查看大图"
+              aria-label="Enlarge"
             >
               <img
                 src={REFERENCE_IMAGE_SRC}
-                alt="SAT 数学公式参考"
+                alt="SAT Math formula reference"
                 className="w-full h-auto object-contain rounded-lg transition-opacity group-hover:opacity-90"
               />
-              <span className="absolute bottom-2 right-2 px-2 py-1 bg-black/50 text-white text-xs rounded transition-opacity group-hover:opacity-100 opacity-70">
-                点击放大
+              <span className="absolute bottom-2 right-2 px-2 py-1 bg-black/50 text-white text-xs rounded transition-opacity group-hover:opacity-100 opacity-70" title="Enlarge">
+                <i className="fas fa-expand" aria-hidden />
               </span>
             </button>
           </div>
@@ -74,11 +74,11 @@ function ReferenceDrawer({ open, onClose }) {
         centered
         width="auto"
         styles={{ body: { padding: 0 } }}
-        aria-label="公式参考图预览"
+        aria-label="Reference image preview"
       >
         <img
           src={REFERENCE_IMAGE_SRC}
-          alt="SAT 数学公式参考大图"
+          alt="SAT Math formula reference (enlarged)"
           className="max-w-[90vw] max-h-[90vh] w-auto h-auto object-contain"
         />
       </Modal>
