@@ -167,9 +167,10 @@ function Header() {
                 <Link to="/login" className="text-gray-600 hover:text-red-600 transition-colors">
                   <span className="btn-primary text-sm hidden sm:inline-block">登录</span>
                 </Link>
-                <Link to="/register" className="btn-primary text-sm hidden sm:inline-block">
-                  注册
-                </Link>
+                {/*注册功能暂不开放*/}
+                {/*<Link to="/register" className="btn-primary text-sm hidden sm:inline-block">*/}
+                {/*  注册*/}
+                {/*</Link>*/}
               </>
             )}
           </div>

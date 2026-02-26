@@ -14,7 +14,7 @@ export function useHighlightAndNotes(currentQuestion, setShowNotesPanel) {
   const [showNoteModal, setShowNoteModal] = React.useState(false);
   const [notePosition, setNotePosition] = React.useState({ x: 0, y: 0 });
   const [expandedNotes, setExpandedNotes] = React.useState(new Set());
-  // 高亮功能开关 - 在此处配置，true为启用，false为禁用
+  // 高亮功能 暂不开放: true为启用, false为禁用
   const isHighlightEnabled = true;
 
   const hideHighlightMenu = useCallback(() => {

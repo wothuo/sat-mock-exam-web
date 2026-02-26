@@ -15,7 +15,7 @@ function QuestionStemPanel({
 
     return (
         <div className="col-span-1 lg:col-span-4 bg-white rounded-lg p-4 sm:p-6 shadow-sm relative flex flex-col">
-            {/* 备注图标按钮-禁用 */}
+            {/* 备注图标按钮 功能暂不开放 */}
             {/*<button*/}
             {/*    disabled*/}
             {/*    className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold bg-gradient-to-br from-gray-200 to-gray-300 text-gray-400 cursor-not-allowed shadow-md"*/}
