@@ -1,6 +1,7 @@
-import React from 'react';
-import { Drawer } from 'antd';
-// import {} from '../../../../components/assetes/examContent/mathReference.png'
+import React, { useState, useCallback } from 'react';
+import { Drawer, Modal } from 'antd';
+
+const REFERENCE_IMAGE_SRC = 'src/components/assetes/examContent/mathReference.png';
 
 const REFERENCE_SHAPES = [
   { shape: 'Circle', formulas: ['A = πr²', 'C = 2πr'], svg: '<circle cx="40" cy="40" r="30" fill="none" stroke="currentColor" stroke-width="2"/><line x1="40" y1="40" x2="70" y2="40" stroke="currentColor" stroke-width="2"/><text x="55" y="35" font-size="10" fill="currentColor">r</text>' },
@@ -16,26 +17,46 @@ const REFERENCE_SHAPES = [
 ];
 
 function ReferenceDrawer({ open, onClose }) {
+  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+
+  const handleImageClick = useCallback(() => setImagePreviewOpen(true), []);
+  const handleClosePreview = useCallback(() => setImagePreviewOpen(false), []);
+
   return (
-    <Drawer
-      title={
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-            <i className="fas fa-shapes text-white" />
+    <>
+      <Drawer
+        title={
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <i className="fas fa-shapes text-white" />
+            </div>
+            <span className="text-xl font-bold text-gray-900">Reference</span>
           </div>
-          <span className="text-xl font-bold text-gray-900">Reference</span>
-        </div>
-      }
-      placement="right"
-      width={520}
-      onClose={onClose}
-      open={open}
-      styles={{ body: { padding: '24px' } }}
-    >
-      <div className="space-y-6">
-        <div>
-          <img src="src/components/assetes/examContent/mathReference.png" alt="image.png" />
-        </div>
+        }
+        placement="right"
+        width={520}
+        onClose={onClose}
+        open={open}
+        styles={{ body: { padding: '24px' } }}
+      >
+        <div className="space-y-6">
+          <div className="relative group">
+            <button
+              type="button"
+              onClick={handleImageClick}
+              className="w-full text-left border-0 p-0 bg-transparent cursor-pointer rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              aria-label="Enlarge"
+            >
+              <img
+                src={REFERENCE_IMAGE_SRC}
+                alt="SAT Math formula reference"
+                className="w-full h-auto object-contain rounded-lg transition-opacity group-hover:opacity-90"
+              />
+              <span className="absolute bottom-2 right-2 px-2 py-1 bg-black/50 text-white text-xs rounded transition-opacity group-hover:opacity-100 opacity-70" title="Enlarge">
+                <i className="fas fa-expand" aria-hidden />
+              </span>
+            </button>
+          </div>
         <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
           <div className="text-sm text-gray-700 space-y-2">
             <p><strong>The number of degrees of arc in a circle is 360.</strong></p>
@@ -45,6 +66,23 @@ function ReferenceDrawer({ open, onClose }) {
         </div>
       </div>
     </Drawer>
+
+      <Modal
+        open={imagePreviewOpen}
+        onCancel={handleClosePreview}
+        footer={null}
+        centered
+        width="auto"
+        styles={{ body: { padding: 0 } }}
+        aria-label="Reference image preview"
+      >
+        <img
+          src={REFERENCE_IMAGE_SRC}
+          alt="SAT Math formula reference (enlarged)"
+          className="max-w-[90vw] max-h-[90vh] w-auto h-auto object-contain"
+        />
+      </Modal>
+    </>
   );
 }
 

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { Modal } from 'antd';
 
 const BLANKS_TYPES = ['BLANK'];
 
@@ -13,6 +14,60 @@ function QuestionAnswerPanel({
   formatText,
   columnClassName = ''
 }) {
+  const [previewImageSrc, setPreviewImageSrc] = useState(null);
+  const [clickedImageEl, setClickedImageEl] = useState(null);
+  const contentRef = useRef(null);
+
+  const handleImageAction = useCallback((e) => {
+    if (e.target.tagName !== 'IMG') return;
+    if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
+      if (e.type === 'keydown') e.preventDefault();
+      setPreviewImageSrc(e.target.src);
+      setClickedImageEl(e.target);
+    }
+  }, []);
+
+  const handleContentClick = useCallback((e) => {
+    if (e.target.tagName === 'IMG') {
+      e.preventDefault();
+      handleImageAction(e);
+    }
+  }, [handleImageAction]);
+
+  const handleContentKeyDown = useCallback((e) => {
+    if (e.target.tagName === 'IMG') handleImageAction(e);
+  }, [handleImageAction]);
+
+  const handleCloseModal = useCallback(() => {
+    const el = clickedImageEl;
+    setPreviewImageSrc(null);
+    setClickedImageEl(null);
+    if (el && typeof el.focus === 'function') {
+      setTimeout(() => el.focus(), 0);
+    }
+  }, [clickedImageEl]);
+
+  useEffect(() => {
+    if (!contentRef.current || !question) return;
+    const imgs = contentRef.current.querySelectorAll('img');
+    imgs.forEach((img) => {
+      img.setAttribute('tabindex', '0');
+      img.setAttribute('role', 'button');
+      img.setAttribute('title', 'Enlarge');
+      img.setAttribute('aria-label', 'Enlarge');
+      if (img.closest('.img-enlarge-wrapper')) return;
+      const wrapper = document.createElement('span');
+      wrapper.className = 'img-enlarge-wrapper inline-block relative align-middle';
+      img.parentNode.insertBefore(wrapper, img);
+      wrapper.appendChild(img);
+      const icon = document.createElement('span');
+      icon.className = 'img-enlarge-icon absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/50 text-white text-xs rounded pointer-events-none';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.innerHTML = '<i class="fas fa-expand"></i>';
+      wrapper.appendChild(icon);
+    });
+  }, [question]);
+
   if (!question) return null;
 
   const renderOptions = () => (
@@ -150,8 +205,8 @@ function QuestionAnswerPanel({
   );
 
   return (
-    <div className={`col-span-1${columnClassName ? ` ${columnClassName}` : ''} bg-white rounded-lg p-4 sm:p-6 shadow-sm flex flex-col`}>
-      <div className="space-y-6">
+    <div className={`question-answer-panel col-span-1${columnClassName ? ` ${columnClassName}` : ''} bg-white rounded-lg p-4 sm:p-6 shadow-sm flex flex-col`}>
+      <div ref={contentRef} className="space-y-6" onClick={handleContentClick} onKeyDown={handleContentKeyDown} role="presentation">
         {question.description && (
           <div className="mb-6">
             <div className="text-base text-gray-900 leading-relaxed max-h-48 overflow-y-auto break-all selectable-text"
@@ -188,6 +243,24 @@ function QuestionAnswerPanel({
           </div>
         </div>
       </div>
+
+      <Modal
+        open={!!previewImageSrc}
+        onCancel={handleCloseModal}
+        footer={null}
+        centered
+        width="auto"
+        styles={{ body: { padding: 0 } }}
+        aria-label="Answer option image preview"
+      >
+        {previewImageSrc && (
+          <img
+            src={previewImageSrc}
+            alt="Enlarged"
+            className="max-w-[90vw] max-h-[90vh] w-auto h-auto object-contain"
+          />
+        )}
+      </Modal>
     </div>
   );
 }
