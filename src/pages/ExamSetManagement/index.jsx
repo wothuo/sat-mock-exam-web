@@ -58,8 +58,7 @@ function ExamSetManagement() {
 
         // 转换数据格式以适配表格
         const transformedData = examList.map(item => ({
-          id: item.examId,
-          taskId: item.examId, // 保持与原代码兼容
+          examId: item.examId, // 统一使用examId作为唯一标识符
           title: item.examName,
           source: item.source,
           totalQuestions: item.questionCount || 0,
@@ -255,8 +254,8 @@ function ExamSetManagement() {
 
   const handleEdit = (record) => {
     console.log('编辑套题:', record);
-    // 使用 navigate 跳转到编辑页面，传递套题 ID（使用 taskId，保持与原代码兼容）
-    navigate(`/exam-set-entry?id=${record.taskId || record.id}`);
+    // 使用 navigate 跳转到编辑页面，传递套题 ID
+    navigate(`/exam-set-entry?id=${record.examId}`);
   };
 
   const handleDelete = async (record) => {
@@ -296,11 +295,11 @@ function ExamSetManagement() {
       onOk: async () => {
         try {
           // 调用后端删除接口
-          const examId = record.examId || record.id || record.taskId;
+          const examId = record.examId;
           await deleteExam(examId);
 
           // 前端更新列表
-          setExamSets(prev => prev.filter(item => (item.examId || item.id || item.taskId) !== examId));
+          setExamSets(prev => prev.filter(item => item.examId !== examId));
           message.success('删除成功');
         } catch (error) {
           console.error('删除套题失败:', error);
@@ -315,14 +314,14 @@ function ExamSetManagement() {
       // 根据开关状态确定要设置的状态值
       // true表示发布，false表示下线
       const status = checked ? 0 : 1; // 根据注释：0-发布，1-下线
-      const examId = record.examId || record.id || record.taskId;
+      const examId = record.examId;
 
       // 调用接口更新状态
       await alterExamStatus({ examId, status });
 
       // 更新本地状态
       setExamSets(prev => prev.map(item =>
-        (item.examId || item.id || item.taskId) === examId
+        item.examId === examId
           ? { ...item, status: checked ? 0 : 1 }
           : item
       ));
@@ -345,13 +344,13 @@ function ExamSetManagement() {
   const handleSaveExamSet = (examSetData) => {
     if (editingExamSet) {
       setExamSets(prev => prev.map(item =>
-        item.id === editingExamSet.id ? { ...item, ...examSetData } : item
+        item.examId === editingExamSet.examId ? { ...item, ...examSetData } : item
       ));
       message.success('套题更新成功');
     } else {
       const newExamSet = {
         ...examSetData,
-        id: Date.now(),
+        examId: Date.now(), // 使用examId作为唯一标识符
         createdAt: new Date().toISOString().split('T')[0],
         status: 'draft'
       };
@@ -363,7 +362,7 @@ function ExamSetManagement() {
 
   const handleSaveSections = (sections) => {
     setExamSets(prev => prev.map(item => {
-      if (item.id === managingSections.id) {
+      if (item.examId === managingSections.examId) {
         const totalQuestions = sections.reduce((sum, s) => sum + s.questions, 0);
         const totalDuration = sections.reduce((sum, s) => sum + s.duration, 0);
         return {
@@ -395,7 +394,7 @@ function ExamSetManagement() {
           <Table
             columns={columns}
             dataSource={examSets}
-            rowKey="taskId"
+            rowKey="examId"
             scroll={{ x: 1400 }}
             pagination={{
               current: pagination.current,
