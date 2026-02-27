@@ -97,7 +97,18 @@ function ExamContent() {
       let questionsData = null;
       let sectionInfo = {};
       
-      if (stateQuestions.questionList && Array.isArray(stateQuestions.questionList)) {
+      if (stateQuestions.sectionList && Array.isArray(stateQuestions.sectionList) && stateQuestions.sectionList.length > 0) {
+        // 套题模考数据格式 {taskId, sectionList: [{sectionCategory, sectionName, sectionTiming, questionList}]}
+        const section = stateQuestions.sectionList[0];
+        questionsData = section.questionList || [];
+        sectionInfo = {
+          taskId: stateQuestions.taskId,
+          sectionCategory: section.sectionCategory,
+          sectionName: section.sectionName,
+          sectionTiming: section.sectionTiming
+        };
+        console.log('使用套题模考数据格式');
+      } else if (stateQuestions.questionList && Array.isArray(stateQuestions.questionList)) {
         // 专项训练数据格式 {taskId, sectionCategory, sectionName, sectionTiming, questionList}
         questionsData = stateQuestions.questionList;
         sectionInfo = {
@@ -137,12 +148,14 @@ function ExamContent() {
             return null;
           }
           
-          // 根据实际数据结构，item 包含嵌套的 question 对象
-          const questionObj = item.question; // 题目数据在 question 字段中
+          // 根据实际数据结构，判断是否有嵌套的 question 对象
+          const hasNestedQuestion = item.question && typeof item.question === 'object';
+          const questionObj = hasNestedQuestion ? item.question : item; // 题目数据可能在 question 字段中或直接在顶层
           
           // 详细调试每个题目的完整数据结构
           console.log(`题目 ${index + 1} 完整数据结构:`, item);
-          console.log(`题目 ${index + 1} 嵌套question对象:`, questionObj);
+          console.log(`题目 ${index + 1} 是否有嵌套question对象:`, hasNestedQuestion);
+          console.log(`题目 ${index + 1} 使用的question对象:`, questionObj);
           console.log(`题目 ${index + 1} 关键字段:`, {
             questionId: questionObj?.questionId,
             questionContent: questionObj?.questionContent,
@@ -251,17 +264,21 @@ function ExamContent() {
         console.log('result 是数组:', Array.isArray(result));
         console.log('result 长度:', Array.isArray(result) ? result.length : 'N/A');
         
-        // 验证数据格式 - 适配直接返回数组的情况
+        // 验证数据格式 - 适配新的接口返回格式
         let questionsData = null;
-        
-        if (Array.isArray(result)) {
-          // 情况1：服务端直接返回题目数组
-          questionsData = result;
-          console.log('使用直接返回的数组作为数据源');
-        } else if (result && result.code === 0 && Array.isArray(result.data)) {
-          // 情况2：标准响应格式 {code: 0, data: [...]}
-          questionsData = result.data;
-          console.log('使用标准响应格式的数据源');
+        let sectionInfo = {};
+
+        if (result && result.sectionList && Array.isArray(result.sectionList) && result.sectionList.length > 0) {
+          // 套题模考 接口返回格式 {taskId, sectionList: [{sectionCategory, sectionName, sectionTiming, questionList}]}
+          const section = result.sectionList[0];
+          questionsData = section.questionList || [];
+          sectionInfo = {
+            taskId: result.taskId,
+            sectionCategory: section.sectionCategory,
+            sectionName: section.sectionName,
+            sectionTiming: section.sectionTiming
+          };
+          console.log('使用新的接口返回格式');
         } else {
           setError(`数据格式错误：无法识别返回的数据结构`);
           console.error('数据格式错误:', result);
@@ -269,14 +286,24 @@ function ExamContent() {
         }
         
         // 转换后端数据格式为前端需要的格式
-        const sectionCategory = getSectionCategory(questionsData[0]);
-        const directions = getDirectionsBySectionType(sectionCategory);
+        let sectionCategory, title, directions;
+        
+        if (sectionInfo.sectionCategory) {
+          sectionCategory = sectionInfo.sectionCategory;
+          title = sectionInfo.sectionName || examTitle;
+          directions = getDirectionsBySectionType(sectionCategory);
+        } else {
+          console.error('新接口返回格式错误：缺少 sectionCategory');
+          setError('数据格式错误：无法识别返回的数据结构');
+          return;
+        }
 
         const transformedData = {
-          title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
+          title,
           totalQuestions: totalQuestions,
           sectionCategory,
           directions,
+          taskId: sectionInfo.taskId, // 保存 taskId 用于后续提交
           questions: questionsData.map((item, index) => {
             // 验证 item 结构
             if (!item || typeof item !== 'object') {
@@ -284,12 +311,14 @@ function ExamContent() {
               return null;
             }
             
-            // 根据实际数据结构，item 包含嵌套的 question 对象
-            const questionObj = item.question; // 题目数据在 question 字段中
+            // 根据实际数据结构，判断是否有嵌套的 question 对象
+            const hasNestedQuestion = item.question && typeof item.question === 'object';
+            const questionObj = hasNestedQuestion ? item.question : item; // 题目数据可能在 question 字段中或直接在顶层
             
             // 详细调试每个题目的完整数据结构
             console.log(`题目 ${index + 1} 完整数据结构:`, item);
-            console.log(`题目 ${index + 1} 嵌套question对象:`, questionObj);
+            console.log(`题目 ${index + 1} 是否有嵌套question对象:`, hasNestedQuestion);
+            console.log(`题目 ${index + 1} 使用的question对象:`, questionObj);
             console.log(`题目 ${index + 1} 关键字段:`, {
               questionId: questionObj?.questionId,
               questionContent: questionObj?.questionContent,

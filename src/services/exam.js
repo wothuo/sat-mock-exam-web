@@ -385,39 +385,36 @@ export const queryExamSectionList = async (params, config = {}) => {
 };
 
 /**
- * 根据套题ID查询题目列表
- * @param {number} sectionId - 套题ID
- * @returns {Promise} 题目列表数据
+ * 套题模考开始作答
+ * @param {number} sectionId - 套题Section ID
+ * @returns {Promise} 套题模考数据
  *
  * @returns {Object} return - 响应结果
- * @returns {number} return.code - 状态码（0-成功，非0-失败）
+ * @returns {number} return.code - 状态码（200-成功，其他-失败）
  * @returns {string} return.message - 响应消息
  *
- * @returns {string} return.data[].answerId - 题目作答ID
- *
- * @returns {Array} return.data - 题目列表数据
- * @returns {Object} return.data[].question - 题目信息实体
- * @returns {number} return.data[].question.questionId - 题目ID
- * @returns {number} return.data[].question.sectionId - 章节ID
- * @returns {string} return.data[].question.questionCategory - 题目分类（阅读/语法/数学）
- * @returns {string} return.data[].question.questionSubCategory - 题目子分类
- * @returns {string} return.data[].question.difficulty - 难度等级
- * @returns {string} return.data[].question.questionType - 题目类型（选择/填空）
- * @returns {string} return.data[].question.questionContent - 题目内容
- * @returns {string} return.data[].question.questionDescription - 问题描述
- * @returns {string} return.data[].question.options - 选项内容（JSON格式）
- * @returns {string} return.data[].question.answer - 正确答案
- * @returns {string} return.data[].question.analysis - 解析
- * @returns {number} return.data[].question.score - 题目分数
- * @returns {number} return.data[].question.status - 状态（0-正常，1-禁用）
- * @returns {number} return.data[].question.delFlag - 删除标志（0-正常，1-已删除）
- * @returns {number} return.data[].question.creatorId - 创建人ID
- * @returns {string} return.data[].question.createTime - 创建时间
- * @returns {string} return.data[].question.updateTime - 更新时间
- *
- * @returns {string} return.data[].sectionName - 套题Section名称
- * @returns {string} return.data[].sectionTiming - 套题Section限时（分钟）
-  */
+ * @returns {Object} return.data - 响应数据
+ * @returns {number} return.data.taskId - 作答题集ID
+ * @returns {Array} return.data.sectionList - 作答Section信息列表
+ * @returns {string} return.data.sectionList[0].sectionCategory - 套题Section分类(阅读语法-SAT_RW/数学-SAT_MATH)
+ * @returns {string} return.data.sectionList[0].sectionName - 套题Section名称
+ * @returns {number} return.data.sectionList[0].sectionTiming - 套题Section限时（分钟）
+ * @returns {Array} return.data.sectionList[0].questionList - 作答题目信息列表
+ * @returns {number} return.data.sectionList[0].questionList[0].answerId - 作答明细ID
+ * @returns {Object} return.data.sectionList[0].questionList[0].question - 题目信息
+ * @returns {number} return.data.sectionList[0].questionList[0].question.questionId - 题目ID
+ * @returns {number} return.data.sectionList[0].questionList[0].question.sectionId - 章节ID
+ * @returns {string} return.data.sectionList[0].questionList[0].question.questionCategory - 题目分类
+ * @returns {string} return.data.sectionList[0].questionList[0].question.questionSubCategory - 题目子分类
+ * @returns {string} return.data.sectionList[0].questionList[0].question.difficulty - 难度等级
+ * @returns {string} return.data.sectionList[0].questionList[0].question.questionType - 题目类型（CHOICE/BLANK）
+ * @returns {string} return.data.sectionList[0].questionList[0].question.questionContent - 题目内容
+ * @returns {string} return.data.sectionList[0].questionList[0].question.questionDescription - 问题描述
+ * @returns {string} return.data.sectionList[0].questionList[0].question.options - 选项内容（JSON格式）
+ * @returns {string} return.data.sectionList[0].questionList[0].question.answer - 正确答案
+ * @returns {string} return.data.sectionList[0].questionList[0].question.analysis - 解析
+ * @returns {number} return.data.sectionList[0].questionList[0].question.score - 题目分数
+ */
 export const answerOfSection = async (sectionId) => {
   // 根据接口文档，直接传递Long类型的sectionId值，不需要JSON对象包装
   const response = await post('/answer/exam/start', sectionId);
