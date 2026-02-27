@@ -181,31 +181,35 @@ export const getSectionListByExamId = async (examId) => {
 };
 
 /**
- * 查询套题Question列表
+ * 根据套题ID查询套题Section Vo列表
  * @param {number} examId - 套题ID
- * @returns {Promise} 套题Question列表数据
- * @returns {Array} return.data - 题目列表数据
+ * @returns {Promise} 套题Section Vo列表数据
+ * @returns {Array} return.data - 套题Section Vo列表数据
  *
- * @returns {Object} return.data[].question - 题目信息对象
- * @returns {number} return.data[].question.questionId - 题目ID
- * @returns {number} return.data[].question.sectionId - 章节ID
- * @returns {string} return.data[].question.questionCategory - 题目分类（阅读/语法/数学）
- * @returns {string} return.data[].question.questionSubCategory - 题目子分类
- * @returns {string} return.data[].question.difficulty - 难度等级
- * @returns {string} return.data[].question.questionType - 题目类型（选择/填空）
- * @returns {string} return.data[].question.questionContent - 题目内容
- * @returns {string} return.data[].question.questionDescription - 问题描述
- * @returns {string} return.data[].question.options - 选项内容，JSON格式：{"A":"xxx","B":"xxx","C":"xxx","D":"xxx"}
- * @returns {string} return.data[].question.answer - 正确答案
- * @returns {number} return.data[].question.score - 题目分数
- * @returns {number} return.data[].question.status - 状态（0-正常，1-禁用）
- * @returns {number} return.data[].question.delFlag - 删除标志（0-正常，1-已删除）
- * @returns {number} return.data[].question.creatorId - 创建人
- * @returns {string} return.data[].question.createTime - 创建时间
- * @returns {string} return.data[].question.updateTime - 更新时间
- *
+ * @returns {string} return.data[].sectionCategory - 套题Section分类(阅读语法-SAT_RW/数学-SAT_MATH)
  * @returns {string} return.data[].sectionName - 套题Section名称
- * @returns {string} return.data[].sectionTiming - 套题Section限时（分钟）
+ * @returns {number} return.data[].sectionTiming - 套题Section限时（分钟）
+ * @returns {Array} return.data[].questionList - 题目信息列表
+ *
+ * @returns {number} return.data[].questionList[].answerId - 作答明细ID（此接口中可能为null）
+ * @returns {Object} return.data[].questionList[].question - 题目信息
+ * @returns {number} return.data[].questionList[].question.questionId - 题目ID
+ * @returns {number} return.data[].questionList[].question.sectionId - 章节ID
+ * @returns {string} return.data[].questionList[].question.questionCategory - 题目分类（阅读-READING/语法-WRITING/数学-MATH）
+ * @returns {string} return.data[].questionList[].question.questionSubCategory - 题目子分类
+ * @returns {string} return.data[].questionList[].question.difficulty - 难度等级（简单-EASY/中等-MEDIUM/困难-HARD）
+ * @returns {string} return.data[].questionList[].question.questionType - 题目类型（CHOICE/BLANK）
+ * @returns {string} return.data[].questionList[].question.questionContent - 题目内容
+ * @returns {string} return.data[].questionList[].question.questionDescription - 问题描述
+ * @returns {string} return.data[].questionList[].question.options - 选项内容（JSON格式）
+ * @returns {string} return.data[].questionList[].question.answer - 正确答案
+ * @returns {string} return.data[].questionList[].question.analysis - 解析
+ * @returns {number} return.data[].questionList[].question.score - 题目分数
+ * @returns {number} return.data[].questionList[].question.status - 状态（0-正常，1-禁用）
+ * @returns {number} return.data[].questionList[].question.delFlag - 删除标志（0-正常，1-已删除）
+ * @returns {number} return.data[].questionList[].question.creatorId - 创建人ID
+ * @returns {string} return.data[].questionList[].question.createTime - 创建时间
+ * @returns {string} return.data[].questionList[].question.updateTime - 更新时间
  * */
 export const getQuestionListByExamId = async (examId) => {
   const response = await post('/question/exam/list', examId);

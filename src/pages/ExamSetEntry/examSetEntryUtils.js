@@ -199,13 +199,33 @@ export function formatSectionListFromApi(sectionListData) {
  * 数据来源：question/exam/list 接口
  * - 科目分类：questionCategory (READING/WRITING/MATH)
  * - 知识点：questionSubCategory (如 READING_VOCAB、MATH_BASIC 等)
- * @param {Array} questionListData
+ * @param {Array} sectionListData 按Section分组的题目数据
  * @param {Array} sections 当前 sections 列表，用于解析 subject
  * @returns {Array}
  */
-export function formatQuestionListFromApi(questionListData, sections) {
-  if (!questionListData || !questionListData.length) return [];
-  return questionListData.map(item => {
+export function formatQuestionListFromApi(sectionListData, sections) {
+  if (!sectionListData || !sectionListData.length) return [];
+  
+  // 将按Section分组的数据扁平化为题目列表
+  const flattenedQuestions = [];
+  
+  sectionListData.forEach(section => {
+    const { sectionCategory, sectionName, sectionTiming, questionList } = section;
+    
+    if (questionList && questionList.length) {
+      questionList.forEach(item => {
+        const { question } = item;
+        flattenedQuestions.push({
+          question,
+          sectionName,
+          sectionCategory,
+          sectionTiming
+        });
+      });
+    }
+  });
+  
+  return flattenedQuestions.map(item => {
     const { question, sectionName } = item;
     const optionsArray = parseQuestionOptions(question.options);
     const section = sections.find(s => s.id === question.sectionId);
