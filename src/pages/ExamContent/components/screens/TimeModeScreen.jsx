@@ -52,8 +52,24 @@ function TimeModeScreen({ timeMode: timeModeProp, setTimeMode }) {
         };
         
         console.log('调用startPractice，参数:', practiceParams);
-        questions = await startPractice(practiceParams);
-        console.log('获取到题目:', questions);
+        const practiceData = await startPractice(practiceParams);
+        console.log('获取到练习数据:', practiceData);
+        
+        // 从新接口返回的数据结构中提取题目和相关信息
+        const { taskId, sectionList } = practiceData;
+        
+        // 提取第一个section的题目列表（专项训练通常只有一个section）
+        const section = sectionList && sectionList.length > 0 ? sectionList[0] : {};
+        const { sectionCategory, sectionName, sectionTiming, questionList } = section;
+        
+        // 构建题目数据，保持与原有格式兼容
+        questions = {
+          taskId,
+          sectionCategory,
+          sectionName,
+          sectionTiming,
+          questionList: questionList || []
+        };
         
         // 导航到练习页面，传递题目数据
         navigate('/practicing', { state: { questions, timeMode: selectedTimeMode } });

@@ -432,6 +432,7 @@ export const answerOfSection = async (sectionId) => {
  * @param {number} finishData.answers[].questionId - 题目ID
  * @param {string} finishData.answers[].userAnswer - 用户作答答案
  * @param {number} finishData.answers[].timeConsuming - 作答耗时（秒）
+ * @param {number} [finishData.taskId] - 作答题集ID（专项训练时需要）
  * @returns {Promise} 提交结果
  *
  * @returns {Object} return - 响应结果
@@ -443,4 +444,3 @@ export const finishAnswer = async (finishData) => {
   const response = await post('/answer/finish', finishData);
   return response.data;
 };
-

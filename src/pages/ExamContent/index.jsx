@@ -93,18 +93,20 @@ function ExamContent() {
 
     // 如果路由状态中已有题目数据，直接使用
     if (stateQuestions && !realExamData) {
-
-      
       // 适配不同格式的题目数据
       let questionsData = null;
-      if (Array.isArray(stateQuestions)) {
-        // 情况1：直接是题目数组
-        questionsData = stateQuestions;
-        console.log('使用直接返回的数组作为数据源');
-      } else if (stateQuestions.code === 0 && Array.isArray(stateQuestions.data)) {
-        // 情况2：标准响应格式 {code: 0, data: [...]}
-        questionsData = stateQuestions.data;
-        console.log('使用标准响应格式的数据源');
+      let sectionInfo = {};
+      
+      if (stateQuestions.questionList && Array.isArray(stateQuestions.questionList)) {
+        // 专项训练数据格式 {taskId, sectionCategory, sectionName, sectionTiming, questionList}
+        questionsData = stateQuestions.questionList;
+        sectionInfo = {
+          taskId: stateQuestions.taskId,
+          sectionCategory: stateQuestions.sectionCategory,
+          sectionName: stateQuestions.sectionName,
+          sectionTiming: stateQuestions.sectionTiming
+        };
+        console.log('使用新的练习数据格式');
       } else {
         setError(`数据格式错误：无法识别返回的数据结构`);
         console.error('数据格式错误:', stateQuestions);
@@ -112,14 +114,22 @@ function ExamContent() {
       }
       
       // 转换后端数据格式为前端需要的格式
-      const sectionCategory = getSectionCategory(questionsData[0]);
-      const directions = getDirectionsBySectionType(sectionCategory);
+      let sectionCategory, title, directions;
+      
+      if (sectionInfo.sectionCategory) {
+        sectionCategory = sectionInfo.sectionCategory;
+        title = sectionInfo.sectionName || examTitle;
+        directions = getDirectionsBySectionType(sectionCategory);
+      } else {
+        console.error('数据格式错误：缺少 sectionCategory 字段');
+      }
 
       const transformedData = {
-        title: questionsData.length > 0 ? questionsData[0].sectionName : examTitle,
+        title,
         totalQuestions: questionsData.length,
         sectionCategory,
         directions,
+        taskId: sectionInfo.taskId, // 保存 taskId 用于后续提交
         questions: questionsData.map((item, index) => {
           // 验证 item 结构
           if (!item || typeof item !== 'object') {
@@ -158,7 +168,7 @@ function ExamContent() {
                 options = parsedOptions.map(option => `(${option.option}) ${option.content || option.text || option.value}`);
               } else if (typeof parsedOptions === 'object') {
                 // 处理对象格式的选项数据
-                options = Object.entries(parsedOptions).map(([key, value]) => `(${key}) ${value}`);
+              options = Object.entries(parsedOptions).map(([key, value]) => `(${key}) ${value}`);
               }
               
               console.log(`题目 ${index + 1} 解析后的选项:`, options);
@@ -583,6 +593,11 @@ function ExamContent() {
       const submitData = {
         answers: []
       };
+      
+      // 如果是练习模式，添加 taskId
+      if (realExamData && realExamData.taskId) {
+        submitData.taskId = realExamData.taskId;
+      }
 
       // 遍历所有题目，构建提交数据
       if (originalServerData && originalServerData.length > 0) {
