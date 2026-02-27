@@ -70,40 +70,15 @@ function QuestionStemPanel({
     return (
         <div className="question-stem-panel col-span-1 lg:col-span-4 bg-white rounded-lg p-4 sm:p-6 shadow-sm relative flex flex-col">
             {/* 备注图标按钮 功能暂不开放 */}
-            {/*<button*/}
-            {/*    disabled*/}
-            {/*    className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold bg-gradient-to-br from-gray-200 to-gray-300 text-gray-400 cursor-not-allowed shadow-md"*/}
-            {/*    title="备注功能已禁用"*/}
-            {/*>*/}
-            {/*    {currentNotesCount > 0 ? (*/}
-            {/*        <span className="relative">*/}
-            {/*            <i className="fas fa-sticky-note"></i>*/}
-            {/*            <span className="absolute -top-2 -right-2 w-5 h-5 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md bg-gradient-to-br from-gray-400 to-gray-500">*/}
-            {/*                {currentNotesCount}*/}
-            {/*            </span>*/}
-            {/*        </span>*/}
-            {/*    ) : (*/}
-            {/*        <i className="fas fa-sticky-note"></i>*/}
-            {/*    )}*/}
-            {/*</button>*/}
-            {/* 备注图标按钮 */}
             <button
-                onClick={() => setShowNotesPanel(!showNotesPanel)}
-                className={`absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold transition-all duration-300 shadow-lg hover:shadow-xl ${
-                    showNotesPanel
-                        ? 'bg-gradient-to-br from-yellow-400 to-orange-400 text-white scale-105'
-                        : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500 hover:from-yellow-100 hover:to-orange-100 hover:text-yellow-600'
-                }`}
-                title={showNotesPanel ? '隐藏备注区域' : '显示备注区域'}
+                disabled
+                className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold bg-gradient-to-br from-gray-200 to-gray-300 text-gray-400 cursor-not-allowed shadow-md"
+                title="备注功能已禁用"
             >
                 {currentNotesCount > 0 ? (
                     <span className="relative">
                         <i className="fas fa-sticky-note"></i>
-                        <span className={`absolute -top-2 -right-2 w-5 h-5 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md ${
-                            showNotesPanel 
-                                ? 'bg-gradient-to-br from-red-500 to-pink-500' 
-                                : 'bg-gradient-to-br from-red-400 to-pink-400'
-                        }`}>
+                        <span className="absolute -top-2 -right-2 w-5 h-5 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md bg-gradient-to-br from-gray-400 to-gray-500">
                             {currentNotesCount}
                         </span>
                     </span>
@@ -111,6 +86,31 @@ function QuestionStemPanel({
                     <i className="fas fa-sticky-note"></i>
                 )}
             </button>
+            {/*备注图标按钮*/}
+            {/*<button*/}
+            {/*    onClick={() => setShowNotesPanel(!showNotesPanel)}*/}
+            {/*    className={`absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold transition-all duration-300 shadow-lg hover:shadow-xl ${*/}
+            {/*        showNotesPanel*/}
+            {/*            ? 'bg-gradient-to-br from-yellow-400 to-orange-400 text-white scale-105'*/}
+            {/*            : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500 hover:from-yellow-100 hover:to-orange-100 hover:text-yellow-600'*/}
+            {/*    }`}*/}
+            {/*    title={showNotesPanel ? '隐藏备注区域' : '显示备注区域'}*/}
+            {/*>*/}
+            {/*    {currentNotesCount > 0 ? (*/}
+            {/*        <span className="relative">*/}
+            {/*            <i className="fas fa-sticky-note"></i>*/}
+            {/*            <span className={`absolute -top-2 -right-2 w-5 h-5 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md ${*/}
+            {/*                showNotesPanel */}
+            {/*                    ? 'bg-gradient-to-br from-red-500 to-pink-500' */}
+            {/*                    : 'bg-gradient-to-br from-red-400 to-pink-400'*/}
+            {/*            }`}>*/}
+            {/*                {currentNotesCount}*/}
+            {/*            </span>*/}
+            {/*        </span>*/}
+            {/*    ) : (*/}
+            {/*        <i className="fas fa-sticky-note"></i>*/}
+            {/*    )}*/}
+            {/*</button>*/}
 
             <div className="pb-4 mb-6">
         <span className="text-sm font-medium text-gray-500">

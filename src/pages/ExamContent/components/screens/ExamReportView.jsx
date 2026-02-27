@@ -9,7 +9,8 @@ function ExamReportView({
   renderFormattedText,
   onExit,
   activeReportTab,
-  setActiveReportTab
+  setActiveReportTab,
+  answerResults
 }) {
   return (
     <div className="min-h-screen bg-[#f3f4f7] pb-20">
@@ -68,11 +69,15 @@ function ExamReportView({
                 <div className="text-xs font-bold text-gray-400 uppercase">Total</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{scores.correct}</div>
+                <div className="text-2xl font-bold text-blue-600">
+                  {answerResults ? answerResults.filter(ar => ar.isCorrect === 1).length : scores.correct}
+                </div>
                 <div className="text-xs font-bold text-gray-400 uppercase">Correct</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-500">{scores.incorrect + scores.omitted}</div>
+                <div className="text-2xl font-bold text-red-500">
+                  {answerResults ? answerResults.filter(ar => ar.isCorrect === 0).length : scores.incorrect + scores.omitted}
+                </div>
                 <div className="text-xs font-bold text-gray-400 uppercase">Incorrect/Omitted</div>
               </div>
             </div>
@@ -108,14 +113,31 @@ function ExamReportView({
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {examData.questions.map((q, idx) => {
-                  // Normalize answers for comparison
-                  const userAnswer = answers[q.id];
-                  const normalizedUserAnswer = typeof userAnswer === 'object' && userAnswer !== null 
-                    ? Object.values(userAnswer).join(', ')
-                    : String(userAnswer || '');
-                  const normalizedCorrectAnswer = String(q.correctAnswer || '');
-                  const isCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
-                  const isOmitted = !userAnswer || (typeof userAnswer === 'object' && Object.values(userAnswer).every(v => !v));
+                  // Find the corresponding answer result from server response
+                  const answerResult = answerResults?.find(ar => ar.questionId === q.originalId);
+                  
+                  // Use server response data if available, otherwise fall back to client-side calculation
+                  let isCorrect, isOmitted, userAnswer;
+                  
+                  if (answerResult) {
+                    // Use server response data
+                    isCorrect = answerResult.isCorrect === 1;
+                    isOmitted = !answerResult.userAnswer;
+                    userAnswer = answerResult.userAnswer;
+                  } else {
+                    // Fall back to client-side calculation
+                    const clientUserAnswer = answers[q.id];
+                    const normalizedUserAnswer = typeof clientUserAnswer === 'object' && clientUserAnswer !== null 
+                      ? Object.values(clientUserAnswer).join(', ')
+                      : String(clientUserAnswer || '');
+                    const normalizedCorrectAnswer = String(q.correctAnswer || '');
+                    isCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
+                    isOmitted = !clientUserAnswer || (typeof clientUserAnswer === 'object' && Object.values(clientUserAnswer).every(v => !v));
+                    userAnswer = typeof clientUserAnswer === 'object' && clientUserAnswer !== null 
+                      ? Object.values(clientUserAnswer).join(', ')
+                      : clientUserAnswer || 'Omitted';
+                  }
+                  
                   return (
                     <tr key={q.id} className="group hover:bg-gray-50 transition-colors">
                       <td className="py-4 font-bold text-gray-700">{idx + 1}</td>
@@ -129,17 +151,13 @@ function ExamReportView({
                         )}
                       </td>
                       <td className={`py-4 font-bold ${isCorrect ? 'text-blue-600' : 'text-red-500'} max-w-[100px] truncate whitespace-nowrap overflow-hidden`}>
-                        {typeof answers[q.id] === 'object' && answers[q.id] !== null ? (
-                            Object.values(answers[q.id]).join(', ')
-                        ) : (
-                            answers[q.id] || 'Omitted'
-                        )}
+                        {userAnswer}
                       </td>
                       <td className="py-4 font-bold text-gray-900 max-w-[100px] truncate whitespace-nowrap overflow-hidden ml-40">{q.correctAnswer || 'N/A'}</td>
 
                       <td className="py-4 ml-40">
                         <span className="text-gray-700 font-medium">
-                          {formatQuestionTime(questionTimes[q.id])}
+                          {answerResult ? formatQuestionTime(answerResult.timeConsuming) : formatQuestionTime(questionTimes[q.id])}
                         </span>
                       </td>
                     </tr>

@@ -51,8 +51,7 @@ function ExamContent() {
   const { examId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  console.log('location', location.state);
-  
+
   // 使用useMemo缓存路由状态，避免无限重渲染
   const { sectionId, examTitle, examDuration, totalQuestions, stateQuestions, stateTimeMode } = useMemo(() => {
     const state = location.state || {};
@@ -71,6 +70,7 @@ function ExamContent() {
   const [originalServerData, setOriginalServerData] = useState(null); // 保存原始服务端数据
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [answerResults, setAnswerResults] = useState(null); // 存储finishAnswer接口返回的答题结果
   
   const hasFetchedRef = React.useRef(false);
   const prevSectionIdRef = React.useRef(sectionId);
@@ -696,6 +696,7 @@ function ExamContent() {
       if (submitData.answers.length > 0) {
         const result = await finishAnswer(submitData);
         console.log('作答提交结果:', result);
+        setAnswerResults(result);
       } else {
         console.warn('没有有效的作答数据需要提交');
       }
@@ -745,6 +746,7 @@ function ExamContent() {
         onExit={() => navigate('/record')}
         activeReportTab={activeReportTab}
         setActiveReportTab={setActiveReportTab}
+        answerResults={answerResults}
       />
     );
   }

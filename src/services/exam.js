@@ -437,9 +437,20 @@ export const answerOfSection = async (sectionId) => {
  * @returns {Promise} 提交结果
  *
  * @returns {Object} return - 响应结果
- * @returns {number} return.code - 状态码（0-成功，非0-失败）
+ * @returns {number} return.code - 状态码（200-成功，其他-失败）
  * @returns {string} return.message - 响应消息
- * @returns {boolean} return.data - 响应数据（true-成功，false-失败）
+ * @returns {Array} return.data - 响应数据，作答明细列表
+ * @returns {number} return.data[].answerId - 作答题集明细ID
+ * @returns {number} return.data[].userId - 用户ID
+ * @returns {number} return.data[].taskId - 作答任务ID
+ * @returns {number} return.data[].questionId - 题目ID
+ * @returns {string} return.data[].userAnswer - 用户答案
+ * @returns {number} return.data[].isCorrect - 是否正确（1-正确，0-错误）
+ * @returns {number} return.data[].timeConsuming - 耗时（秒）
+ * @returns {number} return.data[].delFlag - 删除标志（0-正常，1-已删除）
+ * @returns {string} return.data[].createTime - 创建时间
+ * @returns {string} return.data[].updateTime - 更新时间
+ * @returns {string} return.data[].extInfo - 扩展信息
  */
 export const finishAnswer = async (finishData) => {
   const response = await post('/answer/finish', finishData);

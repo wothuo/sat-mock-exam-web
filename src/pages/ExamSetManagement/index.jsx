@@ -236,16 +236,17 @@ function ExamSetManagement() {
             >
               编辑
             </Button>
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => handleDelete(record)}
-              className="text-red-600 hover:text-red-800 px-2"
-            >
-              删除
-            </Button>
+            {/*暂不开放*/}
+            {/*<Button*/}
+            {/*  type="link"*/}
+            {/*  size="small"*/}
+            {/*  danger*/}
+            {/*  icon={<DeleteOutlined />}*/}
+            {/*  onClick={() => handleDelete(record)}*/}
+            {/*  className="text-red-600 hover:text-red-800 px-2"*/}
+            {/*>*/}
+            {/*  删除*/}
+            {/*</Button>*/}
           </Space>
         </div>
       )

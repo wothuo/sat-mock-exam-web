@@ -63,7 +63,7 @@ function ExamHeader({
                   filter: 'drop-shadow(0 -1px 0 rgb(229 231 235))'
                 }}
               />
-              <div className="absolute left-0 top-full mt-2 z-50 w-[480px] max-h-[70vh] bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col overflow-hidden">
+              <div className="absolute left-0 top-full mt-2 z-50 w-[600px] max-h-[70vh] bg-white border border-gray-200 rounded-lg shadow-lg flex flex-col overflow-hidden">
                 <div className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
                   <div className="text-gray-800 text-base leading-relaxed">
                     {directionsContent}
@@ -150,4 +150,3 @@ function ExamHeader({
 }
 
 export default ExamHeader;
-
