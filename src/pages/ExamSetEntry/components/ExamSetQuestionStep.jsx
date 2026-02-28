@@ -45,7 +45,7 @@ function ExamSetQuestionStep({
   isEditMode,
   questionListRef,
   questionValidationErrors = [],
-  isQuestionsReversed = false,
+  isQuestionsReversed = true,
   onAddQuestion,
   onSelectQuestion,
   onUpdateQuestion,
@@ -413,6 +413,9 @@ function ExamSetQuestionStep({
                               const isChoice = v === INTERACTION_TYPE_ENUM.CHOICE;
                               const isBlank = v === INTERACTION_TYPE_ENUM.BLANK;
                               
+                              // 首先更新题目类型，记录上一次选择的值
+                              onUpdateQuestion(q.id, 'interactionType', v);
+                              
                               // 如果从选择题切换到填空题，且当前答案是A/B/C/D，则清空答案
                               if (isBlank && ['A', 'B', 'C', 'D'].includes(q.correctAnswer)) {
                                 onUpdateQuestion(q.id, 'correctAnswer', '');
@@ -420,10 +423,6 @@ function ExamSetQuestionStep({
                               // 如果从填空题切换到选择题，且当前答案为空，则设置为A
                               else if (isChoice && !q.correctAnswer) {
                                 onUpdateQuestion(q.id, 'correctAnswer', 'A');
-                              } 
-                              // 其他情况，只更新题目类型
-                              else {
-                                onUpdateQuestion(q.id, 'interactionType', v);
                               }
                             }}
                             className="w-full rounded-md"
