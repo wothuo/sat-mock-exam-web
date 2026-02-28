@@ -87,7 +87,13 @@ function ExamSetEntry() {
   const [selectedQuestionId, setSelectedQuestionId] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [activeEditorId, setActiveEditorId] = useState(null);
-  const [isQuestionsReversed, setIsQuestionsReversed] = useState(false);
+  const [isQuestionsReversed, setIsQuestionsReversed] = useState(true);
+  
+  // 记录上一次编辑的题目类型、所属Section、科目分类和知识点
+  const [lastInteractionType, setLastInteractionType] = useState(null);
+  const [lastSectionId, setLastSectionId] = useState(null);
+  const [lastSubjectCategory, setLastSubjectCategory] = useState(null);
+  const [lastQuestionType, setLastQuestionType] = useState(null);
 
   const [isSectionModalVisible, setIsSectionModalVisible] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
@@ -488,22 +494,46 @@ function ExamSetEntry() {
       return;
     }
     const newId = Date.now() * -1;
-    const defaultSection = sections[0];
-    const defaultSubjectCategory = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[defaultSection.subject] || 'READING';
-    const questionTypes = QUESTION_TYPES_BY_CATEGORY[defaultSubjectCategory] || [];
+    
+    // 使用上一次编辑的值作为默认值，如果没有则使用默认值
+    let selectedSection;
+    if (lastSectionId) {
+      selectedSection = sections.find(s => s.id === lastSectionId) || sections[0];
+    } else {
+      selectedSection = sections[0];
+    }
+    
+    const selectedSubjectCategory = lastSubjectCategory || 
+      SECTION_SUBJECT_TO_DEFAULT_CATEGORY[selectedSection.subject] || 'READING';
+    const questionTypes = QUESTION_TYPES_BY_CATEGORY[selectedSubjectCategory] || [];
+    
+    // 确定知识点默认值
+    let defaultType;
+    if (lastQuestionType) {
+      // 检查上次选择的知识点是否适用于当前科目分类
+      const validTypes = QUESTION_TYPES_BY_CATEGORY[selectedSubjectCategory] || [];
+      if (validTypes.includes(lastQuestionType)) {
+        defaultType = lastQuestionType;
+      } else {
+        defaultType = questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0];
+      }
+    } else {
+      defaultType = questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0];
+    }
+    
     const newQuestion = {
       id: newId,
-      sectionId: defaultSection.id,
-      sectionName: defaultSection.name,
-      subject: defaultSection.subject,
-      subjectCategory: defaultSubjectCategory,
-      interactionType: DEFAULT_INTERACTION_TYPE,
-      type: questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0],
+      sectionId: selectedSection.id,
+      sectionName: selectedSection.name,
+      subject: selectedSection.subject,
+      subjectCategory: selectedSubjectCategory,
+      interactionType: lastInteractionType || DEFAULT_INTERACTION_TYPE,
+      type: defaultType,
       difficulty: SECTION_DIFFICULTY_ENUM.MEDIUM,
       content: '',
       description: '',
       options: ['', '', '', ''],
-      correctAnswer: 'A',
+      correctAnswer: lastInteractionType === INTERACTION_TYPE_ENUM.CHOICE ? 'A' : '',
       explanation: '',
       status: 1
     };
@@ -535,17 +565,42 @@ function ExamSetEntry() {
     setQuestions(prev => prev.map(q => {
       if (q.id === id) {
         const updated = { ...q, [field]: value };
-        if (field === 'sectionId') {
-          const targetSection = sections.find(s => s.id === value);
-          if (targetSection) {
-            updated.subject = targetSection.subject;
-            updated.sectionName = targetSection.name;
-            const defaultSubjectCategory = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[targetSection.subject] || 'READING';
-            updated.subjectCategory = defaultSubjectCategory;
-            const questionTypes = QUESTION_TYPES_BY_CATEGORY[defaultSubjectCategory] || [];
-            updated.type = questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0];
+        
+        // 记录上一次编辑的值
+        if (field === 'interactionType') {
+          setLastInteractionType(value);
+        } else if (field === 'sectionId' || field === 'sectionName') {
+          // 处理sectionId或sectionName的更新
+          if (field === 'sectionId') {
+            setLastSectionId(value);
+            const targetSection = sections.find(s => s.id === value);
+            if (targetSection) {
+              updated.subject = targetSection.subject;
+              updated.sectionName = targetSection.name;
+              const defaultSubjectCategory = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[targetSection.subject] || 'READING';
+              updated.subjectCategory = defaultSubjectCategory;
+              const questionTypes = QUESTION_TYPES_BY_CATEGORY[defaultSubjectCategory] || [];
+              updated.type = questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0];
+            }
+          } else if (field === 'sectionName') {
+            // 通过sectionName找到对应的sectionId
+            const targetSection = sections.find(s => s.name === value);
+            if (targetSection) {
+              setLastSectionId(targetSection.id);
+              updated.sectionId = targetSection.id;
+              updated.subject = targetSection.subject;
+              const defaultSubjectCategory = SECTION_SUBJECT_TO_DEFAULT_CATEGORY[targetSection.subject] || 'READING';
+              updated.subjectCategory = defaultSubjectCategory;
+              const questionTypes = QUESTION_TYPES_BY_CATEGORY[defaultSubjectCategory] || [];
+              updated.type = questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0];
+            }
           }
+        } else if (field === 'subjectCategory') {
+          setLastSubjectCategory(value);
+        } else if (field === 'type') {
+          setLastQuestionType(value);
         }
+        
         return updated;
       }
       return q;
