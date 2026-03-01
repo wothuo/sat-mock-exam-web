@@ -89,11 +89,11 @@ function ExamSetEntry() {
   const [activeEditorId, setActiveEditorId] = useState(null);
   const [isQuestionsReversed, setIsQuestionsReversed] = useState(true);
   
-  // 记录上一次编辑的题目类型、所属Section、科目分类和知识点
+  // 记录上一次编辑的题目类型、所属Section、科目分类
   const [lastInteractionType, setLastInteractionType] = useState(null);
   const [lastSectionId, setLastSectionId] = useState(null);
   const [lastSubjectCategory, setLastSubjectCategory] = useState(null);
-  const [lastQuestionType, setLastQuestionType] = useState(null);
+  // 知识点每次初始值都设置为空，不记录上一次编辑的知识点
 
   const [isSectionModalVisible, setIsSectionModalVisible] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
@@ -507,19 +507,8 @@ function ExamSetEntry() {
       SECTION_SUBJECT_TO_DEFAULT_CATEGORY[selectedSection.subject] || 'READING';
     const questionTypes = QUESTION_TYPES_BY_CATEGORY[selectedSubjectCategory] || [];
     
-    // 确定知识点默认值
-    let defaultType;
-    if (lastQuestionType) {
-      // 检查上次选择的知识点是否适用于当前科目分类
-      const validTypes = QUESTION_TYPES_BY_CATEGORY[selectedSubjectCategory] || [];
-      if (validTypes.includes(lastQuestionType)) {
-        defaultType = lastQuestionType;
-      } else {
-        defaultType = questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0];
-      }
-    } else {
-      defaultType = questionTypes[0] ?? QUESTION_TYPES_BY_CATEGORY.READING?.[0];
-    }
+    // 知识点每次初始值都设置为空
+    const defaultType = '';
     
     const newQuestion = {
       id: newId,
@@ -598,7 +587,7 @@ function ExamSetEntry() {
         } else if (field === 'subjectCategory') {
           setLastSubjectCategory(value);
         } else if (field === 'type') {
-          setLastQuestionType(value);
+          // 知识点不记录上一次编辑的值
         }
         
         return updated;

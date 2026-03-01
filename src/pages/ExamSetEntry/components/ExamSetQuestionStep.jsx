@@ -340,7 +340,7 @@ function ExamSetQuestionStep({
                         {isDeleted ? '×' : displayIndex}
                       </span>
                       <Tag color={q.interactionType === INTERACTION_TYPE_ENUM.CHOICE ? 'blue' : 'green'} className="m-0 border-0 text-[9px] font-bold px-1.5 leading-3">
-                        {INTERACTION_TYPE_LABELS[q.interactionType] ?? q.interactionType}
+                        {QUESTION_TYPE_LABELS[q.type] ?? q.type}
                       </Tag>
                     </div>
                     <Tag color={isSectionDeleted ? 'red' : 'purple'} className="m-0 border-0 text-[9px] font-bold px-1 leading-3">
