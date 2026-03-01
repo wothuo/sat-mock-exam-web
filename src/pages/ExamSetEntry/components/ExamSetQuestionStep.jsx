@@ -340,7 +340,12 @@ function ExamSetQuestionStep({
                         {isDeleted ? '×' : displayIndex}
                       </span>
                       <Tag color={q.interactionType === INTERACTION_TYPE_ENUM.CHOICE ? 'blue' : 'green'} className="m-0 border-0 text-[9px] font-bold px-1.5 leading-3">
-                        {QUESTION_TYPE_LABELS[q.type] ?? q.type}
+                        {(() => {
+                          const typeArray = Array.isArray(q.type) ? q.type : (q.type ? q.type.split(',') : []);
+                          const labelArray = typeArray.map(t => QUESTION_TYPE_LABELS[t] || t);
+                          const labelString = labelArray.join(',');
+                          return labelString.length > 8 ? `${labelString.substring(0, 8)}...` : labelString;
+                        })()}
                       </Tag>
                     </div>
                     <Tag color={isSectionDeleted ? 'red' : 'purple'} className="m-0 border-0 text-[9px] font-bold px-1 leading-3">
@@ -493,9 +498,11 @@ function ExamSetQuestionStep({
                       <div>
                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">知识点</label>
                         <Select
-                            value={q.type}
+                            mode="multiple"
+                            value={Array.isArray(q.type) ? q.type : (q.type ? q.type.split(',') : [])}
                             onChange={v => onUpdateQuestion(q.id, 'type', v)}
                             className="w-full rounded-md"
+                            placeholder="请选择知识点（可多选）"
                         >
                           {(QUESTION_TYPES_BY_CATEGORY[q.subjectCategory || SECTION_SUBJECT_TO_DEFAULT_CATEGORY[q.subject]] || []).map(t => (
                             <Option key={t} value={t}>{QUESTION_TYPE_LABELS[t] ?? t}</Option>

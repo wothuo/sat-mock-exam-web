@@ -508,7 +508,7 @@ function ExamSetEntry() {
     const questionTypes = QUESTION_TYPES_BY_CATEGORY[selectedSubjectCategory] || [];
     
     // 知识点每次初始值都设置为空
-    const defaultType = '';
+    const defaultType = [];
     
     const newQuestion = {
       id: newId,
